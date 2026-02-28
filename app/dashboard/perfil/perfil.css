@@ -1,0 +1,848 @@
+/* ===============================
+   🎮 GLOBAL
+================================ */
+.profile-page {
+  width: 1200px;
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: clamp(20px, 4vw, 40px);
+  color: #e5e7eb;
+  box-sizing: border-box; 
+  position: relative;
+  z-index: 2;
+}
+
+.profile-title {
+  font-size: 28px;
+  font-weight: 700;
+  text-align: left;
+  margin: 0px 10px 10px;
+  color: #e5e7eb;
+  cursor: default;
+}
+
+/* ===============================
+   🎮 PROFILE CARD (COM INFO)
+================================ */
+.profile-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 32px;
+  padding: 28px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #14172e, #0f1226);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  box-shadow:
+    0 20px 50px rgba(0,0,0,.55),
+    inset 0 0 0 1px rgba(255,255,255,.03);
+}
+
+.profile-card-left {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+
+.profile-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ===============================
+   👤 NAME + LEVEL 
+================================ */
+
+.profile-name-row {
+  display: flex;                 
+  align-items: center;          
+  gap: 12px;
+  cursor: default;
+}
+
+/* nome sozinho (sem badge aqui) */
+.profile-name {
+  margin: 0;
+  font-size: 38px;
+  font-weight: 900;
+  line-height: 1.1;
+  white-space: nowrap;
+
+  background: linear-gradient(
+    120deg,
+    #ffffff 2%,
+    #b8ffe3 40%,
+    #7b00ff 150%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* badge do level */
+.name-level-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 900;
+  white-space: nowrap;
+  line-height: 1;
+
+  color: #061017;
+  background: linear-gradient(
+    90deg,
+    #8b5cf6 5%,
+    #22d3ee 100%
+  );
+  box-shadow: 0 6px 16px rgba(92, 226, 246, 0.18);
+}
+
+/* estrela */
+.name-level-badge b {
+  color: #f9b300;
+  font-size: 14px;
+  line-height: 1;
+  cursor: default;
+}
+
+.profile-email {
+  font-size: 15px;
+  opacity: .7;
+}
+
+/* INFO EXTRA */
+.profile-extra {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(160px, 1fr));
+  gap: 6px 14px;
+}
+
+.profile-extra span {
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 500;
+  color: #e5e7ebf5;
+}
+
+.profile-extra strong {
+  font-size: 13px;
+  margin-right: 5px;
+  color: #e5e7eb6a;
+}
+
+/* AVATAR */
+.avatar-wrapper {
+  width: 180px;
+  height: 180px;
+  aspect-ratio: 1 / 1;   
+  padding: 4px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b5cf6, #22d3ee);
+  box-shadow: 0 0 40px rgba(139,92,246,.45);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: block; 
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 180px;
+}
+
+.avatar-wrapper img,
+.avatar-fallback {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;   
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b3cf2, #00fff5);
+  display: block;
+  object-fit: cover;
+  font-size: 40px;
+  font-weight: 900;
+}
+
+/* AÇÃO */
+.profile-card-actions {
+  display: flex;
+  align-items: flex-start;
+}
+
+.profile-card-actions a {
+  background: linear-gradient(90deg, #8b5cf6, #22d3ee);
+  color: #0b0e1a;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 10px 30px rgba(139,92,246,.4);
+}
+
+
+/* ===============================
+   ⭐ LEVEL / XP — SINGLE LINE HUD
+================================ */
+
+.level-card {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 12px;
+
+  background: linear-gradient(
+    180deg,
+    rgb(16, 19, 40),
+    rgb(16, 19, 40)
+  );
+  border: 1px solid rgba(138, 92, 246, 0.205);
+  box-shadow:
+    0 8px 22px rgba(2,6,23,0.55),
+    inset 0 1px 6px rgba(255,255,255,0.02);
+}
+
+/* header vira inline */
+.level-header {
+  display: contents; /* 🔥 permite os filhos ocuparem a grid */
+}
+
+/* badge compacto */
+.level-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+  color: #061017;
+  background: linear-gradient(90deg, #8b5cf6, #22d3ee);
+  box-shadow: 0 6px 16px rgba(139,92,246,0.18);
+  cursor: default;
+}
+
+.level-badge b {
+  color: #f9b300;
+  font-size: 14px; 
+}
+
+/* xp text inline */
+.xp-text {
+  font-size: 12px;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+/* XP BAR ocupa o resto */
+.xp-bar {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.45);
+  overflow: hidden;
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.6);
+}
+
+/* fill */
+.xp-bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    #22a7c5 0%,
+    #7ee7b8 70%
+  );
+  transition: width 0.8s cubic-bezier(.2,.85,.2,1);
+  box-shadow: 0 0 12px rgba(34,197,94,0.25);
+  position: relative;
+}
+
+/* % label dentro da barra */
+.xp-fill-label {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(6,16,23,0.85);
+  text-shadow: 0 1px 4px rgba(255,255,255,0.25);
+  pointer-events: none;
+}
+
+/* ===============================
+   🧠 STATS
+================================ */
+
+.profile-stats-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* base card */
+.stat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 18px 18px 18px 18px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgb(21, 25, 59), rgba(0, 0, 0, 0.431));
+  border: 1px solid rgba(255,255,255,0.03);
+  box-shadow: 0 10px 30px rgba(2,6,23,0.55);
+  overflow: hidden;
+  transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+  min-height: 92px;
+}
+
+/* left accent stripe (uses pseudo-element so no HTML change) */
+.stat-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+  background: linear-gradient(180deg, rgba(139,92,246,0.95), rgba(34,211,238,0.95));
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+/* soft accent glow on top */
+.stat-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(139,92,246,0.02), transparent 25%);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+
+/* label and value layout */
+.stat-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.72;
+  color: var(--muted);
+  margin: 0;
+  cursor: default;
+}
+
+.stat-value {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 26px;
+  font-weight: 900;
+  color: #ffffff;
+  margin-top: 8px;
+  margin-left: 2px; /* tiny offset so value doesn't touch the stripe */
+}
+
+/* optional small hint / delta (if you want later) */
+.stat-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.64;
+  color: var(--muted);
+}
+
+/* ===============================
+   ✦ COLOR VARIANTS (stripe + subtle glow)
+   =============================== */
+.stat-card.gold::before {
+  background: linear-gradient(180deg, #facc15, #f59e0b);
+  opacity: 0.24;
+}
+.stat-card.gold .stat-value { color: #fff; }
+
+.stat-card.warning::before {
+  background: linear-gradient(180deg, #fb923c, #f97316);
+  opacity: 0.24;
+}
+.stat-card.warning .stat-value { color: #fff; }
+
+.stat-card.success::before {
+  background: linear-gradient(180deg, #16a34a, #4ade80);
+  opacity: 0.24;
+}
+.stat-card.success .stat-value { color: #fff; }
+
+.stat-card.info::before {
+  background: linear-gradient(180deg, #60a5fa, #3b82f6);
+  opacity: 0.24;
+}
+.stat-card.info .stat-value { color: #fff; }
+
+/* ===============================
+   ✦ SMALL DEVICE TWEAKS
+   =============================== */
+@media (max-width: 520px) {
+  .stat-value { font-size: 22px; }
+  .stat-card { padding: 14px; min-height: 88px; }
+}
+
+/* ===============================
+   ✦ ACCESSIBILITY
+   =============================== */
+/* focus outline for keyboard users */
+.stat-card:focus-within {
+  outline: 3px solid rgba(139,92,246,0.12);
+  outline-offset: 3px;
+}
+
+
+
+/* ===============================
+   🏆 ACHIEVEMENTS
+================================ */
+.achievements-section {
+  margin-top: 20px;
+  max-width: 1000px;   /* 🔥 controla largura */
+  margin-left: auto;
+  margin-right: auto;  /* 🔥 centraliza */
+}
+
+.section-title{
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #e5e7ebd4;
+}
+
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.achievement-card { position: relative;
+  padding: 16px;
+  border-radius: 16px;
+  display: flex;
+  gap: 12px;
+  background: linear-gradient(180deg, #14172e, #0f1226);
+  border: 1px solid rgba(255,255,255,.06);
+  transition: transform .2s ease, box-shadow .2s ease;
+
+  min-height: 120px;
+  align-items: flex-start;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: default;        /* 🔥 impede cursor de texto */
+}
+
+.achievement-card.unlocked {
+  box-shadow: 0 0 25px rgba(139,92,246,.35);
+}
+
+.achievement-card.locked {
+  opacity: .4;
+  filter: grayscale(1);
+}
+
+.achievement-card:hover {
+  transform: translateY(-4px);
+}
+
+.achievement-card p {
+  font-size: 14px;
+  margin-top: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 🔥 máximo 2 linhas */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.achievements-actions {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.btn-show-more {
+  background: linear-gradient(90deg, #8b5cf6, #22d3ee);
+  color: #000000;
+  padding: 5px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: transform .2s ease;
+}
+
+.btn-show-more:hover {
+  transform: translateY(-2px);
+}
+
+.achievement-icon {
+  font-size: 28px;
+}
+
+.achievement-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* descrição ocupa espaço e empurra footer para baixo */
+.achievement-content p {
+  font-size: 12px;
+  margin-top: 6px;
+  flex: 1;
+}
+
+/* Badge XP */
+.achievement-xp {
+  position: absolute;
+  bottom: 14px;
+  right: 16px;
+
+  font-size: 14px;
+  font-weight: 800;
+  padding: 5px 10px;
+  border-radius: 999px;
+  color: #027f8f;
+}
+
+/* ===============================
+   POPUP
+================================ */
+
+
+.xp-popup {
+  position: fixed;
+  top: 84px;
+  right: 24px;
+  background: transparent;
+  color: #00fff7;
+  padding: 14px 22px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 26px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  animation: xpPop 0.4s ease-out, xpFade 0.4s ease-in 2.1s forwards;
+  z-index: 9999;
+}
+
+@keyframes xpPop {
+  from {
+    transform: translateY(-20px) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes xpFade {
+  to {
+    opacity: 0;
+    transform: translateY(-90px) scale(0.4);
+  }
+}
+
+
+
+
+
+/* ========================================
+   📱 MOBILE REAL (até 768px)
+======================================== */
+@media (max-width: 768px){
+
+  .profile-page{
+    width: 100%;
+    max-width: 100%;
+    padding: 20px 14px;
+  }
+
+  .profile-title{
+    text-align: center;
+    margin: 0 0 20px 0;
+  }
+
+  /* =======================
+     PROFILE CARD
+  ======================== */
+
+  .profile-card{
+    grid-template-columns: 1fr; /* 🔥 vira coluna */
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .profile-card-left{
+    flex-direction: column;  /* 🔥 empilha avatar + info */
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .avatar-wrapper{
+    width: 110px;
+    height: 110px;
+  }
+
+  .avatar-wrapper img,
+  .avatar-fallback{
+    font-size: 28px;
+  }
+
+  .profile-name{
+    font-size: 22px;
+    white-space: normal; /* 🔥 permite quebrar */
+  }
+
+  .profile-name-row{
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .profile-email{
+    font-size: 13px;
+  }
+
+  /* INFO EXTRA */
+  .profile-extra{
+    grid-template-columns: 1fr; /* 🔥 1 coluna */
+    text-align: center;
+    gap: 6px;
+  }
+
+  .profile-extra span{
+    white-space: normal; /* 🔥 remove quebra forçada */
+    font-size: 14px;
+  }
+
+  /* BOTÃO */
+  .profile-card-actions{
+    width: 100%;
+  }
+
+  .profile-card-actions a{
+    width: 100%;
+    text-align: center;
+  }
+
+  /* =======================
+     LEVEL CARD
+  ======================== */
+
+  .level-card{
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .xp-text{
+    justify-self: center;
+  }
+
+  .xp-bar{
+    height: 12px;
+  }
+
+  /* =======================
+     STATS
+  ======================== */
+
+  .profile-stats-grid{
+    grid-template-columns: 1fr; /* 🔥 1 card por linha */
+  }
+
+  /* =======================
+     ACHIEVEMENTS
+  ======================== */
+
+  .achievements-grid{
+    grid-template-columns: 1fr; /* 🔥 1 por linha */
+  }
+
+  .achievement-card{
+    min-height: auto;
+  }
+
+  /* =======================
+     XP POPUP
+  ======================== */
+
+  .xp-popup{
+    right: 50%;
+    transform: translateX(50%);
+    top: 70px;
+    font-size: 20px;
+  }
+
+}/* ========================================
+   📱 MOBILE REAL (até 768px)
+======================================== */
+@media (max-width: 768px){
+
+    .profile-page{
+      width: 100%;
+      max-width: 100%;
+      padding: 20px 14px;
+    }
+
+    .profile-title{
+      text-align: center;
+      margin: 0 0 20px 0;
+    }
+
+    /* =======================
+      PROFILE CARD
+    ======================== */
+
+    .profile-card{
+      grid-template-columns: 1fr;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .profile-card-left{
+      flex-direction: column; 
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+    }
+
+    .avatar-wrapper{
+      width: 180px;
+      height: 180px;
+    }
+
+    .avatar-wrapper img,
+    .avatar-fallback{
+      font-size: 28px;
+    }
+
+    .profile-name{
+      font-size: 22px;
+      white-space: normal;
+    }
+
+    .profile-name-row{
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .profile-email{
+      font-size: 13px;
+    }
+
+    /* INFO EXTRA */
+    .profile-extra{
+      grid-template-columns: 1fr;
+      text-align: center;
+      gap: 6px;
+    }
+
+    .profile-extra span{
+      white-space: normal;
+      font-size: 14px;
+    }
+
+    /* BOTÃO */
+    .profile-card-actions{
+      width: 100%;
+    }
+
+    .profile-card-actions a{
+      width: 100%;
+      text-align: center;
+    }
+
+    /* =======================
+      LEVEL CARD
+    ======================== */
+
+   
+  .level-card{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  /* Header volta a ser bloco normal */
+  .level-header{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Badge centralizado */
+  .level-badge{
+    text-align: center;
+  }
+
+  .level-badge b {
+    color: #f9b300;
+    font-size: 14px; 
+  }
+
+  /* Barra ocupa largura total */
+  .xp-bar{
+    width: 100%;
+    height: 18px;
+  }
+
+  /* Texto XP fica embaixo */
+  .xp-text{
+    order: 3;
+    margin-top: 4px;
+    font-size: 13px;
+    opacity: 0.6;
+    text-align: center;
+  }
+
+    /* =======================
+      STATS
+    ======================== */
+
+    .profile-stats-grid{
+      grid-template-columns: 1fr; /* 🔥 1 card por linha */
+    }
+
+    /* =======================
+      ACHIEVEMENTS
+    ======================== */
+
+    .achievements-grid{
+      grid-template-columns: 1fr; /* 🔥 1 por linha */
+    }
+
+    .achievement-card{
+      min-height: auto;
+    }
+
+    /* =======================
+      XP POPUP
+    ======================== */
+
+    .xp-popup{
+      right: 50%;
+      transform: translateX(50%);
+      top: 70px;
+      font-size: 20px;
+    }
+    
+    .achievement-card { 
+      position: relative;
+      padding: 16px;
+      gap: 12px;
+      min-height: 120px;
+      width: 100%;
+  }
+}

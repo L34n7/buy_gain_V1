@@ -1,0 +1,194 @@
+.admin-resgates-page {
+  padding: 24px;
+  animation: fadeIn 1.3s ease;
+
+}
+
+.admin-resgates-page h2 {
+  display: flex;
+  justify-content:center; 
+  align-items: flex-start;
+  margin-bottom: 20px;  
+  font-size: 36px;  
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  color: #d4dded;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(20, 20, 20, 0.6);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+}
+
+.admin-table th {
+  background: rgba(255, 255, 255, 0.05);
+  font-weight: 600;
+}
+
+.muted {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.btn-processar {
+  background: #22c55e;
+  color: #000;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-processar:hover {
+  background: #16a34a;
+}
+
+/* MODAL */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50; 
+}
+
+.modal {
+  background: #111;
+  padding: 28px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.modal h3 {
+  margin-bottom: 14px;   
+  font-size: 30px;  
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: #5ed8ae;}
+
+.modal p span {
+  margin-bottom: 12px;   
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  font-size: 13px;
+  color: #ffffff5f;
+}
+
+.modal p  {
+  margin-bottom: 12px;   
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  font-size: 20px;
+  color: #dbdbdbfe;
+}
+
+
+.modal label {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  
+}
+
+.modal input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #000;
+  color: #fff;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.btn-cancelar {
+  background: #374151;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+.btn-confirmar {
+  background: #22c55e;
+  color: #000;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+/* =========================
+   PREVIEW FINANCEIRO
+========================= */
+
+.saldo-preview {
+  margin: 16px 0 20px;
+  padding: 16px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #0f172a, #020617);
+  border: 1px solid #1e293b;
+  font-size: 14px;
+}
+
+.saldo-preview .linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.saldo-preview .linha span {
+  color: #94a3b8;
+}
+
+.saldo-preview .linha strong {
+  font-size: 18px;
+  letter-spacing: 0.3px;
+}
+
+/* cores semânticas */
+
+.saldo-antes strong {
+  color: #22c55e; /* verde */
+}
+
+.saldo-resgate strong {
+  color: #ef4444; /* vermelho */
+}
+
+.saldo-depois strong {
+  color: #06e7fc; /* azul suave */
+}
+
+.saldo-preview .divider {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    #334155,
+    transparent
+  );
+  margin: 12px 0;
+}

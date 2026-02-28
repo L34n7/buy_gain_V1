@@ -1,0 +1,387 @@
+/* historico.css — baseado em compras.css (layout unificado) */
+
+
+.historico-root {
+  padding-bottom: 40px;
+  animation: fadeIn 1.3s ease;
+}
+
+/* Card principal */
+.historico-card {
+  position: relative;
+}
+
+/* Conteúdo */
+.historico-content {
+  padding: 58px;
+}
+
+/* Header */
+.historico-header {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 6px;
+}
+
+.historico-title {
+  font-size: 36px;
+  margin: -40px 0px 0px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  color: #eaebede8;
+  cursor: default;
+}
+
+.historico-subtitle {
+  margin: 0px 0px 10px;
+  color: rgba(255,255,255,0.55);
+  font-size: 16px; 
+  text-align: center;
+  cursor: default;
+}
+
+.historico-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.historico-total {
+  font-weight: 400;
+  color: #fafafa92;
+  font-size: 16px;
+  cursor: default;
+}
+
+/* Wrapper da tabela */
+.historico-table-wrapper {
+  margin-top: 18px;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.04);
+  background: linear-gradient(
+    180deg,
+    rgba(0,0,0,0.059),
+    rgba(0,0,0,0.239));
+  padding: 12px;
+}
+
+/* Tabela */
+.historico-table {
+  width: 97%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  min-width: 880px;
+}
+
+/* Head */
+.historico-table thead th {
+  font-size: 16px;
+  padding: 14px 16px;
+  color: #07dce7;
+  font-weight: 700;
+  text-align: left;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  cursor: default;
+}
+
+/* Colunas */
+.col-produto { width: 30%; }
+.col-link { width: 25%;   
+    white-space: normal;        /* permite quebrar linha */
+    word-break: break-word;     /* quebra palavras longas */
+    overflow-wrap: anywhere;    /* quebra em qualquer ponto se necessário */}
+.col-valor { width: 10%; text-align: right; }
+.col-ganho { width: 11%; text-align: right; }
+.col-data { width: 16%; text-align: center; }
+.col-acoes { width: 10%; text-align: center; }
+
+/* Rows */
+.historico-row td {
+  padding: 16px 16px;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+/* Produto */
+.product-cell .product-title {
+  font-weight: 500;
+  font-size: 15px;
+  color: #d2d2d2;
+  margin-bottom: 6px;
+}
+
+.product-cell .product-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  word-break: break-all;
+}
+
+/* Valores */
+.numeric-cell-VALOR {
+  font-size: 16px;
+  font-weight: 600;
+  color: #d7d7d7;
+}
+
+.numeric-cell-GANHO {
+  font-size: 18px;
+  font-weight: 700;
+  color: #9df7e8;
+}
+
+/* Data */
+.date-cell {
+  font-size: 15px;
+  color: rgba(255,255,255,0.8);
+}
+
+/* Links */
+.historico-table a {
+  color: #7aa2ff;
+  text-decoration: none;
+}
+
+.historico-table a:hover {
+  text-decoration: underline;
+}
+
+/* Ações */
+.actions-cell {
+  text-align: center;
+}
+
+.actions-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* Botões — reutiliza o padrão premium */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 800;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.btn-primary {
+  background: linear-gradient(120deg,#8b3cf2,#572dff76);
+  color: #fff;
+  border: none;
+}
+
+.btn-secondary {
+  background: linear-gradient(120deg,#3c0847b7,#220ce42b);
+  color: #fff;
+  border: 1px solid rgba(94,94,94,0.2);
+}
+
+
+.pagination {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  cursor: default;
+}
+
+.pagination button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: linear-gradient(120deg,#8b3cf2,#572dff76);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 14px;
+  color: #e6eef8;
+}
+
+
+
+/* =========================
+   HISTÓRICO — RESPONSIVO (mobile)
+   Cole no final de historico.css
+   ========================= */
+
+html, body {
+  overflow-x: hidden; /* evita estouro horizontal */
+}
+
+/* reduz padding geral em telas pequenas */
+@media (max-width: 768px) {
+
+  .historico-content {
+    padding: 15px; /* menos espaçamento que desktop */
+  }
+
+  .historico-title {
+    font-size: 24px;
+    font-weight: 800;
+    text-align: center;
+    margin: 5px 0px 0px 0px;
+  }
+
+  .historico-subtitle {
+    font-size: 13px;
+    font-weight: 400;
+    margin-bottom: 12px;
+  }
+
+  .historico-meta {
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: -15px; 
+  }
+
+  .historico-total {
+    font-size: 11px;
+  }
+
+  /* tabela -> cards */
+  .historico-table-wrapper {
+    margin-top: 12px; 
+    padding: 8px;
+    overflow-x: hidden; /* evita scroll horizontal no wrapper */
+  }
+
+  .historico-table {
+    width: 100%;
+    min-width: unset;
+    border-collapse: separate;
+  }
+
+  .historico-table thead {
+    display: none; /* esconde cabeçalho no mobile */
+  }
+
+  .historico-table tbody {
+    display: block;
+  }
+
+  .historico-table tr {
+    display: block;
+    background: linear-gradient(180deg, rgba(6,8,20,0.6), rgba(8,12,24,0.6));
+    border: 1px solid rgba(255,255,255,0.03);
+    padding: 12px;
+    margin-bottom: 18px;
+    border-radius: 12px;
+    box-shadow: 0 10px 24px rgba(2,6,23,0.45);
+  }
+
+  /* cada célula vira uma linha interna do card */
+  .historico-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 6px 10;
+    border: none;
+    font-size: 14px;
+    color: #dfe9f6;
+    gap: 12px;
+  }
+
+  /* ordem visual dos campos dentro do card */
+  .historico-row .col-produto  { order: 1; width: 100%; display: block; }
+  .historico-row .col-link     { order: 2; width: 100%; display: block; margin-top: 6px; }
+  .historico-row .col-valor    { order: 3; width: 100%; }
+  .historico-row .col-ganho    { order: 4; width: 100%; }
+  .historico-row .col-data     { order: 5; width: 100%; }
+  .historico-row .col-acoes    { order: 6; width: 100%; margin-top: 8px; }
+
+  /* LABELS antes do valor (exceto produto e link) */
+  .historico-table td::before {
+    font-weight: 700;
+    color: #9fb0c2;
+    padding-right: 10px;
+    white-space: nowrap;
+    font-size: 12px;
+    flex: 0 0 auto;
+  }
+
+  /* não mostrar label para produto e link (eles já têm semântica visual) */
+  .historico-row .col-produto::before { content: ""; display: none; }
+  .historico-row .col-link::before { content: ""; display: none; }
+
+  /* labels para os outros campos */
+  .historico-row .col-valor::before { content: "Valor"; }
+  .historico-row .col-ganho::before { content: "Ganho estimado"; }
+  .historico-row .col-data::before { content: "Criado em"; }
+  .historico-row .col-acoes::before { content: "Ações"; }
+
+  /* Estiliza produto e link para ficar como no modelo anterior */
+  .historico-row .col-produto {
+    font-size: 15px;
+    font-weight: 700;
+    color: #e6eef8;
+    margin-bottom: 6px;
+  }
+
+  .historico-row .col-link a {
+    display: block;
+    font-size: 13px;
+    color: #7aa2ff;
+    text-decoration: none;
+    word-break: break-word;
+    opacity: 0.95;
+  }
+  .historico-row .col-link a:hover { text-decoration: underline; }
+
+  /* alinhar label + conteúdo: label à esquerda (pseudo) e valor à direita */
+  .historico-row .col-valor,
+  .historico-row .col-ganho,
+  .historico-row .col-data {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+/* ===== BOTÕES LADO A LADO NO MOBILE ===== */
+
+.historico-row .actions-row {
+  display: flex;
+  flex-direction: row;   /* agora horizontal */
+  gap: 15px;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+.historico-row .actions-row .btn {
+  flex: 1;              /* divide igualmente */
+  padding: 8px 8px;
+  font-size: 13px;
+  border-radius: 8px;
+}
+
+  /* destaque cores para pontos/valor */
+  .pts-credito, .mov-credito { color: #22c55e !important; font-weight: 700; }
+  .pts-debito, .mov-debito { color: #ef4444 !important; font-weight: 700; }
+  .saldo { font-weight: 700; color: #e6eef8; }
+
+  /* Data em fonte menor e tom mais claro */
+  .historico-row .date-cell { color: #b9c7d4; font-size: 13px; }
+
+  /* ajuste final do container para evitar overflow por padding */
+  .historico-card, .historico-content {
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+}

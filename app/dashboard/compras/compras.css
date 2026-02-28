@@ -1,0 +1,665 @@
+/* compras.css - estilo premium para a página Compras
+   Combinei paleta neon roxo/ciano com vidro escuro e sombras suaves.
+   Mantive a tipografia do dashboard e criei componentes limpos.
+*/
+
+/* Root específico para esta tela (ajusta espaçamento geral) */
+.compras-root {
+  animation: fadeIn 1.3s ease;
+  margin-top: -20px
+}
+
+/* Card principal */
+.compras-card {
+  max-width: 2400px;
+  margin: 0 auto;
+  border-radius: 16px;
+  overflow: visible;
+
+}
+
+/* Conteúdo com espaçamento diferenciado */
+.compras-content {
+  padding: 8px;
+}
+
+/* Header com título + meta */
+.compras-header {
+  display: flex;
+  justify-content:center; 
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 1px;
+}
+
+.compras-title {
+  display:flex; 
+  justify-content:center; 
+  font-size:36px; 
+  margin: -5px 0px 0px 0px ; 
+  font-weight: 800; 
+  color:#ffffffd7;
+  cursor: default; 
+}
+
+.compras-subtitle {
+  margin: 0px 0px 10px;
+  color: rgba(255,255,255,0.55);
+  font-size: 16px; 
+  text-align: center;
+  cursor: default;
+}
+
+.compras-meta { display:flex; align-items:center; gap:12px; }
+.compras-total { font-weight:400; color: #fafafa92; font-size:16px; cursor: default; }
+
+/* wrapper responsivo da tabela */
+.table-wrapper {
+  margin-top: 18px;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.04);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.059), rgba(0, 0, 0, 0.239));
+  padding: 12px;
+}
+
+/* tabela com layout fixo para evitar quebra */
+.compras-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  min-width: 880px; /* garante scroll horizontal em mobile */ 
+}
+
+/* HEAD */
+.compras-table thead th {
+  font-size: 16px;
+  padding: 14px 16px;
+  color: #07dce7;
+  font-weight: 700;
+  text-align: left;
+  letter-spacing: 0.2px;
+  border-bottom: 1px solid rgba(255,255,255,0.03); cursor: default;
+}
+
+/* controlar colunas por classes */
+.col-produto { width: 25%; }
+.col-status { width: 18%; }
+.col-valor { width: 9%; text-align: right; }
+.col-ganho { width: 8%; text-align: right; }
+.col-data-evento { width: 7%; text-align: center; }
+.col-data-update { width: 12%; text-align: center; }
+.col-acoes { width: 12%; text-align: center; }
+
+/* ROW */
+.compras-row td {
+  padding: 16px 16px;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+/* PRODUCT */
+.product-cell .product-title { font-weight: 500; font-size: 15px; color: #d2d2d2; margin-bottom:6px; }
+.product-cell .product-sub { font-size: 13px; color: rgba(255,255,255,0.55); word-break: break-all; }
+
+/* VALOR */
+.numeric-cell-VALOR { font-size: 16px; text-align: left; font-weight: 600; color: #d7d7d7; }
+
+/* GANHO */
+.numeric-cell-GANHO {font-size: 18px; text-align: left; font-weight: 700; color: #9df7e8; }
+
+/* DATE */
+.date-cell { font-size: 16px; text-align: left; color: rgba(255,255,255,0.8); }
+
+/* ACTIONS */
+.actions-cell { text-align: center; }
+
+/* actions-row - botões alinhados */
+.actions-row { display:flex; gap:10px; justify-content:center; align-items:center; }
+
+/* empty cell placeholder */
+.empty-cell { opacity: 0.5; color: rgba(255,255,255,0.7); }
+
+/* ============================
+   STATUS BADGES (cores por status)
+   - usa base .status-badge e variações .status-<STATUS>
+   - mantém contraste e acessibilidade
+   ============================ */
+.status-badge {
+  display:inline-block;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.2px;
+  color: #031018;
+  background: linear-gradient(90deg,#8a3cf2,#00fff5);
+  box-shadow: 0 8px 30px rgba(138,60,242,0.08);
+}
+
+/* variações específicas */
+.status-EM_ANALISE { background: linear-gradient(90deg, rgba(0, 238, 255, 0.998), rgba(139, 60, 242, 0.752)); color: #000000; }
+.status-AGUARDANDO_CONFIRMACAO { background: linear-gradient(90deg, rgb(250, 200, 0), rgba(255, 128, 0, 0.356)); color: #f7f3e4; }
+.status-SOLICITAR_PROVA { background: linear-gradient(90deg, rgba(255, 119, 0, 0.933), rgba(255, 30, 0, 0.453)); color: #ffffff; }
+.status-ANALISE_MANUAL { background: linear-gradient(90deg, rgba(209, 2, 255, 0.994), rgba(69, 2, 251, 0.978)); color: #000000; }
+.status-CONFIRMADO_PELO_USUARIO { background: linear-gradient(90deg, rgb(0, 255, 136), rgb(0, 225, 255)); color: #000000; }
+.status-AGUARDANDO_RESPOSTA_CANCELADO { background: linear-gradient(90deg, rgba(244, 9, 36, 0.561), rgba(46, 5, 5, 0.323)); color: #ffffff; }
+.status-CONFIRMADO_FINAL { background: linear-gradient(90deg, rgba(17, 244, 9, 0.561) 20%, rgb(0, 248, 190)); color: #ffffff; }
+.status-CANCELADO_DEFINITIVO { background: linear-gradient(90deg, rgba(244, 9, 9, 0.438), rgb(248, 0, 0)); color: #ffffff; }
+.status-DESCARTADO { background: linear-gradient(90deg, rgba(255, 255, 255, 0.544), rgba(255, 255, 255, 0.1)); color: #f6efd397; }
+
+/* ============================
+   BOTÕES (padronizados)
+   ============================ */
+.btn {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+}
+
+/* primary CTA */
+.btn-primary, .btn-cta {
+  background: linear-gradient(120deg,#8b3cf2,#572dff76);
+  color: #fff;
+  border: none;
+  box-shadow: 0 12px 40px rgba(138,60,242,0.16);
+  font-size: 16px;
+  font-weight: 700;
+  padding: 12px 20px;
+}
+.btn-primary:hover, .btn-cta:hover { transform: translateY(-3px); }
+
+/* secondary / outline */
+.btn-secondary, .btn-ghost {
+  background: linear-gradient(120deg,#3c0847b7,#220ce42b);
+  color: #fff;
+  border: 1px solid rgba(94, 94, 94, 0.197);
+  font-size: 16px;
+  font-weight: 700;
+  padding: 12px 20px;
+}
+.btn-ghost { opacity: 0.95; }
+
+/* small variations */
+.btn-cta { padding: 14px 28px; font-size: 16px; border-radius: 12px; }
+/* ============================
+   MODAL PREMIUM (overlay + card)
+   ============================ */
+
+/* fundo com blur + escurecimento elegante */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(138,60,242,0.15), transparent 40%),
+    linear-gradient(rgba(2, 3, 10, 0.682), rgba(2,3,10,0.85));
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 32px;
+}
+
+/* card principal */
+.modal-card {
+  width: 100%;
+  max-width: 980px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(14, 10, 40, 0.734),
+      rgba(8, 4, 26, 0.831)
+    );
+  border-radius: 18px;
+  padding: 40px 44px;
+  border: 1px solid rgba(138,60,242,0.35);
+
+  box-shadow:
+    0 40px 120px rgba(3, 12, 36, 0.85),
+    0 0 60px rgba(138,60,242,0.25);
+
+  animation: modalFadeIn 420ms cubic-bezier(.22,1,.36,1);
+}
+
+/* animação suave de entrada */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ============================
+   HEADER
+   ============================ */
+.modal-header {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: right;
+  margin-bottom: 20px;
+}
+
+.modal-title {
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  margin: 0;
+  background: linear-gradient(90deg, #03ffffdc, #05aa8fe9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.55);
+  font-size: 22px;
+  cursor: pointer;
+  transition: color 120ms ease, transform 120ms ease;
+}
+.modal-close:hover {
+  color: #fff;
+  transform: scale(1.08);
+}
+
+/* linha sutil abaixo do header */
+.modal-header::after {
+  content: "";
+    position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: block;
+  height: 1px;
+  width: 100%;
+  margin-top: 8px;
+  background: linear-gradient(
+    90deg,
+    rgba(138,60,242,0.6),
+    rgba(0,255,245,0.2),
+    transparent
+  );
+}
+
+/* ============================
+   DESCRIÇÃO
+   ============================ */
+.modal-desc {
+  font-size: 17px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.85);
+  margin: -10px 0 28px;
+  line-height: 1.55;
+  max-width: 820px;
+}
+
+/* ============================
+   LABEL + TEXTAREA
+   ============================ */
+.modal-label-descricao {
+  display: block;
+  font-weight: 500;
+  font-size: 16px;
+  color: #e6c9ff;
+  margin-bottom: 8px;
+}
+
+.modal-textarea {
+  width: 100%;
+  min-height: 50px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(138,60,242,0.45);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(130, 0, 251, 0.18),
+      rgba(80, 0, 180, 0.12)
+    );
+  color: #fff;
+  font-size: 15px;
+  line-height: 1.5;
+  resize: vertical;
+
+  box-shadow:
+    inset 0 6px 20px rgba(0,0,0,0.45),
+    0 0 0 rgba(0,0,0,0);
+
+  transition: border 160ms ease, box-shadow 160ms ease;
+}
+
+.modal-textarea::placeholder {
+  color: rgba(255,255,255,0.45);
+}
+
+.modal-textarea:focus {
+  outline: none;
+  border-color: #9b63e4;
+  box-shadow:
+    inset 0 6px 20px rgba(0,0,0,0.45),
+    0 0 20 4px rgba(138,60,242,0.25);
+}
+
+/* ============================
+   FILE INPUT (CUSTOM LOOK)
+   ============================ */
+.modal-file {
+  margin-top: 22px;
+  padding: 18px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.127);
+}
+
+.modal-label-file {
+  display: block;
+  font-weight: 500;
+  font-size: 16px;
+  color: #e6c9ff;
+  margin-bottom: -15px;
+  margin-top: 8px;
+}
+
+.modal-file input[type="file"] {
+  width: 100%;
+  color: rgba(255,255,255,0.85);
+  font-size: 14px;
+}
+
+/* ============================
+   ACTIONS (BOTÕES)
+   ============================ */
+.modal-actions {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 36px;
+}
+
+/* botão principal */
+.modal-actions .btn-cta {
+  padding: 16px 36px;
+  font-size: 20px;
+  font-weight: 700;
+  border-radius: 14px;
+    background: linear-gradient(120deg,#8b3cf2,#572dff76);
+
+  box-shadow: 0 0px 40px rgba(139, 60, 242, 0.335);
+
+}
+
+/* ============================
+   RESPONSIVO
+   ============================ */
+@media (max-width: 980px) {
+  .modal-card {
+    padding: 26px;
+    max-width: 94%;
+  }
+
+  .modal-title {
+    font-size: 28px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+}
+
+
+
+
+/* ============================
+   TOOLTIP DE STATUS (PREMIUM)
+   ============================ */
+
+.status-tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* balão escondido */
+.status-tooltip-content {
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+
+  min-width: 260px;
+  max-width: 320px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(20, 16, 45, 0.98),
+    rgba(12, 8, 28, 0.95)
+  );
+  border: 1px solid rgba(138, 60, 242, 0.35);
+  border-radius: 12px;
+  padding: 14px 16px;
+
+  font-size: 14px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.9);
+
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.6),
+    0 0 30px rgba(138, 60, 242, 0.25);
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+  z-index: 20;
+}
+
+/* seta do balão */
+.status-tooltip-content::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+
+  border-width: 8px;
+  border-style: solid;
+  border-color: rgba(12, 8, 28, 0.95) transparent transparent transparent;
+}
+
+/* hover ativa tooltip */
+.status-tooltip:hover .status-tooltip-content {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* prazo abaixo do badge */
+.status-prazo {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+
+/* PRAZO */
+
+.status-previsao div:first-child {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-previsao div:last-child {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+
+
+/* =====================================================
+   RESPONSIVO MOBILE REAL (TRANSFORMA TABELA EM CARDS)
+===================================================== */
+
+@media (max-width: 768px) {
+
+  .compras-root {
+    margin-top: -5px
+  }
+
+  /* Reduz padding geral */
+  .compras-content {
+    padding: 6px;
+  }
+
+  .compras-title {
+    font-size: 22px;
+    font-weight: 200px;
+    text-align: center;
+  }
+
+  .compras-subtitle {
+    margin: 0px 0px 10px;
+    color: rgba(255,255,255,0.55);
+    font-size: 12px; 
+    text-align: center;
+  }
+
+  .compras-meta {
+    justify-content: center;
+    margin-bottom: -15px;
+  }
+
+  .compras-total {
+    font-size: 11px;
+  }
+
+  /* Remove min-width para evitar scroll */
+  .compras-table {
+    display: flex;
+    min-width: unset;
+  }
+
+  /* Esconde cabeçalho */
+  .compras-table thead {
+    display: none;
+  }
+
+  /* Cada linha vira um card */
+  .compras-table tr {
+    display: block;
+    margin-bottom: 18px;
+    padding: 16px;
+    border-radius: 14px;
+    background: linear-gradient(
+      180deg,
+      rgba(14, 10, 40, 0.9),
+      rgba(8, 4, 26, 0.95)
+    );
+    border: 1px solid rgba(138,60,242,0.25);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+  }
+
+  .compras-table td:not(.product-cell) {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    text-align: right;
+    padding: 8px 0;
+    border: none;
+    font-size: 14px;
+  }
+
+  /* Remove label global */
+  .compras-table td::before {
+    font-weight: 600;
+    color: #07dce7;
+    padding-right: 10px;
+  }
+
+  .product-cell {
+    display: block !important;
+    text-align: left !important;
+    margin-bottom: 10px;
+  }
+
+  .product-cell .product-title {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  .product-cell .product-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    word-break: break-all;
+    display: block;
+  }
+
+  /* ✅ Apenas esses terão label */
+  .numeric-cell-VALOR::before {
+    content: "Valor";
+  }
+
+  .numeric-cell-GANHO::before {
+    content: "Ganho";
+  }
+
+  .compras-row td.date-cell:nth-child(5)::before {
+    content: "Data";
+  }
+
+  .compras-row td.date-cell:nth-child(6)::before {
+    content: "Atualização";
+  }
+
+  .actions-cell::before {
+    content: "Ações";
+  }
+
+  /* Botões empilhados */
+  .actions-row {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  /* Tooltip desativa no mobile */
+  .status-tooltip-content {
+    display: none;
+  }
+
+  /* Ajuste modal */
+  .modal-card {
+    padding: 20px;
+    max-width: 100%;
+  }
+
+  .modal-title {
+    font-size: 22px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions .btn-cta {
+    width: 100%;
+  }
+}

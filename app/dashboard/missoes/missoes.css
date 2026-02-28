@@ -1,0 +1,420 @@
+:root{
+  --bg: #0f1221;
+  --panel: rgba(255,255,255,0.03);
+  --glass: rgba(255,255,255,0.04);
+  --accent-a: #00ff77; /* coral */
+  --accent-b: #dcdcdc; /* azul */
+  --muted: rgba(255,255,255,0.6);
+  --text: #f6f7fb;
+  --success: #2bd48a;
+  --danger: #ff6b6b;
+  --card-radius: 14px;
+  --gap: 0px;
+  --shadow-soft: 0 12px 40px rgba(3,6,20,0.6);
+}
+
+.missoes-root .dashboard-content {
+  padding: 0;
+}
+
+/* ROOT */
+.missoes-root{
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(180deg, rgba(9, 10, 20, 0.518), rgba(12, 14, 26, 0.502));
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: var(--text);  cursor: default;
+}
+
+/* Main card */
+.missoes-card{
+  width: 90%;               
+  max-width: 1800px;          
+  margin: -35px auto;          
+  border-radius: 18px;
+  position: relative;
+  animation: fadeIn .8s ease;
+
+}
+
+/* subtle decorative shape */
+.dashboard-glow{
+  position: absolute;
+  left: -80px;
+  top: -70px;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle at 30% 30%, rgba(91,140,255,0.12), transparent 30%),
+              radial-gradient(circle at 70% 70%, rgba(255,122,89,0.08), transparent 30%);
+  filter: blur(28px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* content area */
+.missoes-content{
+  position: relative;
+  z-index: 2;
+  display: flex;          /* 🔥 muda de grid para flex */
+  flex-direction: column; /* 🔥 empilha tudo vertical */
+  gap: 0px;
+}
+
+/* Header (spans both columns) */
+.missoes-header{
+  grid-column: 1 / -1;
+  display:flex;
+  flex-direction: column;
+  align-items: center;   /* 🔥 centraliza horizontal */
+  justify-content: center;
+  text-align: center;    /* 🔥 centraliza texto */
+}
+
+.missoes-title{
+  font-size: 36px;
+  font-weight: 800;
+  margin: 20px;
+  letter-spacing: -0.4px;
+  color: #ffffffe0;
+}
+.missoes-subtitle{
+  margin: -20px 0px 40px 0px;
+  color: #ffffffbb;
+  font-size: 16px;
+}
+
+/* LEFT: missions list container */
+.missoes-grid{
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-right: 6px;
+}
+
+/* CARD — a nova aparência
+   - left accent strip
+   - content badge area
+*/
+.missao-card{
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.193), rgba(255,255,255,0.005));
+  border-radius: 12px;
+  padding: 16px 18px 16px 30px;
+  margin: 0px 40px;
+  border: 1px solid rgba(255, 255, 255, 0.098);
+  position: relative;
+  overflow: hidden;
+  transition: transform 220ms cubic-bezier(.2,.9,.3,1), box-shadow 220ms ease;
+  min-height: 96px;
+}
+
+/* accent stripe */
+.missao-card::before{
+  content: "";
+  width: 8px;
+  height: 100%;
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--accent-a), var(--accent-b));
+  flex: 0 0 8px;
+  margin-right: 12px;
+  display: inline-block;
+}
+
+/* rearrange children */
+.missao-info{
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.missao-info h3{
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.missao-info p{
+  margin: 6px 0 0 0;
+  color: #00adf1;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* rewards block: compact pill group */
+.missao-recompensa{
+  display:flex;
+  gap: 8px;
+  margin-top: 8px;
+  align-items:center;
+}
+
+.xp-m, .pontos-m{
+  font-weight: 700;
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.031);
+  border: 1px solid rgba(255,255,255,0.02);
+}
+
+.xp-m { color: #00ffff; }
+.pontos-m { color: rgb(1, 255, 128) }
+
+/* action area (right) - vertical stack */
+.missao-acoes{
+  display:flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: 150px;
+}
+
+/* primary CTA: ghost style */
+.missao-acoes a.btn,
+.missao-acoes .btn-primary{
+  background: linear-gradient(90deg, #8a5cf6da, #22d3eeba);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 10px 14px;
+  margin: 0px 100px;
+  border-radius: 10px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: transform 120ms ease, background 120ms ease;
+}
+.missao-acoes a.btn:hover,
+.missao-acoes .btn-primary:hover{
+  transform: translateY(-3px);
+  background: linear-gradient(90deg, #8b5cf6, #22d3ee);
+}
+
+/* concluded badge — pill with subtle glow */
+.missao-concluida{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  background: linear-gradient(90deg, rgba(43,212,138,0.06), rgba(91,140,255,0.02));
+  color: var(--success);
+  padding: 10px 12px;
+  margin: 0px 100px;
+  border-radius: 10px;
+  font-weight: 900;
+  border: 1px solid rgba(43,212,138,0.08);
+  font-size: 16px;
+}
+
+/* small line under for date */
+.missao-data{
+  font-size: 12px;
+  color: rgba(255,255,255,0.66);
+  margin-top: 6px;
+}
+
+/* hover lift */
+.missao-card:hover{
+  transform: translateY(-px) scale(1.01);
+  box-shadow: 0 30px 70px rgba(2,6,24,0.6);
+}
+
+/* =================================================
+   BLOCKED (EM_BREVE) — style diferente do anterior:
+   - card opaco com diagonal ribbon "EM BREVE"
+   ================================================= */
+.missao-bloqueada{
+  opacity: 0.64;
+  filter: grayscale(40%);
+  pointer-events: none;
+  position: relative;
+}
+
+/* ribbon diagonal */
+.missao-bloqueada::after{
+  content: "EM BREVE";
+  position: absolute;
+  right: -20px;
+  top: 14px;
+  transform: rotate(20deg);
+  background: linear-gradient(90deg, rgba(255,122,89,0.95), rgba(91,140,255,0.95));
+  color: #fff;
+  font-weight: 900;
+  font-size: 11px;
+  padding: 8px 46px;
+  border-radius: 3px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  z-index: 25;
+  letter-spacing: 1.2px;
+}
+
+/* alternative overlay (keeps subtle info) */
+.missao-overlay{
+  position: absolute;
+  inset: 0;
+  z-index: 22;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+  color: #fff;
+  font-weight: 900;
+  font-size: 14px;
+  background: linear-gradient(180deg, rgba(6,8,15,0.4), rgba(6,8,15,0.6));
+  backdrop-filter: blur(3px);
+}
+
+/* small badge top-left (optional) */
+.missao-badge{
+  position: absolute;
+  left: 12px;
+  top: 10px;
+  background: rgba(0,0,0,0.35);
+  padding: 6px 10px;
+  color: #fff;
+  font-weight: 800;
+  font-size: 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.03);
+  z-index: 30;
+}
+
+/* RIGHT column — info / novidades / progresso */
+.missoes-sidebar{
+  background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+  border-radius: 12px;
+  padding: 18px;
+  border: 1px solid rgba(255,255,255,0.03);
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* novidades-card (right) */
+.novidades-card{
+  margin-top: 20px;
+  border-radius: 12px;
+  padding: 18px;
+  margin: 20px 45px;
+  background: linear-gradient(90deg, rgba(4, 253, 166, 0.03), rgba(142, 0, 251, 0.038));
+  border: 1px solid rgba(255,255,255,0.04);
+  color: #ffffff;
+  font-size: 18px;
+  text-align: center;
+  cursor: default;
+}
+
+.novidades-card h3{
+  opacity: 0.4;
+}
+
+.novidades-card p{
+  margin-top: 2px;
+  font-size: 14px;
+  opacity: 0.4;
+}
+
+/* =========================================
+   MOBILE REAL (até 768px)
+========================================= */
+@media (max-width: 768px){
+
+  .missoes-root{
+    padding: 20px;
+  }
+
+  .missoes-card{
+    width: 100%;
+    margin: -10px auto;
+  }
+
+  .missoes-title{
+    font-size: 24px;
+    margin: -5;
+  }
+
+  .missoes-subtitle{
+    margin: 4px 0 26px 0;
+    font-size: 14px;
+  }
+
+  .missoes-grid{
+    gap: 14px;
+    padding-right: 0;
+  }
+
+  .missao-card{
+    flex-direction: column;       /* 🔥 empilha */
+    align-items: flex-start;
+    gap: 12px;
+    margin: 0;                    /* 🔥 remove margem lateral */
+    padding: 16px;
+  }
+
+  .missao-card::before{
+    display: none;                /* remove faixa lateral */
+  }
+
+  .missao-info h3{
+    font-size: 16px;
+    white-space: normal;          /* 🔥 permite quebrar linha */
+  }
+
+  .missao-info p{
+    font-size: 13px;
+  }
+
+  .missao-recompensa{
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .xp, .pontos{
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+
+  .missao-acoes{
+    width: 100%;
+    align-items: stretch;         /* botão ocupa largura total */
+    min-width: auto;
+  }
+
+  .missao-acoes a.btn,
+  .missao-acoes .btn-primary{
+    width: 100%;
+    margin: 0;                    /* 🔥 remove margem 100px */
+    text-align: center;
+  }
+
+  .missao-concluida{
+    width: 100%;
+    margin: 0;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .missao-data{
+    text-align: center;
+  }
+
+  .novidades-card{
+    margin: 20px 0;
+    font-size: 14px;
+    padding: 14px;
+  }
+
+  .dashboard-glow{
+    display: none;
+  }
+
+}

@@ -1,0 +1,236 @@
+.extrato-page .dashboard-container {
+  width: 100%;
+  max-width: 100%;
+}
+
+.extrato-page {
+  width: 100%;
+}
+
+.extrato-page.dashboard-card {
+  width: 100%;
+  max-width: 1500px; /* ajuste aqui */
+  margin: 0 auto;
+}
+
+.extrato-page h2 {
+  display: flex;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: 800;
+  margin: -10px 0px 36px;
+  letter-spacing: 0.4px;
+  color: #eaebedf2;
+  cursor: default; 
+}
+
+.extrato-table {
+  width: 100%;
+  min-width: 100%;
+  border-collapse: collapse;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.264), rgba(0, 0, 0, 0.059));
+
+}
+
+.extrato-table th,
+.extrato-table td {
+  padding: 15px 12px 12px;
+  border-bottom: 1px solid #1e293b84;
+  font-size: 16px;  
+}
+
+.extrato-table th {
+  color: #acc2c5;
+  text-align: left; 
+  cursor: default;
+}
+
+.mov-credito {
+  color: #22c55e;
+  font-weight: bold;
+}
+
+.mov-debito {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+.pts-credito {
+  color: #22c55e;   
+  font-weight: bold;
+
+}
+
+.pts-debito {
+  color: #ef4444; 
+  font-weight: bold;
+}
+
+.saldo {
+  font-weight: 600;
+}
+
+.extrato-filtros {
+  display: flex;
+  justify-content: right;
+  gap: 14px;
+  margin-bottom: 20px; 
+  opacity: 0.8;
+
+}
+
+.filtros-atalhos {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filtros-atalhos button {
+  background: #1f2937;
+  color: #e5e7eb;
+  border: 1px solid #374151;
+  padding: 5px 14 5;
+  margin: 20px 0 0;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.filtros-atalhos button:hover {
+  background: #374151;
+}
+
+.filtros-data {
+  font-size: 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap; 
+} 
+
+.filtros-data label {
+  font-size: 12px;
+  color: #9ca3af;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.filtros-data input {
+  background: #111827;
+  color: #e5e7eb;
+  border: 1px solid #374151;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.btn-filtrar {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-filtrar:hover {
+  background: #1d4ed8;
+}
+
+
+/* =========================
+   RESPONSIVO: EXTRATO MOBILE
+   Cole no final de extrato.css
+   ========================= */
+@media (max-width: 768px) {
+
+  .extrato-page h2 {
+    font-size: 24px;
+    margin: -10px 0px -10px 0px;
+  }
+
+  .extrato-page p { 
+    font-size: 14px; 
+  }
+
+  /* 🔥 AGORA ESCOPADO */
+  .extrato-page .dashboard-container { 
+    padding: 20px 0px 100px; 
+  }
+
+  .extrato-page.dashboard-card {
+    padding: 0px;
+    border-radius: 12px;
+    width: 308px;
+    max-width: 100%; /* 🔥 não use 320px */
+    margin: 0 auto;
+  }
+
+  .extrato-page {
+    width: 100%;
+    margin: 0;
+  }
+
+  .extrato-page .extrato-filtros {
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;   
+  }
+
+  .extrato-page .filtros-atalhos {
+    gap: 6px;
+    margin: 10px 0px 10px 0px;
+  }
+
+  .extrato-page .filtros-atalhos button {
+    padding: 6px 10px;
+    font-size: 12px;
+    border-radius: 16px;
+  }
+
+  .extrato-page .filtros-data {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .extrato-page .btn-filtrar {
+    grid-column: span 2;
+    width: 310px;
+    margin-top: 4px;
+  }
+
+  .extrato-page .filtros-data input {
+    width: 98%;
+    box-sizing: border-box;
+    margin: 0px 0px 10px 0px;
+
+  }
+
+  /* 🔥 REMOVIDO html, body */
+
+  /* tabela mobile */
+  .extrato-page .extrato-table {
+    width: 100%;
+  }
+
+  .extrato-page .extrato-table thead {
+    display: none;
+  }
+
+  .extrato-page .extrato-table tr {
+    display: block;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+  }
+
+  .extrato-page .extrato-table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+  }
+
+}

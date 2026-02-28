@@ -1,0 +1,49 @@
+:root {
+  --brand-gradient: linear-gradient(90deg, #00eaff, #8b5cf6, #ff00ff);
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.15);
+}
+
+body {
+  background: #0f0f11;
+  color: white;
+  font-family: var(--font-geist-sans);
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 20px;
+  backdrop-filter: blur(12px);
+}
+
+
+/* Gradiente animado dentro do texto */
+.gradient-title {
+  background: linear-gradient(
+    90deg,
+    #cfcfcf,
+    #ffffff,
+    #d0d0d0,
+    #bfbfbf
+  );
+  background-size: 300%;
+  animation: shineMove 6s ease-in-out infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 1.5px;
+}
+
+/* Animação que movimenta o gradiente */
+@keyframes shineMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

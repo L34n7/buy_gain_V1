@@ -1,0 +1,135 @@
+/* ===========================
+   AUTH FOOTER CORPORATIVO
+=========================== */
+
+.auth-footer {
+  width: 100%;
+  background: #0d0d18;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 40px 20px 20px 20px;
+  color: rgba(255,255,255,0.75);
+  font-size: 15px;
+  cursor: default;
+  margin: 0 auto;
+}
+
+.auth-footer-content {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  padding: 20px 10px;
+  flex-wrap: wrap; 
+}
+
+.auth-footer-left {
+  max-width: 350px;
+}
+
+/* ===========================
+   FOOTER BRAND ALIGN
+=========================== */
+
+.auth-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: -30px 0px 0px -12px;
+}
+
+.auth-footer-brand img {
+  height: 66px;
+  opacity: 0.5;
+  filter: grayscale(60%);
+  transition: 0.3s ease;
+}
+
+.auth-footer-brand img:hover {
+  opacity: 0.6;
+  filter: grayscale(30%);
+}
+
+.auth-footer-brand h4 {
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+
+.auth-footer-left h4 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #ffffffc1;   
+  margin-bottom: -10px;
+}
+
+.auth-footer-left p {
+  opacity: 0.7;
+  line-height: 1.6;
+}
+
+.auth-footer-badges {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.auth-footer-links {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auth-footer-links a {
+  color: rgb(3, 133, 158);
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.auth-footer-links a:hover {
+  color: rgb(0, 213, 255);
+}
+
+.auth-footer-social p {
+  margin-bottom: 7px;
+  font-weight: 500;
+}
+
+.social-icons {
+  display: flex;
+  gap: 8px;
+}
+
+.social-icons img {
+  width: 38px;
+  opacity: 0.7;
+  transition: 0.2s ease;
+}
+
+.social-icons img:hover {
+  opacity: 1;
+}
+
+.auth-footer-copy {
+  margin-top: 30px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  text-align: center;
+  font-size: 14px;
+  opacity: 0.5;
+}
+
+
+@media (max-width: 768px) {
+
+  .auth-footer-content {
+    padding: 30px 16px; /* menos padding lateral */
+
+  }
+
+}
