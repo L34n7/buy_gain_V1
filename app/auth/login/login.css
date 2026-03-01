@@ -10,7 +10,7 @@
   align-items: center;
   padding: 40px;
   color: #fff;
-  cursor: default;
+  cursor: default; 
 }
 
 /* CARD — Glass + Neon suave */
@@ -306,9 +306,12 @@ span{
 ========================================= */
 @media (max-width: 768px){
 
+.login-card {
+  margin-top: -40px;
+}
 
   .login-wrapper{
-    flex-direction: column;   /* 🔥 empilha logo + card */
+    flex-direction: column;   /*c 🔥 empilha logo + card */
     align-items: center;      /* centraliza horizontal */
     justify-content: flex-start;
     padding: 150px 16px 30px;
@@ -316,6 +319,7 @@ span{
 
   .login-logo-wrapper {
     position: absolute;
+
     top: 0px;
     left: 50%;
     transform: translateX(-50%);
@@ -323,7 +327,7 @@ span{
   }
 
   .login-logo{
-    height: 85px;
+    height: 85px; 
   }
 
   .login-card{

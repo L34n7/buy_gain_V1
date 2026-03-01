@@ -199,6 +199,7 @@
   justify-content: center;
   z-index: 9999;
   padding: 20px; 
+  overscroll-behavior: contain;
 }
 
 /* MODAL - header (h2) + área .label-content dividida */
@@ -321,7 +322,28 @@
   /* 🔥 CONTROLE DA LARGURA */
   max-width: 78%;   /* ajuste aqui */
   backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
 
+
+/* botão ler mais */
+.ler-mais-btn {
+  position: relative;
+  z-index: 4;
+  margin-top: 6px;
+  background: none;
+  border: none;
+  color: #8a5cff;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+    background: linear-gradient(90deg, #8a5cff, #00f0ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.ler-mais-btn:hover {
+  text-decoration: underline;
 }
 
 
@@ -558,9 +580,14 @@
   width: 100%;
   max-width: 100%;
   height: auto;
-  max-height: 68vh;   /* menor que antes */
+  max-height: 70vh;
+
   border-radius: 14px;
-  overflow-y: hidden;
+
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  display: block;
 }
 
 /* título menor */

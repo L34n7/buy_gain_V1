@@ -31,6 +31,7 @@ export default function RecompensasPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [busca, setBusca] = useState("");
   const [debouncedBusca, setDebouncedBusca] = useState("");
+  const [descricaoExpandida, setDescricaoExpandida] = useState(false);
 
   /* =========================
      CARREGAR GIFTCARDS
@@ -57,6 +58,24 @@ export default function RecompensasPage() {
 
     carregarGiftcards();
   }, []);
+
+    /* =========================
+      TRAVAR SCROLL DO BODY
+    ========================= */
+    useEffect(() => {
+      if (giftcardSelecionado) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "auto";
+      }
+
+      return () => {
+        document.body.style.overflow = "auto";
+      };
+    }, [giftcardSelecionado]);
+
+
+
 
 
   const giftcardsFiltrados = giftcardsDB.filter((giftcard) =>
@@ -154,6 +173,7 @@ export default function RecompensasPage() {
             onClick={() => {
               setGiftcardSelecionado(giftcard);
               setOpcaoSelecionadaId(null);
+              setDescricaoExpandida(false); 
             }}
             role="button"
             tabIndex={0}
@@ -235,12 +255,38 @@ export default function RecompensasPage() {
             </div>
 
 
-              {(giftcardSelecionado.descricao ?? "")
+            {(() => {
+              const texto = giftcardSelecionado.descricao ?? "";
+              const linhas = texto
                 .split("\n")
-                .filter((linha) => linha.trim() !== "")
-                .map((linha, index) => (
-                  <p key={index}>{linha}</p>
-              ))}
+                .filter((linha) => linha.trim() !== "");
+
+              const textoCompleto = linhas.join(" ");
+
+              const LIMITE = 180; // quantidade de caracteres antes de cortar
+
+              const textoCortado =
+                textoCompleto.length > LIMITE && !descricaoExpandida
+                  ? textoCompleto.slice(0, LIMITE) + "..."
+                  : textoCompleto;
+
+              return (
+                <>
+                  <p className={descricaoExpandida ? "expandido" : ""}>
+                    {textoCortado}
+                  </p>
+
+                  {textoCompleto.length > LIMITE && (
+                    <button
+                      className="ler-mais-btn"
+                      onClick={() => setDescricaoExpandida(!descricaoExpandida)}
+                    >
+                      {descricaoExpandida ? "Ler menos" : "Ler mais"}
+                    </button>
+                  )}
+                </>
+              );
+            })()}
             </div>
 
 

@@ -127,7 +127,10 @@ const [captchaError, setCaptchaError] = useState(false);
               <p>• 100% gratuito — sempre</p>
             </div>
 
-            <form className="cadastro-form" onSubmit={handleSubmit}>
+            <form className="cadastro-form" onSubmit={handleSubmit}autoComplete="off">
+
+            <input type="text" name="fakeusernameremembered" style={{ display: "none" }} />
+            <input type="password" name="fakepasswordremembered" style={{ display: "none" }} />
 
               {/* Nome */}
               <div>
@@ -136,6 +139,7 @@ const [captchaError, setCaptchaError] = useState(false);
                   type="text"
                   placeholder="Ex: João Silva"
                   className="cadastro-input"
+                  autoComplete="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
@@ -149,6 +153,7 @@ const [captchaError, setCaptchaError] = useState(false);
                   type="email"
                   placeholder="Ex: ana@gmail.com"
                   className="cadastro-input"
+                  autoComplete="new-email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -163,6 +168,7 @@ const [captchaError, setCaptchaError] = useState(false);
                     type={showPassword ? "text" : "password"}
                     placeholder="Crie uma senha forte"
                     className="cadastro-input"
+                    autoComplete="new-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -185,6 +191,7 @@ const [captchaError, setCaptchaError] = useState(false);
                     type={showConfirm ? "text" : "password"}
                     placeholder="Confirme sua senha"
                     className="cadastro-input"
+                    autoComplete="new-password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
@@ -209,21 +216,21 @@ const [captchaError, setCaptchaError] = useState(false);
               </div>
 
               <div className="cadastro-captcha">
-  <Turnstile
-    siteKey="0x4AAAAAACiJdMM95ZEJ0inL"
-    options={{ theme: "dark", size: "normal" }}
-    onSuccess={(token) => {
-      setCaptchaToken(token);
-      setCaptchaError(false);
-    }}
-  />
-</div>
+                <Turnstile
+                  siteKey="0x4AAAAAACiJdMM95ZEJ0inL"
+                  options={{ theme: "dark", size: "normal" }}
+                  onSuccess={(token) => {
+                    setCaptchaToken(token);
+                    setCaptchaError(false);
+                  }}
+                />
+              </div>
 
-{captchaError && (
-  <p className="captcha-error">
-    Confirme que você não é um robô.
-  </p>
-)}
+              {captchaError && (
+                <p className="captcha-error">
+                  Confirme que você não é um robô.
+                </p>
+              )}
 
               <button
                 className="cadastro-btn"
