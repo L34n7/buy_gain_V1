@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState, useEffect, useRef  } from "react";
+import { useState, useEffect } from "react";
 import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
 import "./cadastro.css";
@@ -23,10 +24,8 @@ export default function Cadastro() {
 
   const { width, height } = useWindowSize();
   const [showConfetti, setShowConfetti] = useState(false);
-
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const [captchaError, setCaptchaError] = useState(false);
-  const turnstileRef = useRef<any>(null);
+const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+const [captchaError, setCaptchaError] = useState(false);
 
   // =========================
   // Regras de senha
@@ -51,15 +50,14 @@ export default function Cadastro() {
   }, [success]);
 
   async function handleSubmit(e: React.FormEvent) {
+
+    if (!captchaToken) {
+  setCaptchaError(true);
+  return;
+}
+
     e.preventDefault();
-
     if (loading) return;
-
-    if (!name || !email || !password) {
-      setError("Todos os campos são obrigatórios");
-      return;
-    }
-
     if (!passwordValid) {
       setError("A senha não atende aos requisitos.");
       return;
@@ -67,53 +65,32 @@ export default function Cadastro() {
 
     setError(null);
     setSuccess(false);
-
-    // ATIVA loading antes de chamar captcha
     setLoading(true);
 
-    if (turnstileRef.current) {
-      turnstileRef.current.execute();
-    } else {
-      setError("Captcha ainda não carregou.");
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, captchaToken }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Erro ao cadastrar");
+      } else {
+        setSuccess(true);
+        setName("");
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+      }
+    } catch {
+      setError("Erro de conexão com o servidor");
+    } finally {
       setLoading(false);
     }
   }
-
-async function handleRealSubmit(token: string) {
-  try {
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        email,
-        password,
-        captchaToken: token,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      setError(data.error || "Erro ao cadastrar");
-      setLoading(false);
-    } else {
-      setSuccess(true);
-      setName("");
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
-
-      setLoading(false);
-
-      // reseta captcha invisível
-      turnstileRef.current?.reset();
-    }
-  } catch {
-    setError("Erro de conexão com o servidor");
-    setLoading(false);
-  }
-}
 
   const Rule = ({ valid, text }: { valid: boolean; text: string }) => (
     <p className={`rule ${valid ? "valid" : ""}`}>
@@ -150,18 +127,13 @@ async function handleRealSubmit(token: string) {
               <p>• 100% gratuito — sempre</p>
             </div>
 
-
-            <form className="cadastro-form" onSubmit={handleSubmit} autoComplete="off">
-
-            <input type="text" name="fakeusernameremembered" style={{ display: "none" }} />
-            <input type="password" name="fakepasswordremembered" style={{ display: "none" }} />
+            <form className="cadastro-form" onSubmit={handleSubmit}>
 
               {/* Nome */}
               <div>
                 <label className="cadastro-label">Nome</label>
                 <input
                   type="text"
-                  autoComplete="off"
                   placeholder="Ex: João Silva"
                   className="cadastro-input"
                   value={name}
@@ -175,7 +147,6 @@ async function handleRealSubmit(token: string) {
                 <label className="cadastro-label">E-mail</label>
                 <input
                   type="email"
-                  autoComplete="off"
                   placeholder="Ex: ana@gmail.com"
                   className="cadastro-input"
                   value={email}
@@ -190,7 +161,6 @@ async function handleRealSubmit(token: string) {
                 <div className="password-field">
                   <input
                     type={showPassword ? "text" : "password"}
-                    autoComplete="new-password"
                     placeholder="Crie uma senha forte"
                     className="cadastro-input"
                     value={password}
@@ -213,7 +183,6 @@ async function handleRealSubmit(token: string) {
                 <div className="password-field">
                   <input
                     type={showConfirm ? "text" : "password"}
-                    autoComplete="new-password"
                     placeholder="Confirme sua senha"
                     className="cadastro-input"
                     value={confirmPassword}
@@ -240,31 +209,22 @@ async function handleRealSubmit(token: string) {
               </div>
 
               <div className="cadastro-captcha">
-              <Turnstile
-                ref={turnstileRef}
-                siteKey="0x4AAAAAACiJdMM95ZEJ0inL"
-                options={{
-                  size: "invisible",
-                  theme: "dark",
-                }}
-                onSuccess={(token) => {
-                  setCaptchaToken(token);
-                  setCaptchaError(false);
+  <Turnstile
+    siteKey="0x4AAAAAACiJdMM95ZEJ0inL"
+    options={{ theme: "dark", size: "normal" }}
+    onSuccess={(token) => {
+      setCaptchaToken(token);
+      setCaptchaError(false);
+    }}
+  />
+</div>
 
-                  // só envia se os campos estiverem preenchidos
-                  if (name && email && password) {
-                    handleRealSubmit(token);
-                  }
-                }}
-              />
-              </div>
+{captchaError && (
+  <p className="captcha-error">
+    Confirme que você não é um robô.
+  </p>
+)}
 
-              {captchaError && (
-                <p className="captcha-error">
-                  Confirme que você não é um robô.
-                </p>
-              )}
-              
               <button
                 className="cadastro-btn"
                 disabled={!passwordValid || loading}

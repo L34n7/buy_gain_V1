@@ -26,7 +26,7 @@ export function welcomeEmailTemplate(nome: string) {
 <tr>
 <td align="center" style="padding:40px 30px 20px 30px;">
 
-<img src="https://SEUSITE.com/logo.png"
+<img src="https://buygain.com.br/logo.png"
      alt="BuyGain"
      width="180"
      style="display:block; margin-bottom:20px;" />
@@ -74,7 +74,7 @@ Cole seu primeiro link e comece a acumular XP
 
 <div style="text-align:center; margin:35px 0;">
 
-<a href="https://SEUSITE.com/dashboard"
+<a href="https://buygain.com.br/dashboard"
 style="display:inline-block;
        padding:16px 32px;
        background-color:#7c3aed;

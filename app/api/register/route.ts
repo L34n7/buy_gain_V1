@@ -19,8 +19,7 @@ const supabaseAdmin = createClient(
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password, captchaToken } = await req.json();
-
+const { name, email, password, captchaToken } = await req.json();
     /* ===============================
        validações básicas
     =============================== */
@@ -39,27 +38,26 @@ export async function POST(req: Request) {
     }
 
     if (!captchaToken) {
-      return NextResponse.json(
-        { error: "Captcha é obrigatório" },
-        { status: 400 }
-      );
-    }
+  return NextResponse.json(
+    { error: "Captcha é obrigatório" },
+    { status: 400 }
+  );
+}
 
     /* ===============================
        1️⃣ CRIA USUÁRIO NO AUTH
     =============================== */
     const { data: authData, error: authError } =
-      await supabaseAuth.auth.signUp({
-        email,
-        password,
-        options: {
-          captchaToken: captchaToken,
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-          data: {
-            name: name,
-          },
-        },
-      });
+await supabaseAuth.auth.signUp({
+  email,
+  password,
+  options: {
+    captchaToken: captchaToken,
+    data: {
+      name: name,
+    },
+  },
+});
 
     if (authError || !authData.user) {
       return NextResponse.json(
