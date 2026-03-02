@@ -308,7 +308,9 @@ async function handleGenerate(e: React.FormEvent) {
 
       if (!res.ok) throw new Error("Erro ao gerar link ML");
 
-      data = await res.json();
+      data = await res.json(); 
+
+      console.log("Imagem recebida do gerar-link:", data.produto_imagem);
 
       // 🔥 DISPARA EVENTO GLOBAL (XP + CONQUISTAS)
       window.dispatchEvent(
