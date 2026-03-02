@@ -108,14 +108,16 @@ export async function POST(req: Request) {
     /* -----------------------------------------------
        4️⃣ CHAMA AUTOMAÇÃO
     ----------------------------------------------- */
-    const res = await fetch("http://localhost:3000/api/convert", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        productUrl,
-        platform,
-      }),
-    });
+const res = await fetch(
+  "https://unonerous-subglacially-ryan.ngrok-free.dev/executar",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      productUrl,
+    }),
+  }
+);
 
     if (!res.ok) {
       throw new Error("Erro ao chamar automação");
