@@ -1,6 +1,22 @@
 import { NextResponse } from "next/server";
 import { createUserSupabase } from "@/lib/supabaseServer";
 
+
+/* -----------------------------------------------------
+   NORMALIZA URL MERCADO LIVRE
+----------------------------------------------------- */
+function normalizarUrlML(url: string) {
+  // Se tiver wid=MLB123456
+  const widMatch = url.match(/wid=(MLB\d+)/);
+
+  if (widMatch) {
+    return `https://produto.mercadolivre.com.br/${widMatch[1]}-_JM`;
+  }
+
+  // Remove parâmetros após ?
+  return url.split("?")[0];
+}
+
 /* -----------------------------------------------------
    EXTRAI OPEN GRAPH (fallback nome/imagem)
 ----------------------------------------------------- */
