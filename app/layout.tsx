@@ -27,7 +27,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "BuyGain - Ganhe Créditos Comprando",
+  title: "BuyGain - Ganhe pontos Comprando",
   description: "Transforme qualquer compra em créditos para gift cards ou dinheiro.",
 };
 

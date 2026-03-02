@@ -15,6 +15,13 @@ async function extractOpenGraph(url: string) {
 
     const html = await res.text();
 
+    console.log("----- TESTE OPEN GRAPH -----");
+console.log("Status:", res.status);
+console.log("HTML length:", html.length);
+console.log("Tem og:image?", html.includes("og:image"));
+console.log("Primeiros 500 chars:", html.slice(0, 500));
+console.log("----- FIM TESTE -----");
+
     const ogImage =
       html.match(/property=["']og:image["'][^>]*content=["']([^"']+)["']/i)?.[1] ||
       html.match(/name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i)?.[1] ||
