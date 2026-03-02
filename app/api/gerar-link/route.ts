@@ -64,7 +64,9 @@ async function extractOpenGraph(url: string) {
 
 export async function POST(req: Request) {
   try {
-    const { productUrl } = await req.json();
+
+    let { productUrl } = await req.json();
+    productUrl = normalizarUrlML(productUrl);
 
     if (!productUrl) {
       return NextResponse.json(
