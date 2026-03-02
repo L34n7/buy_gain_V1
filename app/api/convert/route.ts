@@ -1,76 +1,52 @@
-/* CHAMA AUTOMACAO LINK AUT */
+/* CHAMA AUTOMACAO LINK AUT VIA NGROK */
+
 import { NextResponse } from "next/server";
-import { exec } from "child_process";
-import path from "path";
 
 export async function POST(req: Request): Promise<Response> {
-  const { productUrl, platform } = await req.json();
+  try {
+    const { productUrl, platform } = await req.json();
 
-  if (!productUrl) {
-    return NextResponse.json(
-      { error: "URL não informada" },
-      { status: 400 }
-    );
-  }
+    if (!productUrl) {
+      return NextResponse.json(
+        { error: "URL não informada" },
+        { status: 400 }
+      );
+    }
 
-  if (platform !== "mercadolivre") {
-    return NextResponse.json(
-      { error: "Plataforma não suportada" },
-      { status: 400 }
-    );
-  }
+    if (platform !== "mercadolivre") {
+      return NextResponse.json(
+        { error: "Plataforma não suportada" },
+        { status: 400 }
+      );
+    }
 
-  return new Promise<Response>((resolve) => {
-    exec(
-      `node mlCallAut.cjs "${productUrl}"`,
+    // 🔥 CHAMA SEU NOTEBOOK VIA NGROK
+    const response = await fetch(
+      "https://unonerous-subglacially-ryan.ngrok-free.dev/executar",
       {
-        cwd: path.resolve(
-          process.cwd(),
-          "automacao/link_aut/scripts"
-        ),
-        timeout: 120000,
-      },
-      (error, stdout, stderr) => {
-        if (error) {
-          resolve(
-            NextResponse.json(
-              { error: stderr || error.message },
-              { status: 500 }
-            )
-          );
-          return;
-        }
-
-        try {
-          const matches = stdout.match(/\{[\s\S]*?\}/g);
-
-          if (!matches || !matches.length) {
-            throw new Error("Nenhum JSON encontrado");
-          }
-
-          const lastJson = matches[matches.length - 1];
-          const result = JSON.parse(lastJson);
-
-          if (typeof result.perfil_aut !== "number") {
-            resolve(
-              NextResponse.json(
-                { error: "Perfil de automação não identificado" },
-                { status: 500 }
-              )
-            );
-            return;
-          }
-
-          resolve(NextResponse.json(result));
-        } catch {
-          resolve(
-            NextResponse.json(
-              { error: "Resposta inválida", raw: stdout },
-              { status: 500 }
-            )
-          );
-        }
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ productUrl }),
       }
     );
-  });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: data.erro || "Erro na automação" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(data);
+
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500 }
+    );
+  }
 }
