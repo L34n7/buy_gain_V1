@@ -126,6 +126,27 @@ const res = await fetch(
     const data = await res.json();
 
     /* -----------------------------------------------
+   SALVAR NO BANCO (IMAGEM + NOME)
+----------------------------------------------- */
+
+const imagemFinal = data.produto_imagem ?? ogData.produto_imagem;
+const nomeFinal = data.produto_nome ?? ogData.produto_nome;
+
+const { error: insertError } = await admin
+  .from("generate_link")
+  .insert({
+    produto_url: productUrl,
+    link_rastreado: data.link_rastreado,
+    ganho_estimado: data.ganho_estimado,
+    produto_nome: nomeFinal,
+    produto_imagem: imagemFinal,
+  });
+
+if (insertError) {
+  console.error("Erro ao salvar generate_link:", insertError);
+}
+
+    /* -----------------------------------------------
        5️⃣ 🔥 VERIFICAR CONQUISTAS (NOVO)
     ----------------------------------------------- */
     let conquistas = null;
@@ -145,7 +166,7 @@ const res = await fetch(
     return NextResponse.json({
       ...data,
 
-      produto_imagem: data.produto_imagem ?? ogData.produto_imagem,
+      produto_imagem: imagemFinal,      
       produto_nome: data.produto_nome ?? ogData.produto_nome,
       produto_descricao: ogData.produto_descricao,
 
