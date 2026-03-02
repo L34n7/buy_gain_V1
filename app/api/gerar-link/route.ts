@@ -70,6 +70,13 @@ export async function POST(req: Request) {
       data: { user },
     } = await supabaseUser.auth.getUser();
 
+    if (!user) {
+      return NextResponse.json(
+        { error: "Usuário não autenticado" },
+        { status: 401 }
+      );
+    }
+
     /* -----------------------------------------------
        2️⃣ CACHE – últimos 6h
     ----------------------------------------------- */
@@ -115,16 +122,16 @@ export async function POST(req: Request) {
     /* -----------------------------------------------
        4️⃣ CHAMA AUTOMAÇÃO
     ----------------------------------------------- */
-const res = await fetch(
-  "https://unonerous-subglacially-ryan.ngrok-free.dev/executar",
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      productUrl,
-    }),
-  }
-);
+  const res = await fetch(
+    "https://unonerous-subglacially-ryan.ngrok-free.dev/executar",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        productUrl,
+      }),
+    }
+  );
 
     if (!res.ok) {
       throw new Error("Erro ao chamar automação");
@@ -136,22 +143,23 @@ const res = await fetch(
    SALVAR NO BANCO (IMAGEM + NOME)
 ----------------------------------------------- */
 
-const imagemFinal = data.produto_imagem ?? ogData.produto_imagem;
-const nomeFinal = data.produto_nome ?? ogData.produto_nome;
+    const imagemFinal = data.produto_imagem ?? ogData.produto_imagem;
+    const nomeFinal = data.produto_nome ?? ogData.produto_nome;
 
-const { error: insertError } = await admin
-  .from("generate_link")
-  .insert({
-    produto_url: productUrl,
-    link_rastreado: data.link_rastreado,
-    ganho_estimado: data.ganho_estimado,
-    produto_nome: nomeFinal,
-    produto_imagem: imagemFinal,
-  });
+    const { error: insertError } = await admin
+      .from("generate_link")
+      .insert({
+        user_id: user?.id, 
+        produto_url: productUrl,
+        link_rastreado: data.link_rastreado,
+        ganho_estimado: data.ganho_estimado,
+        produto_nome: nomeFinal,
+        produto_imagem: imagemFinal,
+      });
 
-if (insertError) {
-  console.error("Erro ao salvar generate_link:", insertError);
-}
+    if (insertError) {
+      console.error("Erro ao salvar generate_link:", insertError);
+    }
 
     /* -----------------------------------------------
        5️⃣ 🔥 VERIFICAR CONQUISTAS (NOVO)
