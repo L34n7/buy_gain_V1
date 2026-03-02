@@ -6,8 +6,43 @@ const APP_ID = process.env.SHOPEE_APP_ID!;
 const SECRET = process.env.SHOPEE_SECRET!;
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql";
 
+/* =========================
+   🔥 NOVO: Expandir link curto
+========================= */
+async function expandirSeForLinkCurto(url: string) {
+  try {
+    const parsed = new URL(url);
+
+    if (!parsed.hostname.startsWith("s.shopee")) {
+      return url;
+    }
+
+    const response = await fetch(url, {
+      method: "GET",
+      redirect: "follow",
+    });
+
+    return response.url;
+  } catch (err) {
+    console.error("Erro ao expandir link curto:", err);
+    return url;
+  }
+}
+
+/* =========================
+   🔥 NOVO: Limpar parâmetros
+========================= */
+function limparParametros(url: string) {
+  try {
+    const parsed = new URL(url);
+    parsed.search = "";
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
 function extractProductData(url: string) {
-  // formato /product/shopId/itemId
   const productMatch = url.match(/product\/(\d+)\/(\d+)/);
   if (productMatch) {
     return {
@@ -16,7 +51,6 @@ function extractProductData(url: string) {
     };
   }
 
-  // formato compartilhamento -i.shopId.itemId
   const shareMatch = url.match(/-i\.(\d+)\.(\d+)/);
   if (shareMatch) {
     return {
@@ -72,7 +106,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "originUrl é obrigatório" }, { status: 400 });
     }
 
-    const extracted = extractProductData(originUrl);
+    /* =========================
+       🔥 TRATAMENTO DO LINK
+    ========================= */
+
+    const urlExpandida = await expandirSeForLinkCurto(originUrl);
+    const urlLimpa = limparParametros(urlExpandida);
+
+    const extracted = extractProductData(urlLimpa);
 
     if (!extracted) {
       return NextResponse.json(
@@ -83,11 +124,12 @@ export async function POST(req: NextRequest) {
 
     const { shopId, itemId } = extracted;
 
-    // 🔥 reconstruir link limpo
     const originUrlLimpa = `https://shopee.com.br/product/${shopId}/${itemId}`;
 
+    /* =========================
+       1) Buscar produto
+    ========================= */
 
-    // 1) Buscar produto
     const productQuery = {
       query: `
         query {
@@ -127,11 +169,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Produto não encontrado na Shopee Affiliate" }, { status: 404 });
     }
 
-    // 2) Gerar ids
-    const hexId = crypto.randomBytes(16).toString("hex"); // enviado pra Shopee
-    const generateLinkUUID = hexToUUID(hexId); // salvo no DB com hífens
+    /* =========================
+       2) Gerar IDs
+    ========================= */
 
-    // 3) Gerar short link usando variáveis GraphQL
+    const hexId = crypto.randomBytes(16).toString("hex");
+    const generateLinkUUID = hexToUUID(hexId);
+
+    /* =========================
+       3) Gerar short link
+    ========================= */
+
     const shortQuery = {
       query: `
         mutation GenerateShortLink($originUrl: String!, $subIds: [String!]) {
@@ -172,36 +220,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Erro ao gerar short link" }, { status: 500 });
     }
 
-    // 4) Cálculo min/max e pontos
-    const priceMin = Number(produto.priceMin ?? produto.priceMax ?? 0) || 0;
-    const priceMax = Number(produto.priceMax ?? produto.priceMin ?? 0) || 0;
+    /* =========================
+       4) Cálculo
+    ========================= */
 
+    const priceMax = Number(produto.priceMax ?? 0) || 0;
     const taxaRaw = Number(produto.commissionRate ?? 0) || 0;
     const taxaDecimal = taxaRaw > 1 ? taxaRaw / 100 : taxaRaw;
 
-    const ganhoTotalMin = priceMin * taxaDecimal;
     const ganhoTotalMax = priceMax * taxaDecimal;
-
-    const ganhoUsuarioMin = ganhoTotalMin * 0.10;
     const ganhoUsuarioMax = ganhoTotalMax * 0.30;
 
     const REAIS_PARA_PONTOS = 1000;
-    const pointsMin = Math.floor(ganhoUsuarioMin * REAIS_PARA_PONTOS);
     const pointsMax = Math.floor(ganhoUsuarioMax * REAIS_PARA_PONTOS);
+    const pontos = pointsMax || 0;
 
-    const pontos = Math.floor(((pointsMax)) || pointsMax || pointsMin) || 0;
+    /* =========================
+       5) Marketplace
+    ========================= */
 
-    console.log("DEBUG CALCULO:", {
-  priceMax,
-  taxaRaw,
-  taxaDecimal,
-  ganhoTotalMax,
-  ganhoUsuarioMax,
-  pointsMax
-});
-
-
-    // 5) marketplace
     const { data: marketplace } = await supabaseAdmin
       .from("marketplaces")
       .select("id")
@@ -212,17 +249,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Marketplace não encontrado" }, { status: 500 });
     }
 
-    // 6) Inserir generate_link
+    /* =========================
+       6) Insert
+    ========================= */
+
     const { data: insertedLink, error: insertError } = await supabaseAdmin
       .from("generate_link")
       .insert({
         id: generateLinkUUID,
         user_id: appUser.id,
         produto_nome: produto.productName,
-        produto_url: originUrl,
+        produto_url: originUrl, // 🔥 mantido como você pediu
         link_rastreado: shortLink,
         valor: priceMax,
-        ganhos: Number((taxaDecimal * 100).toFixed(2)), // percentual em %
+        ganhos: Number((taxaDecimal * 100).toFixed(2)),
         ganho_estimado: ganhoTotalMax,
         pontos: pontos,
         produto_imagem: produto.imageUrl,
@@ -234,64 +274,21 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (insertError || !insertedLink) {
-      console.error("ERRO AO INSERIR generate_link:", insertError);
       return NextResponse.json({ error: insertError?.message || "Erro ao salvar link" }, { status: 500 });
     }
 
-    // 7) categorias (mesmo que falhe, não impede retorno)
-    const categorias = produto.productCatIds || [];
-    if (categorias.length > 0) {
-      const categoriasInsert = categorias.map((catId: number, index: number) => ({
-        generate_link_id: insertedLink.id,
-        categoria_id: catId,
-        nivel: index + 1,
-        link_rastreado: shortLink,
-        created_at: new Date().toISOString(),
-      }));
-      const { error: catError } = await supabaseAdmin.from("categoria_shopee").insert(categoriasInsert);
-      if (catError) console.error("ERRO AO INSERIR categoria_shopee:", catError);
-    }
-
-    // 8) RETORNO: enviar múltiplos aliases para garantir compatibilidade com o frontend
-    const responsePayload = {
+    return NextResponse.json({
       success: true,
       produto_nome: produto.productName,
       produto_imagem: produto.imageUrl,
-      // valor mostrado no card
       valor: priceMax,
-      // pontos (campo principal)
       pontos,
-      // aliases camelCase que o componente espera
-      pointsMin,
-      pointsMax,
-      // aliases snake_case / antigos pra segurança
-      points_min: pointsMin,
-      points_max: pointsMax,
-      ganho_min: ganhoUsuarioMin,
-      ganho_max: ganhoUsuarioMax,
-
-      // extras
-      percentual_comissao: Number((taxaDecimal * 100).toFixed(2)),
       link_rastreado: shortLink,
       produto_url: originUrl,
       plataforma: "Shopee",
       generate_link_id: insertedLink.id,
-    };
+    });
 
-    // 🔥 9) VERIFICAR CONQUISTAS
-let conquistas = null;
-
-const { data: conquistasData } = await supabaseAdmin.rpc(
-  "verificar_conquistas_usuario",
-  { p_auth_user_id: user.id }
-);
-
-conquistas = conquistasData;
-
-    return NextResponse.json({
-  ...responsePayload,
-  ...(conquistas || {}),
-});
   } catch (error) {
     console.error("Erro Shopee:", error);
     return NextResponse.json({ error: "Erro interno ao gerar link Shopee" }, { status: 500 });

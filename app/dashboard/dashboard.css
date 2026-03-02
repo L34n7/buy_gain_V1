@@ -161,12 +161,12 @@ body {
   .dashboard-title { 
     margin: 0px 0px 7px;
     font-size: 26px; 
-    font-weight: 900;
+    font-weight: 800;
   }
 
   .dashboard-subtitle {
     margin: 0px 0px -20px 0px;
-    font-size: 15px;  
+    font-size: 18px;  
   }
 
   .dashboard-container { 
@@ -303,7 +303,7 @@ body {
 
   .hero-label { 
     font-weight: 700; 
-    font-size: 16px;
+    font-size: 18px;
     text-align: center; 
 }
 
@@ -1002,8 +1002,12 @@ body {
   .reward-text .reward-line {
      font-weight:600; 
      color:#ffffffc3; 
-     font-size: 12px; 
+     font-size: 16px; 
      margin-bottom: 5px; 
+  }
+
+  .reward-text .reward-sub {
+    font-size: 16px;
   }
 
   .reward-icon { 
