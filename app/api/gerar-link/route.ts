@@ -3,18 +3,22 @@ import { createUserSupabase } from "@/lib/supabaseServer";
 
 
 /* -----------------------------------------------------
-   NORMALIZA URL MERCADO LIVRE
+   NORMALIZA URL MERCADO LIVRE (versão segura)
 ----------------------------------------------------- */
 function normalizarUrlML(url: string) {
-  // Se tiver wid=MLB123456
-  const widMatch = url.match(/wid=(MLB\d+)/);
+  try {
+    const parsed = new URL(url);
 
-  if (widMatch) {
-    return `https://produto.mercadolivre.com.br/${widMatch[1]}-_JM`;
+    // Remove hash (#...)
+    parsed.hash = "";
+
+    // Remove parâmetros desnecessários
+    parsed.search = "";
+
+    return parsed.toString();
+  } catch {
+    return url;
   }
-
-  // Remove parâmetros após ?
-  return url.split("?")[0];
 }
 
 /* -----------------------------------------------------
