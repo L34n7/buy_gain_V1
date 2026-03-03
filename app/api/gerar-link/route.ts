@@ -1,26 +1,6 @@
 import { NextResponse } from "next/server";
 import { createUserSupabase } from "@/lib/supabaseServer";
 
-
-/* -----------------------------------------------------
-   NORMALIZA URL MERCADO LIVRE (versão segura)
------------------------------------------------------ */
-function normalizarUrlML(url: string) {
-  try {
-    const parsed = new URL(url);
-
-    // Remove hash (#...)
-    parsed.hash = "";
-
-    // Remove parâmetros desnecessários
-    parsed.search = "";
-
-    return parsed.toString();
-  } catch {
-    return url;
-  }
-}
-
 /* -----------------------------------------------------
    EXTRAI OPEN GRAPH (fallback nome/imagem)
 ----------------------------------------------------- */
@@ -68,9 +48,7 @@ async function extractOpenGraph(url: string) {
 
 export async function POST(req: Request) {
   try {
-
-    let { productUrl } = await req.json();
-    productUrl = normalizarUrlML(productUrl);
+    const { productUrl } = await req.json();
 
     if (!productUrl) {
       return NextResponse.json(
