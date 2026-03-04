@@ -3,14 +3,14 @@ import { createUserSupabase } from "@/lib/supabaseServer";
 
 async function registrarErroLink(
   supabase: any,
-  userId: string,
+  userId: string | null,
   url: string,
   erro: string,
   plataforma: string
 ) {
   try {
     await supabase.from("links_erro").insert({
-      user_id: userId,
+      user_id: userId ?? null,
       url: url,
       erro: erro,
       plataforma: plataforma,
@@ -67,6 +67,7 @@ async function extractOpenGraph(url: string) {
 }
 
 export async function POST(req: Request) {
+
   let productUrl: string | null = null;
   let userId: string | null = null;
 
@@ -123,7 +124,9 @@ export async function POST(req: Request) {
     /* -----------------------------------------------
        2️⃣ CHAMA AUTOMAÇÃO (ngrok)
     ----------------------------------------------- */
+
     console.log("Chamando automação...");
+
     const res = await fetch(
       "https://unonerous-subglacially-ryan.ngrok-free.dev/executar",
       {
@@ -134,6 +137,7 @@ export async function POST(req: Request) {
     );
 
     if (!res.ok) {
+
       const erroTexto = await res.text();
 
       console.error("Status automação:", res.status);
@@ -151,11 +155,13 @@ export async function POST(req: Request) {
     }
 
     console.log("Automação respondeu");
+
     const data = await res.json();
 
     /* -----------------------------------------------
        3️⃣ Fallback final
     ----------------------------------------------- */
+
     const imagemFinal =
       data.produto_imagem ?? ogData.produto_imagem ?? null;
 
@@ -165,6 +171,7 @@ export async function POST(req: Request) {
     /* -----------------------------------------------
        4️⃣ RETORNO FINAL
     ----------------------------------------------- */
+
     return NextResponse.json({
       ...data,
       produto_imagem: imagemFinal,
@@ -177,6 +184,7 @@ export async function POST(req: Request) {
     console.error("Erro /api/gerar-link:", err);
 
     try {
+
       const supabaseUser = await createUserSupabase();
 
       await registrarErroLink(
