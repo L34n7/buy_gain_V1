@@ -88,10 +88,15 @@ export async function POST(req: Request) {
       }
     );
 
-    if (!res.ok) {
-      throw new Error("Erro ao chamar automação");
-    }
-    
+if (!res.ok) {
+  const erroTexto = await res.text();
+
+  console.error("Status automação:", res.status);
+  console.error("Resposta automação:", erroTexto);
+
+  throw new Error("Erro automação: " + res.status);
+}
+
     console.log("Automação respondeu");
     const data = await res.json();
 
