@@ -259,13 +259,24 @@ async function handleGenerate(e: React.FormEvent) {
   try {
     setLoading(true);
 
-   const originalUrl = url.trim();
+    const originalUrl = url.trim();
     setUrl("");
 
-    const hostname = new URL(originalUrl).hostname;
+    let hostname = "";
+
+    try {
+      hostname = new URL(originalUrl).hostname.toLowerCase();
+    } catch {
+      hostname = originalUrl.toLowerCase();
+    }
 
     const isShopee =
-      hostname.includes("shopee");
+      hostname.includes("shopee.com") ||
+      hostname.includes("shopee.com.br") ||
+      hostname.includes("s.shopee") ||
+      hostname.includes("br.shopee") ||
+      hostname.includes("shp.ee") ||
+      hostname.includes("shope.ee");
 
     const isML =
       hostname.includes("mercadolivre") ||
