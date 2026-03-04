@@ -78,6 +78,7 @@ export async function POST(req: Request) {
     /* -----------------------------------------------
        2️⃣ CHAMA AUTOMAÇÃO (ngrok)
     ----------------------------------------------- */
+    console.log("Chamando automação...");
     const res = await fetch(
       "https://unonerous-subglacially-ryan.ngrok-free.dev/executar",
       {
@@ -90,7 +91,8 @@ export async function POST(req: Request) {
     if (!res.ok) {
       throw new Error("Erro ao chamar automação");
     }
-
+    
+    console.log("Automação respondeu");
     const data = await res.json();
 
     /* -----------------------------------------------
