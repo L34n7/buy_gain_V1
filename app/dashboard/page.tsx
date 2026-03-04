@@ -259,22 +259,32 @@ async function handleGenerate(e: React.FormEvent) {
   try {
     setLoading(true);
 
-    const originalUrl = url;
+   const originalUrl = url.trim();
     setUrl("");
 
-    const isShopee = /shopee\.com\.br|shopee\.com/i.test(originalUrl);
+    const hostname = new URL(originalUrl).hostname;
 
-    let data;
+    const isShopee =
+      hostname.includes("shopee");
+
+    const isML =
+      hostname.includes("mercadolivre") ||
+      hostname.includes("mercadolibre");
+        let data;
+
+    console.log("URL:", originalUrl);
+    console.log("Shopee detectado:", isShopee)
 
     /* ==============================
       🔥 SHOPEE
     ============================== */
     if (isShopee) {
+        console.log("Chamando API Shopee")
       const res = await fetch("/api/shopee/short-link", {
         credentials: "include",
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ originUrl: originalUrl }),
+        body: JSON.stringify({ originalUrl: originalUrl }),
       });
 
       if (!res.ok) {
@@ -296,6 +306,7 @@ async function handleGenerate(e: React.FormEvent) {
       🔥 MERCADO LIVRE
     ============================== */
     else {
+      console.log("Chamando API Mercado Livre")
       const res = await fetch("/api/gerar-link", {
         credentials: "include",
         method: "POST",
@@ -306,7 +317,10 @@ async function handleGenerate(e: React.FormEvent) {
         }),
       });
 
-      if (!res.ok) throw new Error("Erro ao gerar link ML");
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error || "Erro ao gerar link");
+      }
 
       data = await res.json();
 

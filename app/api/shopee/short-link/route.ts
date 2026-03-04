@@ -13,7 +13,7 @@ async function expandirSeForLinkCurto(url: string) {
   try {
     const parsed = new URL(url);
 
-    if (!parsed.hostname.startsWith("s.shopee")) {
+    if (!parsed.hostname.includes("s.shopee")) {
       return url;
     }
 
@@ -43,24 +43,43 @@ function limparParametros(url: string) {
 }
 
 function extractProductData(url: string) {
-  const productMatch = url.match(/product\/(\d+)\/(\d+)/);
-  if (productMatch) {
-    return {
-      shopId: productMatch[1],
-      itemId: productMatch[2],
-    };
-  }
+  try {
+    const parsed = new URL(url);
+    const pathname = parsed.pathname;
 
-  const shareMatch = url.match(/-i\.(\d+)\.(\d+)/);
-  if (shareMatch) {
-    return {
-      shopId: shareMatch[1],
-      itemId: shareMatch[2],
-    };
-  }
+    // Formato 1: /product/shopId/itemId
+    const productMatch = pathname.match(/product\/(\d+)\/(\d+)/);
+    if (productMatch) {
+      return {
+        shopId: productMatch[1],
+        itemId: productMatch[2],
+      };
+    }
 
-  return null;
+    // Formato 2: -i.shopId.itemId
+    const shareMatch = pathname.match(/-i\.(\d+)\.(\d+)/);
+    if (shareMatch) {
+      return {
+        shopId: shareMatch[1],
+        itemId: shareMatch[2],
+      };
+    }
+
+    // 🔥 Formato 3: /shopId/itemId direto
+    const simpleMatch = pathname.match(/\/(\d+)\/(\d+)/);
+    if (simpleMatch) {
+      return {
+        shopId: simpleMatch[1],
+        itemId: simpleMatch[2],
+      };
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
 }
+
 
 function generateSignature(payload: string, timestamp: string) {
   const factor = APP_ID + timestamp + payload + SECRET;
@@ -97,15 +116,21 @@ export async function POST(req: NextRequest) {
       .eq("auth_user_id", user.id)
       .single();
 
-    if (appErr || !appUser) {
-      return NextResponse.json({ error: "Usuário não encontrado na tabela users" }, { status: 404 });
-    }
+if (appErr || !appUser) {
+  return NextResponse.json({ error: "Usuário não encontrado na tabela users" }, { status: 404 });
+}
 
-    const { originUrl } = await req.json();
-    if (!originUrl) {
-      return NextResponse.json({ error: "originUrl é obrigatório" }, { status: 400 });
-    }
+const body = await req.json();
 
+
+const originUrl = body.originUrl || body.originalUrl;
+
+if (!originUrl) {
+  return NextResponse.json(
+    { error: "originUrl é obrigatório" },
+    { status: 400 }
+  );
+}
     /* =========================
        🔥 TRATAMENTO DO LINK
     ========================= */
@@ -290,7 +315,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error("Erro Shopee:", error);
+    console.error("Erro API Shopee:", error);
     return NextResponse.json({ error: "Erro interno ao gerar link Shopee" }, { status: 500 });
   }
 }

@@ -96,7 +96,7 @@ body {
 .dashboard-container {
   display:flex;
   justify-content:center;
-  padding: 30px 36px 80px;
+  padding: 30px 36px 20px;
 }
 
 .dashboard-card {
@@ -156,6 +156,7 @@ body {
     
   .dashboard-root {
     background-attachment: scroll;
+    min-height: 100vh;
   }
   
   .dashboard-title { 
@@ -170,7 +171,7 @@ body {
   }
 
   .dashboard-container { 
-    padding: 20px 14px 100px; 
+    padding: 20px 14px 10px; 
   }
 
   .dashboard-content {
@@ -962,8 +963,8 @@ body {
     flex-direction: column;
     align-items: center;
     text-align: center;      
-    height: 440px;  
-    max-height: 900px;
+    height: auto;        
+    min-height: unset;
   }
 
   .result-thumb img {
@@ -983,15 +984,18 @@ body {
     flex-direction: column;
     align-items: center;
     width: 100%;     
+    flex:0 0 120px; 
+
   }
 
   .result-actions .btn {
     width: 70%;
     position: center; 
+    
   }
 
     .btn-open { 
-    margin-top: 0px; 
+    margin-bottom:0px; 
     height: 70px;   
   }
 
@@ -1017,8 +1021,8 @@ body {
   }
 
   .reward-icon { 
-    width: 50; 
-    height: 50;  
+    width: 50px; 
+    height: 50px;  
     font-size:24px; 
     padding: 7px 8px 5px; 
   }
@@ -1027,11 +1031,6 @@ body {
     margin-bottom: -10px;
   }
 
-  .result-progress-bar {  
-    margin-top: -30px; 
-    margin-bottom: 15px;
-    height:3px;
-  }
 
   .result-title {
     font-size: 16px; 
