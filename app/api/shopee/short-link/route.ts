@@ -12,8 +12,18 @@ const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql";
 async function expandirSeForLinkCurto(url: string) {
   try {
     const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase();
 
-    if (!parsed.hostname.includes("s.shopee")) {
+    const isShortLink =
+      host.includes("shopee.com") ||
+      host.includes("shopee.com.br") ||
+      host.includes("s.shopee") ||
+      host.includes("br.shopee") ||
+      host.includes("shp.ee") ||
+      host.includes("br.shp.ee") ||
+      host.includes("shope.ee");
+
+    if (!isShortLink) {
       return url;
     }
 
@@ -23,6 +33,7 @@ async function expandirSeForLinkCurto(url: string) {
     });
 
     return response.url;
+
   } catch (err) {
     console.error("Erro ao expandir link curto:", err);
     return url;

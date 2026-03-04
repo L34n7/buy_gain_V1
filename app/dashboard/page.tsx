@@ -276,6 +276,7 @@ async function handleGenerate(e: React.FormEvent) {
       hostname.includes("s.shopee") ||
       hostname.includes("br.shopee") ||
       hostname.includes("shp.ee") ||
+      hostname.includes("br.shp.ee") ||
       hostname.includes("shope.ee");
 
     const isML =
