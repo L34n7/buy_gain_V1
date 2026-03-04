@@ -1,6 +1,26 @@
 import { NextResponse } from "next/server";
 import { createUserSupabase } from "@/lib/supabaseServer";
 
+async function registrarErroLink(
+  supabase: any,
+  userId: string,
+  url: string,
+  erro: string,
+  plataforma: string
+) {
+  try {
+    await supabase.from("links_erro").insert({
+      user_id: userId,
+      url: url,
+      erro: erro,
+      plataforma: plataforma,
+      data: new Date().toISOString(),
+    });
+  } catch (e) {
+    console.error("Erro ao registrar log:", e);
+  }
+}
+
 /* -----------------------------------------------------
    EXTRAI OPEN GRAPH (fallback nome/imagem)
 ----------------------------------------------------- */
@@ -47,10 +67,25 @@ async function extractOpenGraph(url: string) {
 }
 
 export async function POST(req: Request) {
+  let productUrl: string | null = null;
+  let userId: string | null = null;
+
   try {
-    const { productUrl } = await req.json();
+    const body = await req.json();
+    productUrl = body.productUrl;
+
+    const supabaseUser = await createUserSupabase();
 
     if (!productUrl) {
+
+      await registrarErroLink(
+        supabaseUser,
+        null,
+        "desconhecida",
+        "URL não informada",
+        "mercadolivre"
+      );
+
       return NextResponse.json(
         { error: "URL não informada" },
         { status: 400 }
@@ -58,17 +93,27 @@ export async function POST(req: Request) {
     }
 
     /* 🔐 Usuário autenticado */
-    const supabaseUser = await createUserSupabase();
     const {
       data: { user },
     } = await supabaseUser.auth.getUser();
 
     if (!user) {
+
+      await registrarErroLink(
+        supabaseUser,
+        null,
+        productUrl,
+        "Usuário não autenticado",
+        "mercadolivre"
+      );
+
       return NextResponse.json(
         { error: "Usuário não autenticado" },
         { status: 401 }
       );
     }
+
+    userId = user.id;
 
     /* -----------------------------------------------
        1️⃣ OPEN GRAPH (fallback)
@@ -88,14 +133,22 @@ export async function POST(req: Request) {
       }
     );
 
-if (!res.ok) {
-  const erroTexto = await res.text();
+    if (!res.ok) {
+      const erroTexto = await res.text();
 
-  console.error("Status automação:", res.status);
-  console.error("Resposta automação:", erroTexto);
+      console.error("Status automação:", res.status);
+      console.error("Resposta automação:", erroTexto);
 
-  throw new Error("Erro automação: " + res.status);
-}
+      await registrarErroLink(
+        supabaseUser,
+        userId,
+        productUrl,
+        "Erro automação ML: " + res.status,
+        "mercadolivre"
+      );
+
+      throw new Error("Erro automação: " + res.status);
+    }
 
     console.log("Automação respondeu");
     const data = await res.json();
@@ -120,7 +173,22 @@ if (!res.ok) {
     });
 
   } catch (err: any) {
+
     console.error("Erro /api/gerar-link:", err);
+
+    try {
+      const supabaseUser = await createUserSupabase();
+
+      await registrarErroLink(
+        supabaseUser,
+        userId,
+        productUrl ?? "desconhecida",
+        err?.message || "Erro inesperado",
+        "mercadolivre"
+      );
+
+    } catch {}
+
     return NextResponse.json(
       { error: err.message || "Erro inesperado" },
       { status: 500 }

@@ -2,6 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { createUserSupabase, createAdminSupabase } from "@/lib/supabaseServer";
 
+async function registrarErroLink(
+  supabase: any,
+  userId: string,
+  url: string,
+  erro: string,
+  plataforma: string
+) {
+  try {
+    await supabase.from("links_erro").insert({
+      user_id: userId,
+      url: url,
+      erro: erro,
+      plataforma: plataforma,
+      data: new Date().toISOString(),
+    });
+  } catch (e) {
+    console.error("Erro ao registrar log:", e);
+  }
+}
+
 const APP_ID = process.env.SHOPEE_APP_ID!;
 const SECRET = process.env.SHOPEE_SECRET!;
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql";
@@ -152,11 +172,20 @@ if (!originUrl) {
     const extracted = extractProductData(urlLimpa);
 
     if (!extracted) {
-      return NextResponse.json(
-        { error: "URL da Shopee inválida" },
-        { status: 400 }
+
+      await registrarErroLink(
+        supabaseAdmin,
+        appUser.id,
+        originUrl,
+        "URL da Shopee inválida",
+        "shopee"
       );
-    }
+
+    return NextResponse.json(
+      { error: "URL da Shopee inválida" },
+      { status: 400 }
+    );
+  }
 
     const { shopId, itemId } = extracted;
 
@@ -202,7 +231,19 @@ if (!originUrl) {
     const produto = productData?.data?.productOfferV2?.nodes?.[0];
 
     if (!produto) {
-      return NextResponse.json({ error: "Produto não encontrado na Shopee Affiliate" }, { status: 404 });
+
+      await registrarErroLink(
+        supabaseAdmin,
+        appUser.id,
+        originUrl,
+        "Produto não encontrado na Shopee Affiliate",
+        "shopee"
+      );
+
+      return NextResponse.json(
+        { error: "Produto não encontrado na Shopee Affiliate" },
+        { status: 404 }
+      );
     }
 
     /* =========================
@@ -325,8 +366,25 @@ if (!originUrl) {
       generate_link_id: insertedLink.id,
     });
 
-  } catch (error) {
+  } catch (error: any) {
+
     console.error("Erro API Shopee:", error);
-    return NextResponse.json({ error: "Erro interno ao gerar link Shopee" }, { status: 500 });
+
+    try {
+      const supabaseAdmin = await createAdminSupabase();
+
+      await supabaseAdmin.from("links_erro").insert({
+        url: "desconhecida",
+        erro: error?.message || "Erro interno",
+        plataforma: "shopee",
+        data: new Date().toISOString(),
+      });
+
+    } catch {}
+
+    return NextResponse.json(
+      { error: "Erro interno ao gerar link Shopee" },
+      { status: 500 }
+    );
   }
 }
