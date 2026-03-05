@@ -128,7 +128,7 @@ useEffect(() => {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: "http://localhost:3000/auth/reset-password",
+     redirectTo: `${window.location.origin}/auth/reset-password`,
         captchaToken: captchaToken,
       });
 
