@@ -357,9 +357,17 @@ span{
     margin-top: 18px;
   }
 
+  .login-forgot button {
+    font-size: 15px;
+  }
+
   /* LINK */
   .login-link{
-    font-size: 13px;
+    font-size: 16px;
+  }
+
+  .login-success {
+  font-size: 16px;
   }
 
 }

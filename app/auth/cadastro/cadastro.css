@@ -297,11 +297,12 @@
   }
 
   .cadastro-title{
-    font-size: 24px;
+    font-size: 28px;
   }
 
   .cadastro-sub{
-    font-size: 13px;
+    font-size: 15px;
+    margin-bottom: 5px;
   }
 
   .cadastro-beneficios{
@@ -310,12 +311,12 @@
   }
 
   .cadastro-input{
-    font-size: 16px; /* 🔥 evita zoom no iOS */
+    font-size: 16px; 
     padding: 13px;
   }
 
   .cadastro-label{
-    font-size: 13px;
+    font-size: 16px;
   }
 
   /* 🔥 REGRAS DE SENHA EM 1 COLUNA */
@@ -326,11 +327,11 @@
   }
 
   .rule{
-    font-size: 13px;
+    font-size: 15px;
   }
 
   .cadastro-btn{
-    margin-top: 14px;
+    font-size: 20px;
   }
 
   .feedback-success{
@@ -338,11 +339,11 @@
   }
 
   .cadastro-link{
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .cadastro-termos{
-    font-size: 12px;
+    font-size: 15px;
     margin-top: 14px;
   }
 
