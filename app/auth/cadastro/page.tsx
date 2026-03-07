@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
 import "./cadastro.css";
@@ -24,22 +24,48 @@ export default function Cadastro() {
 
   const { width, height } = useWindowSize();
   const [showConfetti, setShowConfetti] = useState(false);
-const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-const [captchaError, setCaptchaError] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaError, setCaptchaError] = useState(false);
 
+  const [registeredEmail, setRegisteredEmail] = useState("");
   // =========================
   // Regras de senha
   // =========================
 
-  const hasMinLength = password.length >= 8;
+  const hasMinLength = password.length >= 6;
+  const hasSpecial = /[!@#$%^&*]/.test(password);
+
   const hasUpper = /[A-Z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
-  const hasSpecial = /[!@#$%^&*]/.test(password);
+
   const passwordsMatch =
     password === confirmPassword && password.length > 0;
 
+  /* REQUISITOS MÍNIMOS PARA CADASTRO */
   const passwordValid =
-    hasMinLength && hasUpper && hasNumber && hasSpecial && passwordsMatch;
+    hasMinLength && hasSpecial && passwordsMatch;
+
+  const turnstileRef = useRef<any>(null);
+
+  /* =========================
+    FORÇA DA SENHA
+  ========================= */
+
+  let strength = 0;
+
+  if (password.length >= 6) strength += 1;
+  if (hasUpper) strength += 1;
+  if (hasNumber) strength += 1;
+  if (hasSpecial) strength += 1;
+
+  const strengthPercent = (strength / 4) * 100;
+
+  let strengthLabel = "";
+
+  if (strength <= 1) strengthLabel = "Fraca";
+  else if (strength === 2 || strength === 3) strengthLabel = "Média";
+  else strengthLabel = "Forte";
+
 
   useEffect(() => {
     if (success) {
@@ -76,15 +102,33 @@ const [captchaError, setCaptchaError] = useState(false);
 
       const data = await res.json();
 
+      /* ERRO DA API */
       if (!res.ok) {
-        setError(data.error || "Erro ao cadastrar");
-      } else {
-        setSuccess(true);
-        setName("");
-        setEmail("");
-        setPassword("");
-        setConfirmPassword("");
+
+        if (data?.error?.includes("timeout-or-duplicate")) {
+          setError("O captcha expirou. Confirme novamente que você não é um robô.");
+        } else {
+          setError(data.error || "Erro ao cadastrar");
+        }
+
+        turnstileRef.current?.reset();
+        setCaptchaToken(null);
+
+        return; 
       }
+
+      /* SUCESSO */
+      setError(null);
+      setRegisteredEmail(email);
+      setSuccess(true);
+      setName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+
+      turnstileRef.current?.reset();
+      setCaptchaToken(null);
+
     } catch {
       setError("Erro de conexão com o servidor");
     } finally {
@@ -107,6 +151,7 @@ const [captchaError, setCaptchaError] = useState(false);
           numberOfPieces={300}
           gravity={0.3}
           recycle={false}
+          style={{ zIndex: 2000 }}
         />
       )}
 
@@ -155,7 +200,10 @@ const [captchaError, setCaptchaError] = useState(false);
                   className="cadastro-input"
                   autoComplete="new-email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError(null);
+                  }}
                   required
                 />
               </div>
@@ -166,11 +214,14 @@ const [captchaError, setCaptchaError] = useState(false);
                 <div className="password-field">
                   <input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Crie uma senha forte"
+                    placeholder="Crie uma senha (mínimo 6 caracteres)"
                     className="cadastro-input"
                     autoComplete="new-password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setError(null);
+                    }}
                     required
                   />
                   <button
@@ -193,7 +244,10 @@ const [captchaError, setCaptchaError] = useState(false);
                     className="cadastro-input"
                     autoComplete="new-password"
                     value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    onChange={(e) => {
+                      setConfirmPassword(e.target.value);
+                      setError(null);
+                    }}
                     required
                   />
                   <button
@@ -204,24 +258,47 @@ const [captchaError, setCaptchaError] = useState(false);
                     {showConfirm ? "🙈" : "👁"}
                   </button>
                 </div>
+
+
               </div>
 
               {/* Regras */}
               <div className="password-rules">
-                <Rule valid={hasMinLength} text="Mínimo de 8 caracteres" />
-                <Rule valid={hasUpper} text="Pelo menos 1 letra maiúscula" />
-                <Rule valid={hasNumber} text="Pelo menos 1 número" />
+                <Rule valid={hasMinLength} text="Mínimo de 6 caracteres" />
+                <Rule valid={hasNumber} text="Número (senha mais forte)" />
                 <Rule valid={hasSpecial} text="1 caractere especial (!@#$%^&*)" />
+                <Rule valid={hasUpper} text="Letra maiúscula (senha mais forte)" />
                 <Rule valid={passwordsMatch} text="As senhas conferem" />
               </div>
 
+
+              {/* BARRA DE FORÇA */}
+              {password.length > 0 && (
+                <>
+                  <div className="password-strength-bar">
+                    <div
+                      className="password-strength-fill"
+                      style={{ width: `${strengthPercent}%` }}
+                    ></div>
+                  </div>
+
+                  <p className={`password-strength-text level-${strength}`}>
+                    Segurança da senha: {strengthLabel}
+                  </p>
+                </>
+              )}
+
               <div className="cadastro-captcha">
                 <Turnstile
+                  ref={turnstileRef}
                   siteKey="0x4AAAAAACiJdMM95ZEJ0inL"
                   options={{ theme: "dark", size: "normal" }}
                   onSuccess={(token) => {
                     setCaptchaToken(token);
                     setCaptchaError(false);
+                  }}
+                  onExpire={() => {
+                    setCaptchaToken(null);
                   }}
                 />
               </div>
@@ -233,31 +310,64 @@ const [captchaError, setCaptchaError] = useState(false);
               )}
 
               <button
-                className="cadastro-btn"
-                disabled={!passwordValid || loading}
+                className={`cadastro-btn ${error ? "error" : ""}`}
+                disabled={loading}
               >
-                {loading ? "Criando conta..." : "Criar minha conta"}
+                {loading
+                  ? "Criando conta..."
+                  : error
+                  ? error
+                  : "Criar minha conta"}
               </button>
-
-              {error && <p className="feedback-error">{error}</p>}
-
-              {success && (
-                <p className="feedback-success">
-                  Conta criada com sucesso! 🎉
-                </p>
-              )}
 
               <p className="cadastro-link">
                 Já tem conta? <a href="/auth/login">Entrar</a>
               </p>
             </form>
 
-            <p className="cadastro-termos">
-              Ao criar sua conta, você concorda com nossos termos de uso
-              e política de privacidade.
-            </p>
+              <p className="cadastro-termos">
+                Ao criar sua conta, você concorda com nossos
+                <a href="/termos"> Termos de Uso </a>
+                e
+                <a href="/privacidade"> Política de Privacidade</a>.
+              </p>
 
           </div>
+
+          {success && (
+              <div className="success-modal-overlay">
+
+                <div className="success-modal">
+
+                  <h2>Conta criada com sucesso!
+                  <span className="success-emoji">🎉</span>
+                  </h2> 
+
+                  <a>
+                    Enviamos um link de confirmação para: 
+                    <p className="success-email">{registeredEmail} </p>
+                  </a>
+
+                  <a>
+                    Abra sua caixa de entrada e clique no link para ativar sua conta.
+                  </a>
+
+                  <h3>
+                    Se não encontrar o e-mail, verifique a pasta de spam.
+                  </h3>
+
+                  <button
+                    className="success-btn"
+                    onClick={() => window.location.href = "/auth/login"}
+                  >
+                    Verificar e-mail
+                  </button>
+
+                </div>
+
+              </div>
+            )}
+            
         </div>
 
         <AuthFooter />

@@ -273,6 +273,8 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
           src="/logo.png"
           alt="BuyGain"
           className={`brand-logo ${logoFaded ? "faded" : ""}`}
+          draggable="false"
+          onContextMenu={(e) => e.preventDefault()}
         />
       </div>
 

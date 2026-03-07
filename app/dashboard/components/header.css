@@ -47,6 +47,11 @@
   margin-top: -7px;
   z-index: 4;
   position: relative;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-user-drag:none;
+
+  pointer-events:auto;
 }
 
 .brand-logo {

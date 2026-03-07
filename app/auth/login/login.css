@@ -33,12 +33,13 @@
 
 /* Título estilo LP */
 .login-title {
-  font-size: 30px;
+  font-family: "Orbitron", sans-serif;
+  font-size: 38px;
   font-weight: 700;
   text-align: center;
-  margin-bottom: 25px;
+  margin-bottom: 35px;
 
-  background: linear-gradient(90deg, #cf57ff, #cfb8ff);
+  background: linear-gradient(90deg, #cf57ff, #6625fd);
   -webkit-background-clip: text;
   color: transparent;
 
@@ -82,7 +83,7 @@
 .login-captcha {
   display: flex;
   justify-content: center;
-  margin: 18px 0 10px 0;
+  margin: 18px 0 0px 0;
   padding: 12px;
   border-radius: 14px;
 
@@ -112,6 +113,7 @@
   margin-top: 20px;
   border-radius: 12px;
 
+  font-size: 20px;
   font-weight: 700;
   color: #fff;
 
@@ -150,7 +152,7 @@
   background: none;
   border: none;
   padding: 0;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   color: #b987ff;
   cursor: pointer;
@@ -163,8 +165,8 @@
 }
 
 .login-error {
-  margin-top: 10px;
-  font-size: 13px;
+  margin-bottom: 10px;
+  font-size: 16px;
   padding: 10px;
   border-radius: 8px;
   background: rgba(255, 0, 90, 0.1);
@@ -191,7 +193,7 @@
 .login-link {
   margin-top: 12px;
   text-align: center;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 span{    
@@ -271,6 +273,12 @@ span{
   filter:
     drop-shadow(0 0 14px rgba(138,60,242,0.45))
     drop-shadow(0 0 26px rgba(0,255,245,0.25));
+
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-user-drag:none;
+
+  pointer-events:auto;
 }
 
 /* leve fade após alguns segundos */
@@ -299,6 +307,19 @@ span{
   align-items: center;
 }
 
+/* ===========================
+   FIX AUTOFILL INPUT (Chrome)
+=========================== */
+
+.login-input:-webkit-autofill,
+.login-input:-webkit-autofill:hover,
+.login-input:-webkit-autofill:focus,
+.login-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(69, 38, 102, 0.679) inset !important;
+  -webkit-text-fill-color: #e5e5e5 !important;
+  transition: background-color 9999s ease-in-out 0s;
+  border: 1px solid rgba(155, 81, 255, 0.35);
+}
 
 
 /* =========================================

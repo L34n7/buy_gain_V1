@@ -11,7 +11,10 @@ export default function AuthFooter() {
         <div className="auth-footer-left">
 
           <div className="auth-footer-brand">
-            <img src="/logo.png" alt="BuyGain" />
+            <img src="/logo.png" alt="BuyGain" 
+              draggable="false"
+              onContextMenu={(e) => e.preventDefault()}
+              />
             <h4>BuyGain</h4>
           </div>
 

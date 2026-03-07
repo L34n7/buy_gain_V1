@@ -43,10 +43,15 @@
   opacity: 0.5;
   filter: grayscale(60%);
   transition: 0.3s ease;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-user-drag:none;
+
+  pointer-events:auto;
 }
 
 .auth-footer-brand img:hover {
-  opacity: 0.6;
+  opacity: 0.8;
   filter: grayscale(30%);
 }
 

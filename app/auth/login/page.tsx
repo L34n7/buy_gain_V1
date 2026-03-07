@@ -153,6 +153,8 @@ useEffect(() => {
             src="/logo.png"
             alt="BuyGain"
             className={`login-logo ${logoFaded ? "faded" : ""}`}
+            draggable="false"
+            onContextMenu={(e) => e.preventDefault()}
           />
         </div>
 
