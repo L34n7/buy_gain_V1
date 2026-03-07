@@ -265,24 +265,77 @@
 
 
 /* RESPONSIVO: empilha em telas pequenas */
+
+/* =========================================
+   📱 MOBILE
+========================================= */
+
 @media (max-width: 900px){
+
+  .welcome-title{
+    font-size:36px;
+    margin-top:30px;
+  }
+
+  .intro-h1{
+    font-size:25px;
+    margin-top: 15px;
+    margin-bottom:40px;
+  }
+
+  .intro-sub{
+    font-size: 20px;
+  }
+
+  .intro-text{
+    margin-top: 50px;
+    font-size: 18px;
+    font-weight: 500;
+  }
+  
+  .cta-area{
+    position: relative;
+    height: auto;
+    margin-top: 40px;
+  }
+
   .cta-wrapper{
+    display:flex;
     flex-direction: column;
-    gap: 18px;
-    padding: 12px;
+    gap:16px;
+    padding:16px;
   }
 
-  /* em mobile os botões ocupam 50% da altura entre si (cada um fica grande) */
   .cta-button{
-    height: calc((100% - 18px) / 2);
-    min-height: 160px;
+    position: relative;
+    inset:auto;
+
+    width:100%;
+    height:120px;
+
+    clip-path:none;
+    padding:0;
+
+    border-radius:14px;
   }
 
-  .welcome-title{ font-size: 30px; }
-  .intro-h1{ font-size: 20px; }
-}
+  .cta-left{
+    margin-top: -40px;
+    background: linear-gradient(180deg, rgba(71,23,92,0.85), rgba(12,6,22,0.85));
+  }
 
-/* Acessibilidade: focus visível */
-.cta-button:focus{
-  box-shadow: 0 0 0 4px rgba(255,255,255,0.03), 0 0 28px rgba(138,60,242,0.12);
+  .cta-right{
+    background: linear-gradient(180deg, rgba(14,51,87,0.85), rgba(5,10,20,0.85));
+  }
+
+  .cta-legend{
+    font-size:28px;
+  }
+
+  .cta-subtext{
+    font-size:18px;
+  }
+
+
+
 }

@@ -604,6 +604,7 @@ export default function ProfileForm() {
 
           <div className="profile-avatar-controls">
             <h2 className="profile-name-av">{form.nickname}</h2>
+            <h3 className="profile-text-av"> Alterar Foto de Perfil </h3>
             <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleSelectImage} id="avatar-file-input" className="file-input" />
             <small className="profile-avatar-help">JPG / PNG / WEBP — Máx 2MB — será cortada para círculo 512×512</small>
           </div>
@@ -617,7 +618,7 @@ export default function ProfileForm() {
           </div>
 
           <div className="profile-name">
-            <label className="label">Nickname</label>
+            <label className="label">Nickname (Apelido)</label>
             <input className="input" name="nickname" value={form.nickname} onChange={handleChange} placeholder="ex: nobmaster69" maxLength={20} autoComplete="off" />
             <small className="input-help">Use 3–20 caracteres: letras minúsculas, números, ponto ou underline.</small>
           </div>

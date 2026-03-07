@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";import "./login.css";
+import { useState, useEffect, useRef  } from "react";import "./login.css";
 import { supabase } from "@/lib/supabaseClient";
 import { Turnstile } from "@marsidev/react-turnstile";
 import AuthFooter from "../AuthFooter";
@@ -18,9 +18,10 @@ export default function Login() {
   const [showCaptcha, setShowCaptcha] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaError, setCaptchaError] = useState(false);
+  const turnstileRef = useRef<any>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [logoFaded, setLogoFaded] = useState(false);
-
+  
 useEffect(() => {
   const timer = setTimeout(() => setLogoFaded(true), 2200);
   return () => clearTimeout(timer);
@@ -41,7 +42,10 @@ useEffect(() => {
       if (showCaptcha) {
         if (!captchaToken) {
           setCaptchaError(true);
+          setError("Confirme que você não é um robô.");
           setLoading(false);
+          turnstileRef.current?.reset();
+          setCaptchaToken(null);
           return;
         }
 
@@ -63,12 +67,32 @@ useEffect(() => {
       const { data, error } = response;
 
       if (error) {
-        // Se Supabase exigir captcha
-        if (error.message.toLowerCase().includes("captcha")) {
+
+        const msg = error.message.toLowerCase();
+
+        // captcha exigido
+        if (msg.includes("captcha")) {
           setShowCaptcha(true);
-        } else {
-          setError(error.message);
+          setError(null); // não mostrar erro
         }
+
+        // credenciais inválidas
+        else if (msg.includes("invalid login credentials")) {
+          setError("Email ou senha incorretos.");
+        }
+
+        // email não confirmado
+        else if (msg.includes("email not confirmed")) {
+          setError("Confirme seu email antes de acessar.");
+        }
+
+        // fallback
+        else {
+          setError("Não foi possível fazer login.");
+        }
+
+        turnstileRef.current?.reset();
+        setCaptchaToken(null);
 
         setLoading(false);
         return;
@@ -98,6 +122,9 @@ useEffect(() => {
     } catch (err) {
       console.error(err);
       setError("Erro de conexão com o servidor");
+      
+      turnstileRef.current?.reset();
+      setCaptchaToken(null);
     } finally {
       setLoading(false);
     }
@@ -115,11 +142,16 @@ useEffect(() => {
     // Força mostrar captcha se ainda não estiver visível
     if (!showCaptcha) {
       setShowCaptcha(true);
+      setError(null);
       return;
     }
 
     if (!captchaToken) {
       setCaptchaError(true);
+      setError("Confirme que você não é um robô.");
+      turnstileRef.current?.reset();
+      setCaptchaToken(null);
+      setLoading(false);
       return;
     }
 
@@ -170,7 +202,10 @@ useEffect(() => {
             className="login-input"
             placeholder="exemplo@seuemail.com"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setError(null);
+            }}
             required
           />
 
@@ -180,31 +215,41 @@ useEffect(() => {
             className="login-input"
             placeholder="Digite sua senha"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setError(null);
+            }}
             required
           />
 
           {showCaptcha && (
             <div className="login-captcha">
-              <Turnstile
-                siteKey="0x4AAAAAACiJdMM95ZEJ0inL"
-                options={{ theme: "dark", size: "normal" }}
-                onSuccess={(token) => {
-                  setCaptchaToken(token);
-                  setCaptchaError(false);
-                }}
-              />
+            <Turnstile
+              ref={turnstileRef}
+              siteKey="0x4AAAAAACiJdMM95ZEJ0inL"
+              options={{ theme: "dark", size: "normal" }}
+              onSuccess={(token) => {
+                setCaptchaToken(token);
+                setCaptchaError(false);
+                setError(null);
+              }}
+              onExpire={() => {
+                setCaptchaToken(null);
+              }}
+            />
             </div>
           )}
 
-          {captchaError && (
-            <p className="captcha-error">
-              Confirme que você não é um robô.
-            </p>
-          )}
-
-          <button type="submit" className="login-btn" disabled={loading}>
-            {loading ? "Entrando..." : "Entrar"}
+          <button
+            type="submit"
+            className={`login-btn ${error ? "error" : ""}`}
+            disabled={loading}
+          >
+            {loading
+              ? "Entrando..."
+              : error
+              ? error
+              : "Entrar"}
           </button>
 
           <div className="login-forgot">
@@ -220,8 +265,6 @@ useEffect(() => {
           )}
 
           <div className="login-divider"></div>
-
-          {error && <p className="login-error">{error}</p>}
         </form>
 
         <p className="login-link">
