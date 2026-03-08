@@ -163,7 +163,7 @@ export default function Cadastro() {
             <h1 className="cadastro-title">Crie sua conta grátis</h1>
 
             <p className="cadastro-sub">
-              Leva menos de <span>30 segundos</span> para começar.
+              🔒 Seus dados são protegidos e nunca compartilhados..
             </p>
 
             <div className="cadastro-beneficios">
@@ -327,9 +327,9 @@ export default function Cadastro() {
 
               <p className="cadastro-termos">
                 Ao criar sua conta, você concorda com nossos
-                <a href="/termos"> Termos de Uso </a>
+                <a href="/termos-de-uso"> Termos de Uso </a>
                 e
-                <a href="/privacidade"> Política de Privacidade</a>.
+                <a href="/politica-de-privacidade"> Política de Privacidade</a>.
               </p>
 
           </div>

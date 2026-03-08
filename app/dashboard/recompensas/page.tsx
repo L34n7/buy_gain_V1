@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import "./recompensas.css";
 import { emitirXpUpdate } from "@/lib/xpEmitter";
+import confetti from "canvas-confetti";
+import { useRouter } from "next/navigation";
 
 type GiftcardOpcao = {
   id: string;
@@ -32,6 +34,39 @@ export default function RecompensasPage() {
   const [busca, setBusca] = useState("");
   const [debouncedBusca, setDebouncedBusca] = useState("");
   const [descricaoExpandida, setDescricaoExpandida] = useState(false);
+  const [modalReward, setModalReward] = useState(false);
+  const router = useRouter();
+
+
+  function dispararConfetti() {
+  const duration = 2000;
+  const end = Date.now() + duration;
+
+  const colors = ["#8a5cff", "#00f0ff", "#ffffff"];
+
+  (function frame() {
+    confetti({
+      particleCount: 3,
+      angle: 60,
+      spread: 70,
+      origin: { x: 0 },
+      colors,
+    });
+
+    confetti({
+      particleCount: 3,
+      angle: 120,
+      spread: 70,
+      origin: { x: 1 },
+      colors,
+    });
+
+    if (Date.now() < end) {
+      requestAnimationFrame(frame);
+    }
+  })();
+}
+
 
   /* =========================
      CARREGAR GIFTCARDS
@@ -122,7 +157,8 @@ export default function RecompensasPage() {
         return;
       }
 
-      alert("🎉 Recompensa solicitada com sucesso!");
+      dispararConfetti();
+      setModalReward(true);
 
       // fecha modal e limpa estado
       setGiftcardSelecionado(null);
@@ -328,6 +364,58 @@ export default function RecompensasPage() {
           </div>
         </div>
       )}
+
+        {modalReward && (
+          <div className="reward-overlay">
+
+            <div className="reward-modal">
+
+              <div className="reward-glow"></div>
+
+              <div className="reward-icon">
+                🏆
+              </div>
+
+              <h2 className="reward-title">
+                Recompensa Resgatada!
+              </h2>
+
+              <p className="reward-desc">
+                Seu pedido foi registrado com sucesso.
+              </p>
+
+              <p className="reward-highlight">
+                Entrega em até <span>48 horas</span>
+              </p>
+
+              <p className="reward-sub">
+                Você poderá acompanhar o status na página
+                <strong> Inventário</strong>.
+              </p>
+
+              <div className="reward-buttons">
+
+                <button
+                  className="reward-btn reward-btn-secondary"
+                  onClick={() => setModalReward(false)}
+                >
+                  Continuar navegando
+                </button>
+
+                <button
+                  className="reward-btn reward-btn-primary"
+                  onClick={() => router.push("/dashboard/inventario")}
+                >
+                  Ir para Inventário
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+        )}
+        
     </div>
   );
 }

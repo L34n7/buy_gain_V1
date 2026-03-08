@@ -230,3 +230,12 @@
   50% { transform: scale(1.2); }
   100% { transform: scale(1); }
 }
+
+
+@media (max-width: 900px) {
+
+.xp-popup {
+  position: fixed;
+  top: 54px;
+}
+}

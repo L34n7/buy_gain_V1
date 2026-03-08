@@ -86,7 +86,7 @@
 .intro-h1 {
   font-size: 28px;
   font-weight: 900;
-  margin: 10px 0 45px;
+  margin: 10px 0 55px;
   background: linear-gradient(90deg, #cf57ff, #4aa9ff);
   -webkit-background-clip: text;
   color: transparent;
@@ -106,7 +106,7 @@
 
 /* Footer */
 .intro-text{
-  margin-top: 70px;
+  margin-top: 90px;
   color: rgba(4, 238, 230, 0.642);
   font-size: 18px;
   font-weight: 500;
@@ -213,7 +213,7 @@
     53.3% 80,
     100% 0,
     100% 100%,
-    865 100%
+    44% 100%
   );
   display:flex;
   justify-content:center;

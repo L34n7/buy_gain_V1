@@ -514,6 +514,8 @@ async function handleGenerate(e: React.FormEvent) {
             url={url}
             setUrl={setUrl}
             loading={loading}
+            loadingCupons={loadingCupons}
+            cuponsCount={cupons.length}
             error={error}
             onSubmit={submitFromButton}
           />

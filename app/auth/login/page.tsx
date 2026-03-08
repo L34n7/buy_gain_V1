@@ -231,7 +231,6 @@ useEffect(() => {
               onSuccess={(token) => {
                 setCaptchaToken(token);
                 setCaptchaError(false);
-                setError(null);
               }}
               onExpire={() => {
                 setCaptchaToken(null);

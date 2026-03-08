@@ -416,7 +416,7 @@
 
 .profile-menu-divider {
   height: 1px;
-  background: rgba(255,255,255,.1);
+  background: rgba(255, 255, 255, 0.163);
   margin: 6px 0;
 }
 
@@ -444,6 +444,111 @@
 
 .bell-item.conquista.lida .bell-item-sub {
   color: #777;
+}
+
+
+/* =========================
+   LOGOUT MODAL
+========================= */
+
+.logout-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.logout-modal {
+  width: 460px;
+  padding: 38px;
+  border-radius: 18px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(14,10,40,0.98),
+    rgba(8,4,26,0.95)
+  );
+
+  border: 1px solid rgba(138,60,242,0.35);
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.8),
+    0 0 30px rgba(138,60,242,0.25);
+
+  text-align: center;
+
+  animation: logoutModalIn 180ms ease;
+}
+
+@keyframes logoutModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.logout-title {
+  font-size: 30px;
+  font-weight: 800;
+  color: #fff;
+  cursor: default;
+}
+
+.logout-text {
+  margin-top: 10px;
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.782);
+  cursor: default;
+}
+
+.logout-actions {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+
+.logout-cancel {
+  font-size: 20px;
+  padding: 12px 16px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  cursor: pointer;
+}
+
+.logout-cancel:hover {
+  background: rgba(255,255,255,0.15);
+  transform: scale(1.05);
+
+}
+
+.logout-confirm {
+  font-size: 20px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: none;
+
+  background: linear-gradient(90deg,#ff5f6d,#ff2e63);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+
+  box-shadow: 0 0 18px rgba(255,80,120,0.45);
+}
+
+.logout-confirm:hover {
+  transform: scale(1.05);
 }
 
 
@@ -538,5 +643,11 @@
     font-weight: 700;
     font-size: 13px;
   }
+
+  
+.logout-modal {
+  width: 380px;
+  animation: logoutModalIn 180ms ease;
+}
 
 }

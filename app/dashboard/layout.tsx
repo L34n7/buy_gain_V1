@@ -7,6 +7,9 @@ import "./dashboard.css";
 import MobileNav from "./components/MobileNav";
 import AuthFooter from "../auth/AuthFooter";
 import { usePathname } from "next/navigation";
+import DailyXpLoader from "./components/DailyXpLoader";
+import GlobalXpInterceptor from "./components/GlobalXpInterceptor";
+import GlobalXpSystem from "./components/GlobalXpSystem";
 
 export default function DashboardLayout({
   children,
@@ -68,6 +71,11 @@ return (
     />
 
     <div className="dashboard-main">
+
+      <DailyXpLoader />
+      <GlobalXpInterceptor />
+      <GlobalXpSystem />
+
       <Header
         userName={userName}
         avatarUrl={avatarUrl}

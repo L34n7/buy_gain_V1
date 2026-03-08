@@ -310,7 +310,9 @@ if (!originUrl) {
 
     const REAIS_PARA_PONTOS = 1000;
     const pointsMax = Math.floor(ganhoUsuarioMax * REAIS_PARA_PONTOS);
+    const pointsMin = Math.floor(pointsMax * 0.8);
     const pontos = pointsMax || 0;
+    
 
     /* =========================
        5) Marketplace
@@ -360,6 +362,7 @@ if (!originUrl) {
       produto_imagem: produto.imageUrl,
       valor: priceMax,
       pontos,
+      pointsMin,
       link_rastreado: shortLink,
       produto_url: originUrl,
       plataforma: "Shopee",

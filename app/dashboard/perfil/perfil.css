@@ -552,137 +552,7 @@
 }
 
 
-
-
-
 /* ========================================
-   📱 MOBILE REAL (até 768px)
-======================================== */
-@media (max-width: 768px){
-
-  .profile-page{
-    width: 100%;
-    max-width: 100%;
-    padding: 20px 14px;
-  }
-
-  .profile-title{
-    text-align: center;
-    margin: 0 0 20px 0;
-  }
-
-  /* =======================
-     PROFILE CARD
-  ======================== */
-
-  .profile-card{
-    grid-template-columns: 1fr; /* 🔥 vira coluna */
-    gap: 20px;
-    padding: 20px;
-  }
-
-  .profile-card-left{
-    flex-direction: column;  /* 🔥 empilha avatar + info */
-    align-items: center;
-    text-align: center;
-    gap: 16px;
-  }
-
-  .avatar-wrapper{
-    width: 110px;
-    height: 110px;
-  }
-
-  .avatar-wrapper img,
-  .avatar-fallback{
-    font-size: 28px;
-  }
-
-  .profile-name{
-    font-size: 22px;
-    white-space: normal; /* 🔥 permite quebrar */
-  }
-
-  .profile-name-row{
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .profile-email{
-    font-size: 13px;
-  }
-
-  /* INFO EXTRA */
-  .profile-extra{
-    grid-template-columns: 1fr; /* 🔥 1 coluna */
-    text-align: center;
-    gap: 6px;
-  }
-
-  .profile-extra span{
-    white-space: normal; /* 🔥 remove quebra forçada */
-    font-size: 14px;
-  }
-
-  /* BOTÃO */
-  .profile-card-actions{
-    width: 100%;
-  }
-
-  .profile-card-actions a{
-    width: 100%;
-    text-align: center;
-  }
-
-  /* =======================
-     LEVEL CARD
-  ======================== */
-
-  .level-card{
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .xp-text{
-    justify-self: center;
-  }
-
-  .xp-bar{
-    height: 12px;
-  }
-
-  /* =======================
-     STATS
-  ======================== */
-
-  .profile-stats-grid{
-    grid-template-columns: 1fr; /* 🔥 1 card por linha */
-  }
-
-  /* =======================
-     ACHIEVEMENTS
-  ======================== */
-
-  .achievements-grid{
-    grid-template-columns: 1fr; /* 🔥 1 por linha */
-  }
-
-  .achievement-card{
-    min-height: auto;
-  }
-
-  /* =======================
-     XP POPUP
-  ======================== */
-
-  .xp-popup{
-    right: 50%;
-    transform: translateX(50%);
-    top: 70px;
-    font-size: 20px;
-  }
-
-}/* ========================================
    📱 MOBILE REAL (até 768px)
 ======================================== */
 @media (max-width: 768px){
@@ -726,7 +596,7 @@
     }
 
     .profile-name{
-      font-size: 22px;
+      font-size: 30px;
       white-space: normal;
     }
 
@@ -736,7 +606,7 @@
     }
 
     .profile-email{
-      font-size: 13px;
+      font-size: 15px;
     }
 
     /* INFO EXTRA */
@@ -748,7 +618,7 @@
 
     .profile-extra span{
       white-space: normal;
-      font-size: 14px;
+      font-size: 16px;
     }
 
     /* BOTÃO */
@@ -766,46 +636,47 @@
     ======================== */
 
    
-  .level-card{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    padding: 16px;
-  }
+    .level-card{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+    }
 
-  /* Header volta a ser bloco normal */
-  .level-header{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
+    /* Header volta a ser bloco normal */
+    .level-header{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
 
-  /* Badge centralizado */
-  .level-badge{
-    text-align: center;
-  }
+    /* Badge centralizado */
+    .level-badge{
+      text-align: center;
+      font-size: 16px; 
+    }
 
-  .level-badge b {
-    color: #f9b300;
-    font-size: 14px; 
-  }
+    .level-badge b {
+      color: #f9b300;
+      font-size: 14px; 
+    }
 
-  /* Barra ocupa largura total */
-  .xp-bar{
-    width: 100%;
-    height: 18px;
-  }
+    /* Barra ocupa largura total */
+    .xp-bar{
+      width: 100%;
+      height: 18px;
+    }
 
-  /* Texto XP fica embaixo */
-  .xp-text{
-    order: 3;
-    margin-top: 4px;
-    font-size: 13px;
-    opacity: 0.6;
-    text-align: center;
-  }
+    /* Texto XP fica embaixo */
+    .xp-text{
+      order: 3;
+      margin-top: 4px;
+      font-size: 13px;
+      opacity: 0.6;
+      text-align: center;
+    }
 
     /* =======================
       STATS
@@ -825,6 +696,17 @@
 
     .achievement-card{
       min-height: auto;
+    }
+
+    /* =======================
+      XP POPUP
+    ======================== */
+
+    .xp-popup{
+      right: 50%;
+      transform: translateX(50%);
+      top: 70px;
+      font-size: 20px;
     }
 
     /* =======================

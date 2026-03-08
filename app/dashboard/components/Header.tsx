@@ -104,24 +104,43 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
   useEffect(() => {
     let timer: any;
 
-    async function fetchSaldo() {
-      const res = await fetch("/api/saldo", { credentials: "include" });
-      if (!res.ok) return;
-      const json = await res.json();
+    let loadingSaldo = false;
 
-      const newPoints = json.saldo ?? 0;
-      setLevel(json.level ?? 1);
+      async function fetchSaldo() {
 
-      if (!initialPointsLoaded.current) {
-        // primeiro carregamento → SEM animação
-        setPoints(newPoints);
-        setDisplayPoints(newPoints);
-        displayRef.current = newPoints;
-        initialPointsLoaded.current = true;
-      } else {
-        // atualizações reais → COM animação
-        setPoints(newPoints);
-      }
+        if (loadingSaldo) return;
+        loadingSaldo = true;
+
+        try {
+        const res = await fetch("/api/saldo", { credentials: "include" });
+
+        // se não estiver autenticado, para tudo
+        if (res.status === 401) {
+          clearInterval(timer);
+          return;
+        }
+
+        if (!res.ok) return;
+
+        const json = await res.json();
+
+        const newPoints = json.saldo ?? 0;
+        setLevel(json.level ?? 1);
+
+        if (!initialPointsLoaded.current) {
+          setPoints(newPoints);
+          setDisplayPoints(newPoints);
+          displayRef.current = newPoints;
+          initialPointsLoaded.current = true;
+        } else {
+          setPoints(newPoints);
+        }
+
+        } catch (err) {
+          console.error("Erro ao buscar saldo:", err);
+        } finally {
+          loadingSaldo = false;
+        }
     }
 
     function start() {
@@ -135,12 +154,17 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
 
     start();
 
-    document.addEventListener("visibilitychange", () => {
-    });
+    function handleVisibility() {
+      if (document.visibilityState === "visible") {
+        fetchSaldo();
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
       stop();
-      document.removeEventListener("visibilitychange", () => {});
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
 
@@ -252,13 +276,16 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     return "Dashboard";
   }
 
-  async function handleLogout() {
-    if (!confirm("Deseja realmente sair da sua conta?")) return;
+  const [logoutModal, setLogoutModal] = useState(false);
 
-    // 🔥 encerra sessão no servidor (Supabase Auth)
-    await fetch("/api/logout", { method: "POST" });
+  async function confirmLogout() {
+    await fetch("/api/logout", {
+      method: "POST",
+      credentials: "include",
+    });
 
-    // 🔥 NÃO usamos mais localStorage para auth
+    localStorage.removeItem("auth_user_id");
+
     router.replace("/auth/login");
   }
 
@@ -390,7 +417,7 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
                 className="profile-menu-item"
                 onClick={() => {
                   setMenuOpen(false);
-                  window.location.href = "/dashboard/perfil-config";
+                  router.push("/dashboard/perfil-config");
                 }}
               >
                 ⚙️ Configurações
@@ -410,7 +437,7 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
 
               <button
                 className="profile-menu-item logout"
-                onClick={handleLogout}
+                onClick={() => setLogoutModal(true)}
               >
                 🚪 Sair
               </button>
@@ -423,7 +450,6 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
                 src={avatarState}
                 alt="Avatar"
                 className="profile-avatar-img-header"
-                key={avatarState}
               />
             ) : (
               <span className="profile-avatar-header-fallback">
@@ -459,6 +485,37 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
           </div>
         </div>
       </div>
+      {logoutModal && (
+        <div className="logout-modal-overlay">
+          <div className="logout-modal">
+
+            <div className="logout-title">
+               Sair da conta
+            </div>
+
+            <div className="logout-text">
+              Deseja realmente sair da sua conta?
+            </div>
+
+            <div className="logout-actions">
+              <button
+                className="logout-cancel"
+                onClick={() => setLogoutModal(false)}
+              >
+                Cancelar
+              </button>
+
+              <button
+                className="logout-confirm"
+                onClick={confirmLogout}
+              >
+                Sim, sair
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </header>
   );
 }

@@ -57,13 +57,12 @@ export default function ResultCard({
               ao finalizar a compra
             </div>
 
-            <div className="reward-sub">
-              Estimativa:{" "}
-              {pointsMin !== null &&
-              pontos !== null
-                ? `${pointsMin}–${pontos} pontos`
-                : "calculando..."}
-            </div>
+          <div className="reward-sub">
+            Estimativa:{" "}
+            {pontos
+              ? `${pointsMin ?? Math.floor(pontos * 0.8)}–${pontos} pontos`
+              : "calculando..."}
+          </div>
           </div>
         </div>
       </div>
@@ -116,7 +115,7 @@ export default function ResultCard({
           </div>
 
           {/* LINK */}
-          <div className="result-link-row">
+          <div className="result-link-row"> 
             <div
               className="result-link-short"
               title={trackedLink}

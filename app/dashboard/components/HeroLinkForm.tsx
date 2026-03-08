@@ -1,11 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 type Props = {
   url: string;
   setUrl: (v: string) => void;
   loading: boolean;
+  loadingCupons: boolean;
+  cuponsCount?: number;   
   error: string | null;
   onSubmit: () => void;
 };
@@ -14,9 +16,67 @@ export default function HeroLinkForm({
   url,
   setUrl,
   loading,
+  loadingCupons,
+  cuponsCount = 0,
   error,
   onSubmit,
 }: Props) {
+
+
+const [reward, setReward] = useState(false);
+const [rewardSuccess, setRewardSuccess] = useState(false);
+const [buscaExecutada, setBuscaExecutada] = useState(false);
+const handleClick = () => {
+  setBuscaExecutada(true);
+  onSubmit();
+};
+const [displayCount, setDisplayCount] = useState(0);
+
+useEffect(() => {
+
+  if (!buscaExecutada) return;
+
+  if (!loading && !loadingCupons) {
+
+    setReward(true);
+    setRewardSuccess(true);
+
+    setTimeout(() => {
+      setReward(false);
+    }, 8700);
+
+    setTimeout(() => {
+      setRewardSuccess(false);
+      setBuscaExecutada(false);
+    }, 8800);
+
+  }
+
+}, [loadingCupons]);
+
+/* animação do contador */
+useEffect(() => {
+
+  if (!reward) return;
+
+  let current = 0;
+
+  const interval = setInterval(() => {
+
+    current++;
+
+    setDisplayCount(current);
+
+    if (current >= (cuponsCount ?? 0)) {
+      clearInterval(interval);
+    }
+
+  }, 120);
+
+  return () => clearInterval(interval);
+
+}, [reward, cuponsCount]);
+
   return (
     <>
       <h2 className="dashboard-title">
@@ -57,18 +117,31 @@ export default function HeroLinkForm({
               aria-label="Link do produto"
             />
 
-            <div className="hero-cta-wrap">
-              <button
-                className="hero-cta"
-                type="button"
-                onClick={onSubmit}
-                disabled={loading}
-              >
-                {loading
-                  ? "GERANDO..."
-                  : "BUSCAR CUPONS"}
-              </button>
-            </div>
+          <button
+            className={`hero-cta 
+            ${(loading || loadingCupons) ? "scanner-active" : ""} 
+            ${reward ? "reward-active" : ""} 
+            ${rewardSuccess ? "reward-success" : ""}
+            `}
+            type="button"
+            onClick={handleClick}
+            disabled={loading || loadingCupons}
+          >
+            <span className="btn-text">
+              {(loading || loadingCupons)
+                ? "ESCANEANDO OFERTAS..."
+                : reward
+                  ? cuponsCount === 0
+                  ? "😕 NENHUM CUPOM ENCONTRADO"
+                  : `🎟️ ${displayCount} CUPONS ENCONTRADO`
+                : "BUSCAR CUPONS"}
+            </span>
+
+            <span className="scanner-line"></span>
+
+            {rewardSuccess && <span className="energy-ripple"></span>}
+          </button>
+
           </div>
         </div>
       </div>

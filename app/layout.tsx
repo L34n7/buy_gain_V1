@@ -3,10 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "./styles/theme.css";
 import "./styles/landing.css";
-import DailyXpLoader from "./components/DailyXpLoader";
-import GlobalXpSystem from "./components/GlobalXpSystem";
 import { AchievementProvider } from "./components/AchievementContext";
-import GlobalXpInterceptor from "./components/GlobalXpInterceptor";
+
 
 /*import Navbar from "../components/Navbar";*/
 /*import "../components/Navbar.css";*/
@@ -43,10 +41,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <AchievementProvider>
 
               <BackgroundFX />
-
-              <DailyXpLoader />
-              <GlobalXpInterceptor />
-              <GlobalXpSystem />
 
               <div className="theme-wrapper">
                 {children}
