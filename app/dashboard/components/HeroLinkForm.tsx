@@ -9,6 +9,7 @@ type Props = {
   loadingCupons: boolean;
   cuponsCount?: number;   
   error: string | null;
+  setError: (v: string | null) => void;
   onSubmit: () => void;
 };
 
@@ -19,6 +20,7 @@ export default function HeroLinkForm({
   loadingCupons,
   cuponsCount = 0,
   error,
+  setError,
   onSubmit,
 }: Props) {
 
@@ -107,35 +109,39 @@ useEffect(() => {
               Cole aqui o link da sua compra
             </div>
 
-            <input
-              value={url}
-              onChange={(e) =>
-                setUrl(e.target.value)
-              }
-              placeholder="https://marketplace/produto"
-              className="hero-input"
-              aria-label="Link do produto"
-            />
+          <input
+            value={url}
+            onChange={(e) => {
+              setUrl(e.target.value);
+              if (error) setError(null);
+            }}
+            placeholder="https://marketplace/produto"
+            className="hero-input"
+            aria-label="Link do produto"
+          />
 
           <button
             className={`hero-cta 
             ${(loading || loadingCupons) ? "scanner-active" : ""} 
             ${reward ? "reward-active" : ""} 
             ${rewardSuccess ? "reward-success" : ""}
+            ${error ? "btn-error" : ""}
             `}
             type="button"
             onClick={handleClick}
-            disabled={loading || loadingCupons}
+            disabled={loading || loadingCupons || reward}
           >
-            <span className="btn-text">
-              {(loading || loadingCupons)
+          <span className="btn-text">
+            {error
+              ? `❌ ${error}`
+              : (loading || loadingCupons)
                 ? "ESCANEANDO OFERTAS..."
                 : reward
                   ? cuponsCount === 0
-                  ? "😕 NENHUM CUPOM ENCONTRADO"
-                  : `🎟️ ${displayCount} CUPONS ENCONTRADO`
-                : "BUSCAR CUPONS"}
-            </span>
+                    ? "😕 NENHUM CUPOM ENCONTRADO"
+                    : `🎟️ ${displayCount} CUPOM${displayCount > 1 ? "S" : ""} ENCONTRADO${displayCount > 1 ? "S" : ""}`
+                  : "BUSCAR CUPONS"}
+          </span>
 
             <span className="scanner-line"></span>
 
@@ -145,13 +151,6 @@ useEffect(() => {
           </div>
         </div>
       </div>
-
-      {/* ERRO */}
-      {error && (
-        <div className="dashboard-error">
-          {error}
-        </div>
-      )}
     </>
   );
 }

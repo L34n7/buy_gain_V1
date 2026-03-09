@@ -167,7 +167,7 @@ export default function Historico() {
 
                         <td className="numeric-cell-GANHO">
                           {typeof item.pontos === "number"
-                            ? item.pontos.toFixed(2)
+                            ? Math.round(item.pontos).toString()
                             : "-"}
                         </td>
 

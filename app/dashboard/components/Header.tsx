@@ -28,6 +28,7 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     marcarCreditoComoLido,
     marcarLevelUpComoLido,
     marcarConquistaComoLida,
+    marcarTodasComoLidas,
   } = useNotifications();
 
   const [points, setPoints] = useState<number>(0);
@@ -320,8 +321,25 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
 
           {bellOpen && (
             <div className="bell-dropdown">
-              <div className="bell-dropdown-title">Notificações</div>
+              <div className="bell-dropdown-head">
 
+                <div className="bell-dropdown-title">
+                  Notificações
+                </div>
+
+                <button
+                  className="bell-mark-all"
+                  disabled={pendentes === 0}
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    await marcarTodasComoLidas();
+                  }}
+                >
+                  Marcar todas Lidas
+                </button>
+
+              </div>
               {pendentes === 0 && (
                 <div className="bell-empty">
                   Nenhuma notificação pendente
@@ -415,20 +433,14 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
 
               <button
                 className="profile-menu-item"
-                onClick={() => {
-                  setMenuOpen(false);
-                  router.push("/dashboard/perfil-config");
-                }}
+                onClick={() => router.push("/dashboard/perfil-config")}
               >
                 ⚙️ Configurações
               </button>
 
               <button
                 className="profile-menu-item"
-                onClick={() => {
-                  setMenuOpen(false);
-                  router.push("/dashboard/ajuda");
-                }}
+                onClick={() => router.push("/dashboard/ajuda")}
               >
                 ❓ Ajuda
               </button>

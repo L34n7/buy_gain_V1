@@ -476,13 +476,10 @@ async function handleGenerate(e: React.FormEvent) {
       e.status !== "CANCELADO_DEFINITIVO" &&
       e.status !== "CONFIRMADO_FINAL"
     )
-    .reduce((total, e) => total + (e.ganho_pontos ?? 0), 0);
+    .reduce((total, e) => total + Math.round((e.ganho_pontos ?? 0) * 100), 0);
 
-  const pontosEmAnaliseFormatado =
-    Math.floor(pontosEmAnalise * 100) / 100;
+  const pontosEmAnaliseTexto = pontosEmAnalise.toString();
 
-  const pontosEmAnaliseTexto =
-    pontosEmAnaliseFormatado.toFixed(2);
 
 /* -----------------------------------------------------
    Compras em análise (quantidade de eventos válidos)
@@ -517,6 +514,7 @@ async function handleGenerate(e: React.FormEvent) {
             loadingCupons={loadingCupons}
             cuponsCount={cupons.length}
             error={error}
+            setError={setError}
             onSubmit={submitFromButton}
           />
 

@@ -360,7 +360,7 @@ export default function Cadastro() {
                     className="success-btn"
                     onClick={() => window.location.href = "/auth/login"}
                   >
-                    Verificar e-mail
+                    Entendi, vou verificar meu e-mail
                   </button>
 
                 </div>

@@ -599,9 +599,10 @@ function calcularPrevisaoConclusao(dataEvento?: string) {
 
                         <td className="numeric-cell-GANHO">
                           {typeof item.ganho_pontos === "number"
-                            ? `${item.ganho_pontos.toFixed(2)}`
+                            ? `${Math.round(item.ganho_pontos * 100)}`
                             : "-"}
-                        </td> 
+                        </td>
+
 
                         <td className="date-cell">{formatDate(item.data_evento)}</td>
                         <td className="date-cell">{formatDate(item.data_update)}</td>

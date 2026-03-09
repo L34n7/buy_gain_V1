@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 import { createUserSupabase } from "@/lib/supabaseServer";
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 async function registrarErroLink(
   supabase: any,
@@ -67,9 +73,9 @@ async function extractOpenGraph(url: string) {
 }
 
 export async function POST(req: Request) {
-
   let productUrl: string | null = null;
-  let userId: string | null = null;
+  let authUserId: string | null = null;
+  let internalUserId: string | null = null;
 
   try {
     const body = await req.json();
@@ -78,9 +84,8 @@ export async function POST(req: Request) {
     const supabaseUser = await createUserSupabase();
 
     if (!productUrl) {
-
       await registrarErroLink(
-        supabaseUser,
+        supabaseAdmin,
         null,
         "desconhecida",
         "URL não informada",
@@ -99,9 +104,8 @@ export async function POST(req: Request) {
     } = await supabaseUser.auth.getUser();
 
     if (!user) {
-
       await registrarErroLink(
-        supabaseUser,
+        supabaseAdmin,
         null,
         productUrl,
         "Usuário não autenticado",
@@ -114,17 +118,80 @@ export async function POST(req: Request) {
       );
     }
 
-    userId = user.id;
+    authUserId = user.id;
+
+    /* -----------------------------------------------------
+       Resolve o ID real da tabela users
+       users.auth_user_id = auth.users.id
+    ----------------------------------------------------- */
+    const { data: userInterno, error: userInternoError } = await supabaseAdmin
+      .from("users")
+      .select("id")
+      .eq("auth_user_id", authUserId)
+      .maybeSingle();
+
+    if (userInternoError || !userInterno?.id) {
+      await registrarErroLink(
+        supabaseAdmin,
+        authUserId,
+        productUrl,
+        "Usuário interno não encontrado na tabela users",
+        "mercadolivre"
+      );
+
+      return NextResponse.json(
+        { error: "Usuário interno não encontrado" },
+        { status: 400 }
+      );
+    }
 
     /* -----------------------------------------------
-       1️⃣ OPEN GRAPH (fallback)
+       1️⃣ VERIFICA CACHE (3 HORAS)
+       Busca EXATAMENTE pelo link colado
+    ----------------------------------------------- */
+    const tresHorasAtras = new Date(
+      Date.now() - 3 * 60 * 60 * 1000
+    ).toISOString();
+
+    const { data: cache, error: cacheError } = await supabaseAdmin
+      .from("generate_link")
+      .select("*")
+      .eq("user_id", internalUserId)
+      .eq("produto_url", productUrl)
+      .gte("data_criacao", tresHorasAtras)
+      .order("data_criacao", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (cache?.link_rastreado) {
+      console.log("⚡ Cache encontrado - retornando sem chamar automação");
+
+      return NextResponse.json({
+        link_rastreado: cache.link_rastreado,
+        produto_nome: cache.produto_nome,
+        produto_imagem: cache.produto_imagem,
+        valor: cache.valor,
+        ganhos: cache.ganhos,
+        ganho_estimado: cache.ganho_estimado,
+        pontos: cache.pontos,
+        perfil_aut: cache.perfil_aut,
+        bonus_percent: cache.bonus_percent,
+        bonus_source: cache.bonus_source,
+        produto_url: cache.produto_url,
+        plataforma: cache.plataforma,
+        marketplace_id: cache.marketplace_id,
+        cached: true,
+      });
+    }
+
+    /* -----------------------------------------------
+       2️⃣ OPEN GRAPH (fallback)
     ----------------------------------------------- */
     const ogData = await extractOpenGraph(productUrl);
 
     /* -----------------------------------------------
-       2️⃣ CHAMA AUTOMAÇÃO (ngrok)
+       3️⃣ CHAMA AUTOMAÇÃO
     ----------------------------------------------- */
-
     console.log("Chamando automação...");
 
     const res = await fetch(
@@ -137,21 +204,22 @@ export async function POST(req: Request) {
     );
 
     if (!res.ok) {
-
       const erroTexto = await res.text();
 
       console.error("Status automação:", res.status);
       console.error("Resposta automação:", erroTexto);
 
       await registrarErroLink(
-        supabaseUser,
-        userId,
+        supabaseAdmin,
+        internalUserId,
         productUrl,
         "Erro automação ML: " + res.status,
         "mercadolivre"
       );
 
-      throw new Error("Erro automação: " + res.status);
+      throw new Error(
+        "TENTE NOVAMENTE POR FAVOR (Erro automação: " + res.status + ")"
+      );
     }
 
     console.log("Automação respondeu");
@@ -159,9 +227,8 @@ export async function POST(req: Request) {
     const data = await res.json();
 
     /* -----------------------------------------------
-       3️⃣ Fallback final
+       4️⃣ Fallback final
     ----------------------------------------------- */
-
     const imagemFinal =
       data.produto_imagem ?? ogData.produto_imagem ?? null;
 
@@ -169,32 +236,60 @@ export async function POST(req: Request) {
       data.produto_nome ?? ogData.produto_nome ?? null;
 
     /* -----------------------------------------------
-       4️⃣ RETORNO FINAL
+       5️⃣ SALVA CACHE
+       Usa client ADMIN para não bater em RLS
     ----------------------------------------------- */
+    try {
+      const payloadInsert = {
+        user_id: internalUserId,
+        produto_nome: nomeFinal,
+        produto_url: productUrl,
+        link_rastreado: data.link_rastreado ?? null,
+        valor: data.valor ?? null,
+        ganhos: data.ganhos ?? null,
+        ganho_estimado: data.ganho_estimado ?? null,
+        pontos: data.pontos ?? null,
+        perfil_aut: data.perfil_aut ?? null,
+        produto_imagem: imagemFinal,
+        bonus_percent: data.bonus_percent ?? null,
+        bonus_source: data.bonus_source ?? null,
+        plataforma: "mercadolivre",
+        marketplace_id: data.marketplace_id ?? null,
+      };
 
+      const { error: insertError } = await supabaseAdmin
+        .from("generate_link")
+        .insert(payloadInsert);
+
+      if (insertError) {
+        console.error("Erro ao salvar cache:", insertError);
+      } else {
+        console.log("Cache salvo com sucesso");
+      }
+    } catch (e) {
+      console.error("Erro ao salvar cache:", e);
+    }
+
+    /* -----------------------------------------------
+       6️⃣ RETORNO FINAL
+    ----------------------------------------------- */
     return NextResponse.json({
       ...data,
       produto_imagem: imagemFinal,
       produto_nome: nomeFinal,
       produto_descricao: ogData.produto_descricao ?? null,
     });
-
   } catch (err: any) {
-
     console.error("Erro /api/gerar-link:", err);
 
     try {
-
-      const supabaseUser = await createUserSupabase();
-
       await registrarErroLink(
-        supabaseUser,
-        userId,
+        supabaseAdmin,
+        internalUserId ?? authUserId,
         productUrl ?? "desconhecida",
         err?.message || "Erro inesperado",
         "mercadolivre"
       );
-
     } catch {}
 
     return NextResponse.json(

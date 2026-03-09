@@ -23,7 +23,7 @@ export default function AjudaPage() {
             💬 Falar no WhatsApp
           </a>
 
-          <Link href="/">
+          <Link href="/dashboard">
             <span className="btn-voltar">Voltar para o início</span>
           </Link>
         </div>

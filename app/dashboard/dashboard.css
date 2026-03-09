@@ -283,22 +283,24 @@ body {
 /* botão CTA central com glow */
 .hero-cta-wrap {margin-top:8px; margin-left: -110px; display:flex; justify-content:center; }
 .hero-cta {
+  position:relative;
+  overflow:hidden;
   margin-top:5px;
   padding:14px 44px;
   border-radius:12px;
+  font-size: 17px;
   font-weight:800;
   letter-spacing:1px;
   color:#fff;
 
-  background: linear-gradient(90deg, #a834ff, #6b2dff);
+  background: linear-gradient(90deg, #a834ff, #b700ff,#6004ff, #6b2dff);
 
   border:none;
   cursor:pointer;
 
   box-shadow:
-  0 20px 60px rgba(138,60,242,0.18),
-  0 6px 26px rgba(0,0,0,0.6),
-  0 0 36px rgba(138,60,242,0.22);
+  0 0 10px rgba(125, 4, 255, 0.974),
+  0 0 30px rgba(139, 60, 242, 0.553);
 
   transition:
   background 0.8s ease,
@@ -306,9 +308,30 @@ body {
   transform 0.8s ease;
 }
 .hero-cta:hover { transform: translateY(-3px); box-shadow: 0 26px 80px rgba(138,60,242,0.28); }
-.hero-cta:disabled { opacity:0.6; cursor:not-allowed; box-shadow:none; }
+.hero-cta:disabled { opacity: 0.7; cursor:not-allowed; box-shadow:none; }
+
+.btn-error{
+  background: linear-gradient(90deg,#a834ff, #ff4d6d,#ff0033,#6b2dff);
+
+  box-shadow:
+    0 0 10px rgba(132, 0, 255, 0.489),
+    0 0 20px rgba(255, 0, 60, 0.496);
+
+  animation: shakeBtn 0.35s ease;}
 
 @media (max-width: 900px) {
+
+  .hero-card {
+    margin: 60px 0 -14px 0;
+    position: relative;
+    border-radius: 22px;
+    background: transparent;
+    z-index: 5;
+        box-shadow:
+      0 0 12px rgba(138,60,242,0.35),
+      0 0 44px rgba(0,255,245,0.22),
+      0 0 52px rgba(138,60,242,0.12);
+  }
 
   .hero-inner {
     flex-direction: column;
@@ -321,11 +344,13 @@ body {
     font-weight: 700; 
     font-size: 18px;
     text-align: center; 
+    margin: -5px 0 5px 0;
+
 }
 
   .hero-input {
     width: 100%;
-    padding: 10px 16px;
+    padding: 13px 16px;
     border-radius: 10px;
     font-size: 13px;
     outline: none;
@@ -347,9 +372,11 @@ body {
   }
 
   .hero-cta {
-    font-size: 12px;
+    font-size: 16px;
     font-weight: 900;
     padding: 10px; 
+    margin: 5px 0 10px 0;
+
   }
 
 }
@@ -745,7 +772,7 @@ body {
   }
 
   .dashboard-coupons-title{
-    font-size: 18px;
+    font-size: 22px;
     text-align: center; 
   }
 
@@ -784,18 +811,19 @@ body {
   }
 
   .coupon-badge {
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: 700;
     padding: 6px 12px;
   }
 
   .coupon-category-text {
-    font-size: 14px;
+    font-size: 15px;
     opacity: 0.7;
     margin-left: 0;
   }
 
   .coupon-discount {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 800;
     color: var(--neon-cyan);
     margin-top: 4px;
@@ -832,7 +860,7 @@ body {
     width: 100%;
     align-self: stretch;
     padding: 5px 14px;
-    font-size: 12px;
+    font-size: 16px;
     border-radius: 10px;
   }
 
@@ -844,7 +872,7 @@ body {
   /* regras: fechar/abrir fica natural, texto ajustado */
   .coupon-rules {
     margin-top: -5px;
-    font-size: 14px;
+    font-size: 15px;
   }
 
   .coupon-rules summary {
@@ -861,7 +889,7 @@ body {
     margin-top: 10px;
     color: rgba(255,255,255,0.82);
     line-height: 1.5;
-    font-size: 10px;
+    font-size: 18px;
     opacity: 0.9;
 
   }
@@ -877,7 +905,7 @@ body {
   /* rodapé do cupom: espaço entre itens e visual ordenado */
   .coupon-footer {
     margin-top: 0px;
-    font-size: 11px;
+    font-size: 13px;
     color: rgb(255, 255, 255);
     opacity: 0.3;
     display: flex;
@@ -958,7 +986,7 @@ body {
 
 /* open button Abrir link rastreado*/
 .btn-open { margin-top: 4px; height: 100; background: linear-gradient(90deg,#ff9ad6,#6b2dff); color:#fff; }
-.btn-open .btn-main { font-size:22px; }
+.btn-open .btn-main { font-size: 22px; }
 .btn-open .btn-sub { margin-top: -9; font-size:14px; opacity:0.92; }
 
 /* primary copy button (large neon) */
@@ -1012,13 +1040,13 @@ body {
 
     .btn-open { 
     margin-bottom:0px; 
-    height: 70px;   
+    height: 90px;   
   }
 
-    .btn-open .btn-main { font-size:18px;  }
-    .btn-open .btn-sub { font-size:12px; }
+    .btn-open .btn-main { font-size: 30px;  }
+    .btn-open .btn-sub { margin-top: -15px; font-size: 20px; }
 
-    .btn-copy .btn-main { font-size:16px; }
+    .btn-copy .btn-main { font-size:22px; }
 
   .result-link-short {
     max-width: 100%;
@@ -1520,11 +1548,6 @@ body {
    NEON SCANNER BUTTON (PREMIUM)
 ===================================================== */
 
-  .hero-cta{
-    position:relative;
-    overflow:hidden;
-  }
-
   /* linha do scanner */
 
   .scanner-line{
@@ -1533,6 +1556,7 @@ body {
     left:-40%;
     width:40%;
     height:100%;
+    color: #000000;
 
     background:linear-gradient(
       90deg,
@@ -1648,113 +1672,107 @@ body {
 /* ===============================
    REWARD GROW + SHAKE + COLOR
 ================================ */
-.hero-cta.reward-active{
-animation:rewardGrowShakeColor 1s ease forwards;
-}
+  .hero-cta.reward-active{
+    animation:rewardGrowShakeColor 1s ease forwards;
+    }
 
-@keyframes rewardGrowShakeColor{
+    @keyframes rewardGrowShakeColor{
 
-0%{
-transform:scale(1);
-background: linear-gradient(90deg, #a834ff, #6b2dff);
-}
+    0%{
+    transform:scale(1);
+    background: linear-gradient(90deg, #a834ff, #6b2dff);
+    }
 
-25%{
-transform:scale(1.12);
-}
+    25%{
+    transform:scale(1.12);
+    }
 
-40%{
-transform:scale(1.08) rotate(-2deg);
-}
+    40%{
+    transform:scale(1.08) rotate(-2deg);
+    }
 
-55%{
-transform:scale(1.10) rotate(2deg);
-}
+    55%{
+    transform:scale(1.10) rotate(2deg);
+    }
 
-70%{
-transform:scale(1.08) rotate(-1deg);
-}
+    70%{
+    transform:scale(1.08) rotate(-1deg);
+    }
 
-85%{
-transform:scale(1.05) rotate(1deg);
-}
+    85%{
+    transform:scale(1.05) rotate(1deg);
+    }
 
-100%{
-transform:scale(1.05);
-background: linear-gradient(90deg,#00ffee,#00c3ff);
-box-shadow:
-0 0 25px rgba(0,255,200,0.8),
-0 0 40px rgba(0,255,200,0.5);
-}
+    100%{
+    transform:scale(1.05);
+    background: linear-gradient(90deg,#00ffee,#00c3ff);
+    box-shadow:
+    0 0 25px rgba(0,255,200,0.8),
+    0 0 40px rgba(0,255,200,0.5);
+    }
 
-}
+  }
 
 /* cor final recompensa */
 
-.hero-cta.reward-success{
+  .hero-cta.reward-success{
+    opacity: 1.0;
+    transform: scale(1.10);
+    color: #005b50;
 
-transform: scale(1.10);
+    background: linear-gradient(90deg,#00ffee,#00c3ff);
 
-background: linear-gradient(90deg,#00ffee,#00c3ff);
-
-box-shadow:
-0 0 25px rgba(0,255,200,0.9),
-0 0 60px rgba(0,255,200,0.6);
-
-}
+    box-shadow:
+    0 0 25px rgba(0,255,200,0.9),
+    0 0 60px rgba(0,255,200,0.6);
+  }
 
 
-/* ===============================
-   NEON ENERGY RIPPLE
-================================ */
+  /* ===============================
+    NEON ENERGY RIPPLE
+  ================================ */
 
-.hero-cta{
-position:relative;
-overflow:hidden;
-}
+  /* ripple */
 
-/* ripple */
+  .energy-ripple{
+      position:absolute;
+      top:50%;
+      left:50%;
 
-.energy-ripple{
+      width:20px;
+      height:20px;
 
-position:absolute;
-top:50%;
-left:50%;
+      border-radius:50%;
 
-width:20px;
-height:20px;
+      background:rgba(0,255,245,0.6);
 
-border-radius:50%;
+      transform:translate(-50%,-50%) scale(0);
 
-background:rgba(0,255,245,0.6);
+      animation:energyRipple 1.2s ease-out forwards;
 
-transform:translate(-50%,-50%) scale(0);
+      pointer-events:none;
 
-animation:energyRipple 1.2s ease-out forwards;
+  }
 
-pointer-events:none;
+  /* animação */
 
-}
+    @keyframes energyRipple{
 
-/* animação */
+    0%{
+    transform:translate(-50%,-50%) scale(0);
+    opacity:0.9;
+    }
 
-@keyframes energyRipple{
+    60%{
+    opacity:0.5;
+    }
 
-0%{
-transform:translate(-50%,-50%) scale(0);
-opacity:0.9;
-}
+    100%{
+    transform:translate(-50%,-50%) scale(12);
+    opacity:0;
+    }
 
-60%{
-opacity:0.5;
-}
-
-100%{
-transform:translate(-50%,-50%) scale(12);
-opacity:0;
-}
-
-}
+    }
 
 
 /* =====================================================

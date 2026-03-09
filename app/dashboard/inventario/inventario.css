@@ -142,7 +142,6 @@
   flex-wrap: wrap;
   font-size: 13px;  
   margin-top: 10px;
-
 }
 
 .meta-item {
@@ -381,17 +380,7 @@
   background: linear-gradient(90deg, #16a34a, #22c55e);
 }
 
-/* RESPONSIVO */
 
-@media (max-width: 768px) {
-  .inve-modal-card {
-    max-width: 95%;
-  }
-
-  .inve-modal-image-wrapper {
-    height: 200px;
-  }
-}
 /* =========================
    RESPONSIVO
 ========================= */
@@ -402,11 +391,11 @@
     font-size: 24px;
     font-weight: 00;
     margin-bottom: 20;
-    margin: -5px 0px 30px 0px;
+    margin: 0px 0px 20px 0px;
   }
   
   .inveboard-container {
-    padding: 20px;
+    padding: 10px;
   }
 
   .inventario-card {
@@ -422,8 +411,73 @@
     padding: 18px;
   }
 
+  .inventario-info strong {
+    font-size: 24px;
+    margin-top: -10px;
+  }
+
+  .inventario-meta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 13px;  
+    margin-top: 0px;
+  }
+
+  /* MODAL */
+
   .inve-modal-card {
     max-width: 92%;
     padding: 22px;
   }
+  
+  .inve-modal-card {
+    max-width: 95%;
+    margin-bottom: 50px;
+  }
+
+  .inve-modal-image-wrapper {
+    height: 200px;
+  }
+
+  .inve-modal-content {
+    padding: 5px;
+    gap: 8px; 
+  }
+
+  .inve-modal-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    cursor: default;
+  }
+    
+  .inve-modal-meta {
+    font-size: 13px;
+    margin-top: -12px;
+  }
+
+  .codigo-code-label {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 10px;  
+    cursor: default;
+  }
+
+  .codigo-copy-btn {
+    margin-top: 8px;
+    width: 100%;
+    padding: 8px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(90deg, #7c3aed, #9333ea);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+
 }
+

@@ -27,7 +27,7 @@ const SECRET = process.env.SHOPEE_SECRET!;
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql";
 
 /* =========================
-   🔥 NOVO: Expandir link curto
+   Expandir link curto
 ========================= */
 async function expandirSeForLinkCurto(url: string) {
   try {
@@ -61,7 +61,7 @@ async function expandirSeForLinkCurto(url: string) {
 }
 
 /* =========================
-   🔥 NOVO: Limpar parâmetros
+   Limpar parâmetros
 ========================= */
 function limparParametros(url: string) {
   try {
@@ -78,7 +78,6 @@ function extractProductData(url: string) {
     const parsed = new URL(url);
     const pathname = parsed.pathname;
 
-    // Formato 1: /product/shopId/itemId
     const productMatch = pathname.match(/product\/(\d+)\/(\d+)/);
     if (productMatch) {
       return {
@@ -87,7 +86,6 @@ function extractProductData(url: string) {
       };
     }
 
-    // Formato 2: -i.shopId.itemId
     const shareMatch = pathname.match(/-i\.(\d+)\.(\d+)/);
     if (shareMatch) {
       return {
@@ -96,7 +94,6 @@ function extractProductData(url: string) {
       };
     }
 
-    // 🔥 Formato 3: /shopId/itemId direto
     const simpleMatch = pathname.match(/\/(\d+)\/(\d+)/);
     if (simpleMatch) {
       return {
@@ -110,7 +107,6 @@ function extractProductData(url: string) {
     return null;
   }
 }
-
 
 function generateSignature(payload: string, timestamp: string) {
   const factor = APP_ID + timestamp + payload + SECRET;
@@ -128,7 +124,11 @@ function hexToUUID(hex: string) {
 }
 
 export async function POST(req: NextRequest) {
+
+  let originUrl = "";
+
   try {
+
     const supabaseUser = await createUserSupabase();
     const supabaseAdmin = await createAdminSupabase();
 
@@ -147,23 +147,63 @@ export async function POST(req: NextRequest) {
       .eq("auth_user_id", user.id)
       .single();
 
-if (appErr || !appUser) {
-  return NextResponse.json({ error: "Usuário não encontrado na tabela users" }, { status: 404 });
-}
+    if (appErr || !appUser) {
+      return NextResponse.json({ error: "Usuário não encontrado na tabela users" }, { status: 404 });
+    }
 
-const body = await req.json();
+    const body = await req.json();
+    originUrl = body.originUrl || body.originalUrl;
 
+    if (!originUrl) {
+      return NextResponse.json(
+        { error: "originUrl é obrigatório" },
+        { status: 400 }
+      );
+    }
 
-const originUrl = body.originUrl || body.originalUrl;
-
-if (!originUrl) {
-  return NextResponse.json(
-    { error: "originUrl é obrigatório" },
-    { status: 400 }
-  );
-}
     /* =========================
-       🔥 TRATAMENTO DO LINK
+       CACHE (3 horas)
+    ========================= */
+
+    const tresHorasAtras = new Date(
+      Date.now() - 3 * 60 * 60 * 1000
+    ).toISOString();
+
+    const { data: cache } = await supabaseAdmin
+      .from("generate_link")
+      .select("*")
+      .eq("user_id", appUser.id)
+      .eq("produto_url", originUrl)
+      .gte("data_criacao", tresHorasAtras)
+      .order("data_criacao", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (cache?.link_rastreado) {
+
+      const pontos = Number(cache.pontos ?? 0) || 0;
+      const pointsMin = Math.floor(pontos * 0.05);
+
+      console.log("⚡ Cache Shopee encontrado - retornando sem chamar API");
+
+      return NextResponse.json({
+        success: true,
+        produto_nome: cache.produto_nome,
+        produto_imagem: cache.produto_imagem,
+        valor: cache.valor,
+        pontos: pontos,
+        pointsMin: pointsMin,
+        link_rastreado: cache.link_rastreado,
+        produto_url: cache.produto_url,
+        plataforma: cache.plataforma ?? "Shopee",
+        generate_link_id: cache.id,
+        cached: true,
+      });
+
+    }
+
+    /* =========================
+       Tratamento URL
     ========================= */
 
     const urlExpandida = await expandirSeForLinkCurto(originUrl);
@@ -181,19 +221,21 @@ if (!originUrl) {
         "shopee"
       );
 
-    return NextResponse.json(
-      { error: "URL da Shopee inválida" },
-      { status: 400 }
-    );
-  }
+      return NextResponse.json(
+        { error: "URL da Shopee inválida" },
+        { status: 400 }
+      );
+
+    }
 
     const { shopId, itemId } = extracted;
-
     const originUrlLimpa = `https://shopee.com.br/product/${shopId}/${itemId}`;
 
     /* =========================
-       1) Buscar produto
+       Buscar produto
     ========================= */
+
+    console.log("Chamando productOfferV2 Shopee...");
 
     const productQuery = {
       query: `
@@ -244,18 +286,21 @@ if (!originUrl) {
         { error: "Produto não encontrado na Shopee Affiliate" },
         { status: 404 }
       );
+
     }
 
     /* =========================
-       2) Gerar IDs
+       Gerar ID
     ========================= */
 
     const hexId = crypto.randomBytes(16).toString("hex");
     const generateLinkUUID = hexToUUID(hexId);
 
     /* =========================
-       3) Gerar short link
+       Gerar Short Link
     ========================= */
+
+    console.log("Chamando generateShortLink Shopee...");
 
     const shortQuery = {
       query: `
@@ -298,7 +343,7 @@ if (!originUrl) {
     }
 
     /* =========================
-       4) Cálculo
+       Cálculo
     ========================= */
 
     const priceMax = Number(produto.priceMax ?? 0) || 0;
@@ -312,10 +357,9 @@ if (!originUrl) {
     const pointsMax = Math.floor(ganhoUsuarioMax * REAIS_PARA_PONTOS);
     const pointsMin = Math.floor(pointsMax * 0.8);
     const pontos = pointsMax || 0;
-    
 
     /* =========================
-       5) Marketplace
+       Marketplace
     ========================= */
 
     const { data: marketplace } = await supabaseAdmin
@@ -329,7 +373,7 @@ if (!originUrl) {
     }
 
     /* =========================
-       6) Insert
+       Insert
     ========================= */
 
     const { data: insertedLink, error: insertError } = await supabaseAdmin
@@ -338,7 +382,7 @@ if (!originUrl) {
         id: generateLinkUUID,
         user_id: appUser.id,
         produto_nome: produto.productName,
-        produto_url: originUrl, // 🔥 mantido como você pediu
+        produto_url: originUrl,
         link_rastreado: shortLink,
         valor: priceMax,
         ganhos: Number((taxaDecimal * 100).toFixed(2)),
@@ -374,10 +418,11 @@ if (!originUrl) {
     console.error("Erro API Shopee:", error);
 
     try {
+
       const supabaseAdmin = await createAdminSupabase();
 
       await supabaseAdmin.from("links_erro").insert({
-        url: "desconhecida",
+        url: originUrl || "desconhecida",
         erro: error?.message || "Erro interno",
         plataforma: "shopee",
         data: new Date().toISOString(),
@@ -389,5 +434,6 @@ if (!originUrl) {
       { error: "Erro interno ao gerar link Shopee" },
       { status: 500 }
     );
+
   }
 }

@@ -40,6 +40,7 @@ type NotificationContextType = {
   marcarConquistaComoLida: (id: string) => Promise<void>;
   abrirEvento: (id: string) => void;
   recarregar: () => void;
+  marcarTodasComoLidas: () => Promise<void>;
 };
 
 const NotificationsContext = createContext<NotificationContextType>({
@@ -53,6 +54,7 @@ const NotificationsContext = createContext<NotificationContextType>({
   marcarConquistaComoLida: async () => {},
   abrirEvento: () => {},
   recarregar: () => {},
+  marcarTodasComoLidas: async () => {},
 });
 
 export function NotificationsProvider({
@@ -126,6 +128,68 @@ export function NotificationsProvider({
 
   } catch (err) {
     console.error("Erro ao marcar conquista como lida:", err);
+  }
+}
+
+  // =========================
+  // MARCAR TODAS LIDO 
+  // =========================
+
+async function marcarTodasComoLidas() {
+  try {
+    // marca todos os créditos como lidos
+    creditosNovos.forEach((c) => {
+      const lidos = JSON.parse(localStorage.getItem("creditos_lidos") || "[]");
+
+      if (!lidos.includes(c.id)) {
+        lidos.push(c.id);
+        localStorage.setItem("creditos_lidos", JSON.stringify(lidos));
+      }
+    });
+
+    // remove todos os créditos do estado
+    setCreditosNovos([]);
+
+    // marca todos os level ups no banco
+    await Promise.all(
+      notificacoesLevelUp.map((n) =>
+        fetch("/api/notificacoes/marcar-lida", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ id: n.id }),
+        })
+      )
+    );
+
+    // remove todos os level ups do estado
+    setNotificacoesLevelUp([]);
+
+    // marca todas as conquistas no banco
+    await Promise.all(
+      notificacoesConquista
+        .filter((n) => !n.lida)
+        .map((n) =>
+          fetch("/api/notificacoes/marcar-lida", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({ id: n.id }),
+          })
+        )
+    );
+
+    // marca todas as conquistas como lidas no state
+    setNotificacoesConquista((prev) =>
+      prev.map((n) => ({ ...n, lida: true }))
+    );
+
+  } catch (err) {
+    console.error("Erro ao marcar todas como lidas:", err);
   }
 }
 
@@ -238,6 +302,7 @@ export function NotificationsProvider({
         marcarCreditoComoLido,
         marcarLevelUpComoLido,
         marcarConquistaComoLida,
+        marcarTodasComoLidas,
         abrirEvento: (id: string) => setEventoAberto(id),
         recarregar: () => {
           carregar();

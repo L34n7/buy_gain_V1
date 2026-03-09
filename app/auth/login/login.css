@@ -363,7 +363,7 @@ span{
   }
 
   .login-title{
-    font-size: 24px;
+    font-size: 26px;
     margin-bottom: 18px;
   }
 
@@ -380,9 +380,21 @@ span{
   }
 
   /* BOTÃO */
-  .login-btn{
-    margin-top: 18px;
-  }
+.login-btn {
+  padding: 10px;
+  margin-top: 18px;
+  border-radius: 12px;
+
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+
+  background: linear-gradient(90deg, #bb7bff, #6a11cb);
+  box-shadow: 0 0 14px rgba(155, 81, 255, 0.55);
+
+  transition: 0.25s ease;
+}
+  
 
   .login-forgot button {
     font-size: 15px;

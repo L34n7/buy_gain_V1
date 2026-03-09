@@ -372,10 +372,6 @@ export default function RecompensasPage() {
 
               <div className="reward-glow"></div>
 
-              <div className="reward-icon">
-                🏆
-              </div>
-
               <h2 className="reward-title">
                 Recompensa Resgatada!
               </h2>
