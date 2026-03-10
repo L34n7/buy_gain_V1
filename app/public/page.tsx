@@ -35,7 +35,7 @@ export default function Home() {
 
     <div className="header">
        <div className="header-logo">
-          <Image src="/logo.png" width={160} height={160} alt="BuyGain" className="logo no-download"  />
+          <Image src="/logo.png" width={300} height={300} alt="BuyGain" className="logo no-download"  />
         </div>
     </div>
 
