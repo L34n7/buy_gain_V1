@@ -1,9 +1,11 @@
+// api/recompensas/giftcards/route.ts
+
 import { NextResponse } from "next/server";
 import { createAdminSupabase } from "@/lib/supabaseServer";
 
 export async function POST() {
   try {
-    const supabase = await createAdminSupabase(); // 🔥 AQUI ESTAVA O ERRO
+    const supabase = await createAdminSupabase();
 
     const { data, error } = await supabase
       .from("giftcards")
@@ -19,6 +21,7 @@ export async function POST() {
           pontos
         )
       `)
+      .eq("ativo", true) // 🔥 FILTRA APENAS OS ATIVOS
       .order("nome");
 
     if (error) {
