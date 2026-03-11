@@ -56,15 +56,15 @@ export default function Home() {
         </div>
 
         <div className="giftcards-group1">
-          <Image src="/giftcards/XBOX4.png" width={150} height={150} alt="valorant" className="giftcard-img gc1 no-download" />
-          <Image src="/giftcards/playstation2.png" width={150} height={150} alt="PlayStation" className="giftcard-img gc2 no-download" />
-          <Image src="/giftcards/googleplayCARD2.png" width={150} height={150} alt="freefire" className="giftcard-img gc3 no-download" />
-          <Image src="/giftcards/steam1.png" width={150} height={150} alt="steam" className="giftcard-img gc4 no-download" />
+          <Image src="/giftcards/xbox-card3.png" width={150} height={150} alt="Xbox" className="giftcard-img gc1 no-download" />
+          <Image src="/giftcards/playstation-card.png" width={150} height={150} alt="PlayStation" className="giftcard-img gc2 no-download" />
+          <Image src="/giftcards/googleplay-card1.png" width={150} height={150} alt="GooglePlay" className="giftcard-img gc3 no-download" />
+          <Image src="/giftcards/steam-card.png" width={150} height={150} alt="steam" className="giftcard-img gc4 no-download" />
         </div>
 
         {/*
         <div className="giftcards-group2">
-          <Image src="/giftcards/valorant1.png" width={150} height={150} alt="valorant" className="giftcard-img gc1" />
+          <Image src="/giftcards/valorant-card1.png" width={150} height={150} alt="valorant" className="giftcard-img gc1" />
           <Image src="/giftcards/freefire1.png" width={150} height={150} alt="PlayStation" className="giftcard-img gc2" />
           <Image src="/giftcards/robloxCARD2.png" width={150} height={150} alt="freefire" className="giftcard-img gc3" />
           <Image src="/giftcards/LOL1.png" width={150} height={150} alt="steam" className="giftcard-img gc4" />
@@ -124,7 +124,7 @@ export default function Home() {
         <div className="benef-content">
           <div className="benef-left">
              <div className="card-fan1">
-              <Image src="/icons/ponto33.png" width={2048} height={2048} alt="Pontos" className="ponto no-download" />
+              <Image src="/icons/pontos.png" width={2048} height={2048} alt="Pontos" className="ponto no-download" />
             </div>
             <h3>PONTOS</h3>
             <p>Ganhe pontos automaticamente comprando com link do clube e troque por Vale Presente e recompensas.</p>
@@ -152,117 +152,117 @@ export default function Home() {
 
           <div className="giftcards-wheel">
               <div className="giftcards-grid">
-                <Image src="/giftcards/steam1.png" width={150} height={150} alt="steam" className="giftcard no-download" />
-                <Image src="/giftcards/steamORIGI1.png" width={150} height={150} alt="steam" className="giftcard no-download" />
-                <Image src="/giftcards/steamORIGI.png" width={150} height={150} alt="steam" className="giftcard no-download" />
-                <Image src="/giftcards/razerORIGI.png" width={150} height={150} alt="CARD 5" className="giftcard no-download" />
-                <Image src="/giftcards/pcgamepassORIGI.png" width={150} height={150} alt="freefire" className="giftcard no-download" />
-                <Image src="/giftcards/xboxORIGI.png" width={150} height={150} alt="steam" className="giftcard no-download" />
-                <Image src="/giftcards/xboxORIGI2.png" width={150} height={150} alt="valorant" className="giftcard no-download" />
-                <Image src="/giftcards/xboxORIGI1.png" width={150} height={150} alt="PlayStation" className="giftcard no-download" />
-                <Image src="/giftcards/playstationORIGI.png" width={150} height={150} alt="steam" className="giftcard no-download" />
-                <Image src="/giftcards/playstation2.png" width={150} height={150} alt="CARD 2" className="giftcard no-download" />
-                <Image src="/giftcards/nitendoORIGI2.png" width={150} height={150} alt="CARD 4" className="giftcard no-download" />
-                <Image src="/giftcards/freefireORIGI.png" width={150} height={150} alt="CARD 6" className="giftcard no-download" />
-                <Image src="/giftcards/freefireORIGI1.png" width={150} height={150} alt="CARD 7" className="giftcard no-download" />
-                <Image src="/giftcards/minicraftORIGI1.png" width={150} height={150} alt="CARD 8" className="giftcard no-download" />
-                <Image src="/giftcards/minicraftORIGI.png" width={150} height={150} alt="CARD 9" className="giftcard no-download" />
-                <Image src="/giftcards/imvuORIGI.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
-                <Image src="/giftcards/imvuORIGI1.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
-                <Image src="/giftcards/robloxORIGI.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
-                <Image src="/giftcards/lolORIGI.png" width={150} height={150} alt="CARD 12" className="giftcard no-download" />
-                <Image src="/giftcards/lolORIGI1.png" width={150} height={150} alt="CARD 13" className="giftcard no-download" />
-                <Image src="/giftcards/valorant1.png" width={150} height={150} alt="CARD 14" className="giftcard no-download" />
-                <Image src="/giftcards/valorantORIGI3.png" width={150} height={150} alt="CARD 15" className="giftcard no-download" />
-                <Image src="/giftcards/valorantORIGI.png" width={150} height={150} alt="CARD 16" className="giftcard no-download" />
-                <Image src="/giftcards/valorantORIGI1.png" width={150} height={150} alt="CARD 17" className="giftcard no-download" />
+                <Image src="/giftcards/steam-card.png" width={150} height={150} alt="steam" className="giftcard no-download" />
+                <Image src="/giftcards/steam-card2.png" width={150} height={150} alt="steam" className="giftcard no-download" />
+                <Image src="/giftcards/steam-card1.png" width={150} height={150} alt="steam" className="giftcard no-download" />
+                <Image src="/giftcards/razer.png" width={150} height={150} alt="CARD 5" className="giftcard no-download" />
+                <Image src="/giftcards/pcgamepass.png" width={150} height={150} alt="freefire" className="giftcard no-download" />
+                <Image src="/giftcards/xbox-card.png" width={150} height={150} alt="steam" className="giftcard no-download" />
+                <Image src="/giftcards/xbox-card1.png" width={150} height={150} alt="valorant" className="giftcard no-download" />
+                <Image src="/giftcards/xbox-card2.png" width={150} height={150} alt="PlayStation" className="giftcard no-download" />
+                <Image src="/giftcards/playstation-card1.png" width={150} height={150} alt="steam" className="giftcard no-download" />
+                <Image src="/giftcards/playstation-card.png" width={150} height={150} alt="CARD 2" className="giftcard no-download" />
+                <Image src="/giftcards/nintendo-card.png" width={150} height={150} alt="CARD 4" className="giftcard no-download" />
+                <Image src="/giftcards/Freefire-card.png" width={150} height={150} alt="CARD 6" className="giftcard no-download" />
+                <Image src="/giftcards/Freefire-card1.png" width={150} height={150} alt="CARD 7" className="giftcard no-download" />
+                <Image src="/giftcards/minicraft-card.png" width={150} height={150} alt="CARD 8" className="giftcard no-download" />
+                <Image src="/giftcards/minicraft-card1.png" width={150} height={150} alt="CARD 9" className="giftcard no-download" />
+                <Image src="/giftcards/imvu-card.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
+                <Image src="/giftcards/imvu-card1.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
+                <Image src="/giftcards/roblox-card1.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
+                <Image src="/giftcards/LOL-card.png" width={150} height={150} alt="CARD 12" className="giftcard no-download" />
+                <Image src="/giftcards/LOL-card1.png" width={150} height={150} alt="CARD 13" className="giftcard no-download" />
+                <Image src="/giftcards/valorant-card1.png" width={150} height={150} alt="CARD 14" className="giftcard no-download" />
+                <Image src="/giftcards/valorant-card2.png" width={150} height={150} alt="CARD 15" className="giftcard no-download" />
+                <Image src="/giftcards/valorant-card.png" width={150} height={150} alt="CARD 16" className="giftcard no-download" />
+                <Image src="/giftcards/valorant-card3.png" width={150} height={150} alt="CARD 17" className="giftcard no-download" />
                 <Image src="/giftcards/fortnite.png" width={150} height={150} alt="CARD 18" className="giftcard no-download" />
-                <Image src="/giftcards/PUBGORIGI1.png" width={150} height={150} alt="CARD 19" className="giftcard no-download" />
-                <Image src="/giftcards/PUBGORIGI.png" width={150} height={150} alt="CARD 20" className="giftcard no-download" />
-                <Image src="/giftcards/genshinORIGI.png" width={150} height={150} alt="CARD 21" className="giftcard no-download" />
-                <Image src="/giftcards/globoplayORIGI.png" width={150} height={150} alt="CARD 22" className="giftcard no-download" />
-                <Image src="/giftcards/outbackORIGI.png" width={150} height={150} alt="CARD 23" className="giftcard no-download" />
-                <Image src="/giftcards/ifoodORIGI.png" width={150} height={150} alt="CARD 23" className="giftcard no-download" />
-                <Image src="/giftcards/googleplay.png" width={150} height={150} alt="CARD 24" className="giftcard no-download" />
-                <Image src="/giftcards/googleplayORIGI.png" width={150} height={150} alt="CARD 25" className="giftcard no-download" />
-                <Image src="/giftcards/appstoreORIGI.png" width={150} height={150} alt="CARD 26" className="giftcard no-download" />
-                <Image src="/giftcards/spotifyORIGI1.png" width={150} height={150} alt="CARD 27" className="giftcard no-download" />
-                <Image src="/giftcards/uberORIGI.png" width={150} height={150} alt="CARD 28" className="giftcard no-download" />
-                <Image src="/giftcards/netflixORIGI.png" width={150} height={150} alt="CARD 29" className="giftcard no-download" />
-                <Image src="/giftcards/steam1.png" width={150} height={150} alt="steam" className="giftcard no-download" />
-                <Image src="/giftcards/steamORIGI1.png" width={150} height={150} alt="steam" className="giftcard no-download" />
-                <Image src="/giftcards/steamORIGI.png" width={150} height={150} alt="steam" className="giftcard no-download" />
-                <Image src="/giftcards/razerORIGI.png" width={150} height={150} alt="CARD 5" className="giftcard no-download" />
-                <Image src="/giftcards/pcgamepassORIGI.png" width={150} height={150} alt="freefire" className="giftcard no-download" />
-                <Image src="/giftcards/xboxORIGI.png" width={150} height={150} alt="steam" className="giftcard no-download" />
-                <Image src="/giftcards/xboxORIGI2.png" width={150} height={150} alt="valorant" className="giftcard no-download" />
-                <Image src="/giftcards/xboxORIGI1.png" width={150} height={150} alt="PlayStation" className="giftcard no-download" />
-                <Image src="/giftcards/playstationORIGI.png" width={150} height={150} alt="steam" className="giftcard no-download" />
-                <Image src="/giftcards/playstation2.png" width={150} height={150} alt="CARD 2" className="giftcard no-download" />
-                <Image src="/giftcards/nitendoORIGI2.png" width={150} height={150} alt="CARD 4" className="giftcard no-download" />
-                <Image src="/giftcards/freefireORIGI.png" width={150} height={150} alt="CARD 6" className="giftcard no-download" />
-                <Image src="/giftcards/freefireORIGI1.png" width={150} height={150} alt="CARD 7" className="giftcard no-download" />
-                <Image src="/giftcards/minicraftORIGI1.png" width={150} height={150} alt="CARD 8" className="giftcard no-download" />
-                <Image src="/giftcards/minicraftORIGI.png" width={150} height={150} alt="CARD 9" className="giftcard no-download" />
-                <Image src="/giftcards/imvuORIGI.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
-                <Image src="/giftcards/imvuORIGI1.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
-                <Image src="/giftcards/robloxORIGI.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
-                <Image src="/giftcards/lolORIGI.png" width={150} height={150} alt="CARD 12" className="giftcard no-download" />
-                <Image src="/giftcards/lolORIGI1.png" width={150} height={150} alt="CARD 13" className="giftcard no-download" />
-                <Image src="/giftcards/valorant1.png" width={150} height={150} alt="CARD 14" className="giftcard no-download" />
-                <Image src="/giftcards/valorantORIGI3.png" width={150} height={150} alt="CARD 15" className="giftcard no-download" />
-                <Image src="/giftcards/valorantORIGI.png" width={150} height={150} alt="CARD 16" className="giftcard no-download" />
-                <Image src="/giftcards/valorantORIGI1.png" width={150} height={150} alt="CARD 17" className="giftcard no-download" />
+                <Image src="/giftcards/PUBG-card1.png" width={150} height={150} alt="CARD 19" className="giftcard no-download" />
+                <Image src="/giftcards/PUBG-card.png" width={150} height={150} alt="CARD 20" className="giftcard no-download" />
+                <Image src="/giftcards/Genshin-card.png" width={150} height={150} alt="CARD 21" className="giftcard no-download" />
+                <Image src="/giftcards/roblox-card.png" width={150} height={150} alt="CARD 22" className="giftcard no-download" />
+                <Image src="/giftcards/outback-card.png" width={150} height={150} alt="CARD 23" className="giftcard no-download" />
+                <Image src="/giftcards/ifood.png" width={150} height={150} alt="CARD 23" className="giftcard no-download" />
+                <Image src="/giftcards/googleplay-card.png" width={150} height={150} alt="CARD 24" className="giftcard no-download" />
+                <Image src="/giftcards/googleplay-card2.png" width={150} height={150} alt="CARD 25" className="giftcard no-download" />
+                <Image src="/giftcards/appstore-card.png" width={150} height={150} alt="CARD 26" className="giftcard no-download" />
+                <Image src="/giftcards/spotify-card.png" width={150} height={150} alt="CARD 27" className="giftcard no-download" />
+                <Image src="/giftcards/uber-card.png" width={150} height={150} alt="CARD 28" className="giftcard no-download" />
+                <Image src="/giftcards/netflix-card.png" width={150} height={150} alt="CARD 29" className="giftcard no-download" />
+                <Image src="/giftcards/steam-card.png" width={150} height={150} alt="steam" className="giftcard no-download" />
+                <Image src="/giftcards/steam-card2.png" width={150} height={150} alt="steam" className="giftcard no-download" />
+                <Image src="/giftcards/steam-card1.png" width={150} height={150} alt="steam" className="giftcard no-download" />
+                <Image src="/giftcards/razer.png" width={150} height={150} alt="CARD 5" className="giftcard no-download" />
+                <Image src="/giftcards/pcgamepass.png" width={150} height={150} alt="freefire" className="giftcard no-download" />
+                <Image src="/giftcards/xbox-card.png" width={150} height={150} alt="steam" className="giftcard no-download" />
+                <Image src="/giftcards/xbox-card1.png" width={150} height={150} alt="valorant" className="giftcard no-download" />
+                <Image src="/giftcards/xbox-card2.png" width={150} height={150} alt="PlayStation" className="giftcard no-download" />
+                <Image src="/giftcards/playstation-card1.png" width={150} height={150} alt="steam" className="giftcard no-download" />
+                <Image src="/giftcards/playstation-card.png" width={150} height={150} alt="CARD 2" className="giftcard no-download" />
+                <Image src="/giftcards/nintendo-card.png" width={150} height={150} alt="CARD 4" className="giftcard no-download" />
+                <Image src="/giftcards/Freefire-card.png" width={150} height={150} alt="CARD 6" className="giftcard no-download" />
+                <Image src="/giftcards/Freefire-card1.png" width={150} height={150} alt="CARD 7" className="giftcard no-download" />
+                <Image src="/giftcards/minicraft-card.png" width={150} height={150} alt="CARD 8" className="giftcard no-download" />
+                <Image src="/giftcards/minicraft-card1.png" width={150} height={150} alt="CARD 9" className="giftcard no-download" />
+                <Image src="/giftcards/imvu-card.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
+                <Image src="/giftcards/imvu-card1.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
+                <Image src="/giftcards/roblox-card1.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
+                <Image src="/giftcards/LOL-card.png" width={150} height={150} alt="CARD 12" className="giftcard no-download" />
+                <Image src="/giftcards/LOL-card1.png" width={150} height={150} alt="CARD 13" className="giftcard no-download" />
+                <Image src="/giftcards/valorant-card1.png" width={150} height={150} alt="CARD 14" className="giftcard no-download" />
+                <Image src="/giftcards/valorant-card2.png" width={150} height={150} alt="CARD 15" className="giftcard no-download" />
+                <Image src="/giftcards/valorant-card.png" width={150} height={150} alt="CARD 16" className="giftcard no-download" />
+                <Image src="/giftcards/valorant-card3.png" width={150} height={150} alt="CARD 17" className="giftcard no-download" />
                 <Image src="/giftcards/fortnite.png" width={150} height={150} alt="CARD 18" className="giftcard no-download" />
-                <Image src="/giftcards/PUBGORIGI1.png" width={150} height={150} alt="CARD 19" className="giftcard no-download" />
-                <Image src="/giftcards/PUBGORIGI.png" width={150} height={150} alt="CARD 20" className="giftcard no-download" />
-                <Image src="/giftcards/genshinORIGI.png" width={150} height={150} alt="CARD 21" className="giftcard no-download" />
-                <Image src="/giftcards/globoplayORIGI.png" width={150} height={150} alt="CARD 22" className="giftcard no-download" />
-                <Image src="/giftcards/outbackORIGI.png" width={150} height={150} alt="CARD 23" className="giftcard no-download" />
-                <Image src="/giftcards/ifoodORIGI.png" width={150} height={150} alt="CARD 23" className="giftcard no-download" />
-                <Image src="/giftcards/googleplay.png" width={150} height={150} alt="CARD 24" className="giftcard no-download" />
-                <Image src="/giftcards/googleplayORIGI.png" width={150} height={150} alt="CARD 25" className="giftcard no-download" />
-                <Image src="/giftcards/appstoreORIGI.png" width={150} height={150} alt="CARD 26" className="giftcard no-download" />
-                <Image src="/giftcards/spotifyORIGI1.png" width={150} height={150} alt="CARD 27" className="giftcard no-download" />
-                <Image src="/giftcards/uberORIGI.png" width={150} height={150} alt="CARD 28" className="giftcard no-download" />
-                <Image src="/giftcards/netflixORIGI.png" width={150} height={150} alt="CARD 29" className="giftcard no-download" />
-                <Image src="/giftcards/steam1.png" width={150} height={150} alt="steam" className="giftcard no-download" />
-                <Image src="/giftcards/steamORIGI1.png" width={150} height={150} alt="steam" className="giftcard no-download" />
-                <Image src="/giftcards/steamORIGI.png" width={150} height={150} alt="steam" className="giftcard no-download" />
-                <Image src="/giftcards/razerORIGI.png" width={150} height={150} alt="CARD 5" className="giftcard no-download" />
-                <Image src="/giftcards/pcgamepassORIGI.png" width={150} height={150} alt="freefire" className="giftcard no-download" />
-                <Image src="/giftcards/xboxORIGI.png" width={150} height={150} alt="steam" className="giftcard no-download" />
-                <Image src="/giftcards/xboxORIGI2.png" width={150} height={150} alt="valorant" className="giftcard no-download" />
-                <Image src="/giftcards/xboxORIGI1.png" width={150} height={150} alt="PlayStation" className="giftcard no-download" />
-                <Image src="/giftcards/playstationORIGI.png" width={150} height={150} alt="steam" className="giftcard no-download" />
-                <Image src="/giftcards/playstation2.png" width={150} height={150} alt="CARD 2" className="giftcard no-download" />
-                <Image src="/giftcards/nitendoORIGI2.png" width={150} height={150} alt="CARD 4" className="giftcard no-download" />
-                <Image src="/giftcards/freefireORIGI.png" width={150} height={150} alt="CARD 6" className="giftcard no-download" />
-                <Image src="/giftcards/freefireORIGI1.png" width={150} height={150} alt="CARD 7" className="giftcard no-download" />
-                <Image src="/giftcards/minicraftORIGI1.png" width={150} height={150} alt="CARD 8" className="giftcard no-download" />
-                <Image src="/giftcards/minicraftORIGI.png" width={150} height={150} alt="CARD 9" className="giftcard no-download" />
-                <Image src="/giftcards/imvuORIGI.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
-                <Image src="/giftcards/imvuORIGI1.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
-                <Image src="/giftcards/robloxORIGI.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
-                <Image src="/giftcards/lolORIGI.png" width={150} height={150} alt="CARD 12" className="giftcard no-download" />
-                <Image src="/giftcards/lolORIGI1.png" width={150} height={150} alt="CARD 13" className="giftcard no-download" />
-                <Image src="/giftcards/valorant1.png" width={150} height={150} alt="CARD 14" className="giftcard no-download" />
-                <Image src="/giftcards/valorantORIGI3.png" width={150} height={150} alt="CARD 15" className="giftcard no-download" />
-                <Image src="/giftcards/valorantORIGI.png" width={150} height={150} alt="CARD 16" className="giftcard no-download" />
-                <Image src="/giftcards/valorantORIGI1.png" width={150} height={150} alt="CARD 17" className="giftcard no-download" />
+                <Image src="/giftcards/PUBG-card1.png" width={150} height={150} alt="CARD 19" className="giftcard no-download" />
+                <Image src="/giftcards/PUBG-card.png" width={150} height={150} alt="CARD 20" className="giftcard no-download" />
+                <Image src="/giftcards/Genshin-card.png" width={150} height={150} alt="CARD 21" className="giftcard no-download" />
+                <Image src="/giftcards/roblox-card.png" width={150} height={150} alt="CARD 22" className="giftcard no-download" />
+                <Image src="/giftcards/outback-card.png" width={150} height={150} alt="CARD 23" className="giftcard no-download" />
+                <Image src="/giftcards/ifood.png" width={150} height={150} alt="CARD 23" className="giftcard no-download" />
+                <Image src="/giftcards/googleplay-card.png" width={150} height={150} alt="CARD 24" className="giftcard no-download" />
+                <Image src="/giftcards/googleplay-card2.png" width={150} height={150} alt="CARD 25" className="giftcard no-download" />
+                <Image src="/giftcards/appstore-card.png" width={150} height={150} alt="CARD 26" className="giftcard no-download" />
+                <Image src="/giftcards/spotify-card.png" width={150} height={150} alt="CARD 27" className="giftcard no-download" />
+                <Image src="/giftcards/uber-card.png" width={150} height={150} alt="CARD 28" className="giftcard no-download" />
+                <Image src="/giftcards/netflix-card.png" width={150} height={150} alt="CARD 29" className="giftcard no-download" />
+                <Image src="/giftcards/steam-card.png" width={150} height={150} alt="steam" className="giftcard no-download" />
+                <Image src="/giftcards/steam-card2.png" width={150} height={150} alt="steam" className="giftcard no-download" />
+                <Image src="/giftcards/steam-card1.png" width={150} height={150} alt="steam" className="giftcard no-download" />
+                <Image src="/giftcards/razer.png" width={150} height={150} alt="CARD 5" className="giftcard no-download" />
+                <Image src="/giftcards/pcgamepass.png" width={150} height={150} alt="freefire" className="giftcard no-download" />
+                <Image src="/giftcards/xbox-card.png" width={150} height={150} alt="steam" className="giftcard no-download" />
+                <Image src="/giftcards/xbox-card1.png" width={150} height={150} alt="valorant" className="giftcard no-download" />
+                <Image src="/giftcards/xbox-card2.png" width={150} height={150} alt="PlayStation" className="giftcard no-download" />
+                <Image src="/giftcards/playstation-card1.png" width={150} height={150} alt="steam" className="giftcard no-download" />
+                <Image src="/giftcards/playstation-card.png" width={150} height={150} alt="CARD 2" className="giftcard no-download" />
+                <Image src="/giftcards/nintendo-card.png" width={150} height={150} alt="CARD 4" className="giftcard no-download" />
+                <Image src="/giftcards/Freefire-card.png" width={150} height={150} alt="CARD 6" className="giftcard no-download" />
+                <Image src="/giftcards/Freefire-card1.png" width={150} height={150} alt="CARD 7" className="giftcard no-download" />
+                <Image src="/giftcards/minicraft-card.png" width={150} height={150} alt="CARD 8" className="giftcard no-download" />
+                <Image src="/giftcards/minicraft-card1.png" width={150} height={150} alt="CARD 9" className="giftcard no-download" />
+                <Image src="/giftcards/imvu-card.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
+                <Image src="/giftcards/imvu-card1.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
+                <Image src="/giftcards/roblox-card1.png" width={150} height={150} alt="CARD 10" className="giftcard no-download" />
+                <Image src="/giftcards/LOL-card.png" width={150} height={150} alt="CARD 12" className="giftcard no-download" />
+                <Image src="/giftcards/LOL-card1.png" width={150} height={150} alt="CARD 13" className="giftcard no-download" />
+                <Image src="/giftcards/valorant-card1.png" width={150} height={150} alt="CARD 14" className="giftcard no-download" />
+                <Image src="/giftcards/valorant-card2.png" width={150} height={150} alt="CARD 15" className="giftcard no-download" />
+                <Image src="/giftcards/valorant-card.png" width={150} height={150} alt="CARD 16" className="giftcard no-download" />
+                <Image src="/giftcards/valorant-card3.png" width={150} height={150} alt="CARD 17" className="giftcard no-download" />
                 <Image src="/giftcards/fortnite.png" width={150} height={150} alt="CARD 18" className="giftcard no-download" />
-                <Image src="/giftcards/PUBGORIGI1.png" width={150} height={150} alt="CARD 19" className="giftcard no-download" />
-                <Image src="/giftcards/PUBGORIGI.png" width={150} height={150} alt="CARD 20" className="giftcard no-download" />
-                <Image src="/giftcards/genshinORIGI.png" width={150} height={150} alt="CARD 21" className="giftcard no-download" />
-                <Image src="/giftcards/globoplayORIGI.png" width={150} height={150} alt="CARD 22" className="giftcard no-download" />
-                <Image src="/giftcards/outbackORIGI.png" width={150} height={150} alt="CARD 23" className="giftcard no-download" />
-                <Image src="/giftcards/ifoodORIGI.png" width={150} height={150} alt="CARD 23" className="giftcard no-download" />
-                <Image src="/giftcards/googleplay.png" width={150} height={150} alt="CARD 24" className="giftcard no-download" />
-                <Image src="/giftcards/googleplayORIGI.png" width={150} height={150} alt="CARD 25" className="giftcard no-download" />
-                <Image src="/giftcards/appstoreORIGI.png" width={150} height={150} alt="CARD 26" className="giftcard no-download" />
-                <Image src="/giftcards/spotifyORIGI1.png" width={150} height={150} alt="CARD 27" className="giftcard no-download" />
-                <Image src="/giftcards/uberORIGI.png" width={150} height={150} alt="CARD 28" className="giftcard no-download" />
-                <Image src="/giftcards/netflixORIGI.png" width={150} height={150} alt="CARD 29" className="giftcard no-download" />
+                <Image src="/giftcards/PUBG-card1.png" width={150} height={150} alt="CARD 19" className="giftcard no-download" />
+                <Image src="/giftcards/PUBG-card.png" width={150} height={150} alt="CARD 20" className="giftcard no-download" />
+                <Image src="/giftcards/Genshin-card.png" width={150} height={150} alt="CARD 21" className="giftcard no-download" />
+                <Image src="/giftcards/roblox-card.png" width={150} height={150} alt="CARD 22" className="giftcard no-download" />
+                <Image src="/giftcards/outback-card.png" width={150} height={150} alt="CARD 23" className="giftcard no-download" />
+                <Image src="/giftcards/ifood.png" width={150} height={150} alt="CARD 23" className="giftcard no-download" />
+                <Image src="/giftcards/googleplay-card.png" width={150} height={150} alt="CARD 24" className="giftcard no-download" />
+                <Image src="/giftcards/googleplay-card2.png" width={150} height={150} alt="CARD 25" className="giftcard no-download" />
+                <Image src="/giftcards/appstore-card.png" width={150} height={150} alt="CARD 26" className="giftcard no-download" />
+                <Image src="/giftcards/spotify-card.png" width={150} height={150} alt="CARD 27" className="giftcard no-download" />
+                <Image src="/giftcards/uber-card.png" width={150} height={150} alt="CARD 28" className="giftcard no-download" />
+                <Image src="/giftcards/netflix-card.png" width={150} height={150} alt="CARD 29" className="giftcard no-download" />
 
 
 
