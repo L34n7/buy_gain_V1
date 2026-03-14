@@ -25,12 +25,10 @@ function hexToUUID(hex: string) {
   ].join("-");
 }
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const supabase = await createAdminSupabase();
     let houveNovoEvento = false;
-    const { searchParams } = new URL(req.url);
-    const forceEmailJob = searchParams.get("forceEmailJob") === "true";
 
     const purchaseTimeStart = Math.floor(
       (Date.now() - 30 * 24 * 60 * 60 * 1000) / 1000
@@ -242,11 +240,10 @@ export async function GET(req: Request) {
       }
     }
 
-    if (houveNovoEvento || forceEmailJob) {
+    if (houveNovoEvento) {
       try {
         console.log("Chamando job de email...", {
           houveNovoEvento,
-          forceEmailJob,
         });
 
         const response = await fetch(
@@ -268,7 +265,7 @@ export async function GET(req: Request) {
         console.error("Erro ao chamar job de email de compra:", emailError);
       }
     } else {
-      console.log("Nenhum novo evento e forceEmailJob=false. Job não chamado.");
+      console.log("Nenhum novo evento inserido. Job não chamado.");
     }
 
     return NextResponse.json({
