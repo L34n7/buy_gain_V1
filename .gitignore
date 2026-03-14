@@ -26,6 +26,7 @@ supabase/.temp
 automacao
 playwright-report
 test-results
+sync-shopee.bat
 
 # OS
 .DS_Store

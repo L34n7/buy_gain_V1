@@ -471,14 +471,14 @@ async function handleGenerate(e: React.FormEvent) {
         document.body.removeChild(textarea);
       }
       setCopyMessage(
-        "🎮 Link copiado! Complete a missão: compre pelo link e ganhe pontos."
+        "🎮 Link copiado! Complete a missão: Compre pelo link e ganhe pontos."
       ); // animação visual curta
       const el = document.querySelector(".btn-copy");
       if (el) {
         el.classList.add("copied");
         setTimeout(() => el.classList.remove("copied"), 1600);
       }
-      setTimeout(() => setCopyMessage(null), 6000);
+      setTimeout(() => setCopyMessage(null), 16000);
     } catch (err) {
       setCopyMessage("❌ Erro ao copiar");
       setTimeout(() => setCopyMessage(null), 2000);

@@ -657,7 +657,7 @@
   }
 
   .profile-level-under-avatar {
-    top: 50px;
+    top: 48px;
     left: 11px;
     padding: 0px 12px 0px 12px ;
     font-size: 10px;
@@ -676,7 +676,7 @@
 
   .profile-points {
     font-weight: 700;
-    font-size: 13px;
+    font-size: 14px;
   }
 
   /* =========================

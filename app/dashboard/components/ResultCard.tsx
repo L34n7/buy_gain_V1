@@ -135,7 +135,7 @@ export default function ResultCard({
               Abrir
             </span>
             <span className="btn-sub">
-              link rastreado
+              Link Rastreado
             </span>
           </button>
 

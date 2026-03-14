@@ -60,7 +60,7 @@ export default function MobileNav() {
               href="/dashboard/extrato"
               className={isActive("/dashboard/extrato") ? "active" : ""}
             >
-              <span>📊 Extrato</span>
+              <span>🧾 Extrato</span>
             </Link>
 
             <Link
@@ -92,12 +92,11 @@ export default function MobileNav() {
 
             {admin && (
               <>
-                <div className="mobile-menu-divider" />
                 <Link
                   href="/dashboard/admin/resgates"
                   className={isActive("/dashboard/admin/resgates") ? "active" : ""}
                 >
-                  <span>🧑 Resgates</span>
+                  <span>🗡 Resgates ADM</span>
                 </Link>
               </>
             )}

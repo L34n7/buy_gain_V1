@@ -47,6 +47,7 @@ export default function AdminResgatesPage() {
 
   const [preview, setPreview] = useState<PreviewSaldo | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   async function carregar() {
     setLoading(true);
@@ -61,6 +62,18 @@ export default function AdminResgatesPage() {
   useEffect(() => {
     carregar();
   }, []);
+
+  useEffect(() => {
+    if (resgateSelecionado) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [resgateSelecionado]);
 
   // 🔎 ABRIR MODAL → PREVIEW (GET)
   async function abrirProcessar(resgate: ResgateAdmin) {
@@ -88,8 +101,11 @@ export default function AdminResgatesPage() {
   }
 
   // ✅ CONFIRMAR → POST
-  async function confirmar() {
-    if (!resgateSelecionado || !codigo) return;
+async function confirmar() {
+  if (!resgateSelecionado || !codigo) return;
+
+  try {
+    setProcessing(true);
 
     const res = await fetch("/api/admin/resgates/processar", {
       method: "POST",
@@ -104,15 +120,23 @@ export default function AdminResgatesPage() {
 
     if (!res.ok) {
       alert(json.error || "Erro ao processar resgate");
+      setProcessing(false);
       return;
     }
 
     alert("Resgate processado com sucesso!");
+
     setCodigo("");
     setResgateSelecionado(null);
     setPreview(null);
+
     carregar();
+  } catch (e) {
+    alert("Erro de conexão");
+  } finally {
+    setProcessing(false);
   }
+}
 
   return (
     <div className="dashboard-container">
@@ -278,13 +302,13 @@ export default function AdminResgatesPage() {
                   Cancelar
                 </button>
 
-                <button
-                  className="btn-confirmar"
-                  onClick={confirmar}
-                  disabled={!codigo || !preview}
-                >
-                  Confirmar
-                </button>
+              <button
+                className="btn-confirmar"
+                onClick={confirmar}
+                disabled={!codigo || !preview || processing}
+              >
+                {processing ? "Processando..." : "Confirmar"}
+              </button>
               </div>
             </div>
           </div>

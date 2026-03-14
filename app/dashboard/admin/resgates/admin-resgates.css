@@ -180,6 +180,7 @@
 
   padding: 16px;
   box-sizing: border-box;
+  overflow-y: auto;
 
   background: rgba(5, 8, 20, 0.86);
 }
@@ -188,6 +189,8 @@
   position: relative;
   width: 100%;
   max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
   box-sizing: border-box;
 
   padding: 28px;
@@ -199,6 +202,8 @@
   box-shadow:
     0 0 0 1px rgba(94, 216, 174, 0.12),
     0 20px 60px rgba(0, 0, 0, 0.6);
+    animation: fadeIn 0.6s ease;
+
 }
 
 .modal h3 {
@@ -322,6 +327,7 @@
 }
 
 .saldo-preview .divider {
+  width: 100%;
   height: 1px;
   background: linear-gradient(
     to right,
@@ -397,24 +403,54 @@
     font-weight: 700;
   }
 
+  .modal-overlay {
+    padding: 10px;
+    align-items: center;
+    justify-content: center;
+  }
+
   .modal {
-    padding: 18px;
-    border-radius: 12px;
+    width: 95%;
     max-width: 100%;
+    max-height: 65vh;
+    overflow-y: auto;
+    padding: 16px 18px;
+    border-radius: 12px;
+    margin-bottom: 30px;
   }
 
   .modal h3 {
     font-size: 22px;
     margin-bottom: 12px;
+    line-height: 1.15;
   }
 
   .modal p {
     font-size: 16px;
     line-height: 1.4;
+    margin-bottom: 10px;
   }
 
   .modal p span {
     font-size: 12px;
+  }
+
+  .saldo-preview {
+    padding: 14px;
+    font-size: 13px;
+    margin: 14px 0 16px;
+  }
+
+  .saldo-preview .linha {
+    align-items: flex-start;
+  }
+
+  .saldo-preview .linha strong {
+    font-size: 16px; 
+  }
+
+  .saldo-preview .divider {
+    width: 100%;
   }
 
   .modal label {
@@ -429,30 +465,17 @@
   .modal-actions {
     flex-direction: column;
     gap: 8px;
+    margin-top: 14px;
   }
 
-  .btn-cancelar{
-    padding: 10px 14px;
+  .btn-cancelar {
     font-weight: 500;
+    margin: 5px 0px 0px 0px;
   }
 
   .btn-confirmar {
-    width: 100%;
-    padding: 10px 14px;
-    font-size: 16px;
     font-weight: 700;
-  }
-
-  .saldo-preview {
-    padding: 14px;
-    font-size: 13px;
-  }
-
-  .saldo-preview .linha {
-    align-items: flex-start;
-  }
-
-  .saldo-preview .linha strong {
-    font-size: 16px;
+    margin: 5px 0px 15px 0px;
   }
 }
+

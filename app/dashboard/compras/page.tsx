@@ -470,6 +470,18 @@ function calcularPrevisaoConclusao(dataEvento?: string) {
       loadCompras();
     }, []);
 
+    useEffect(() => {
+      if (modalEventoId) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "";
+      }
+
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }, [modalEventoId]);
+
   /* ======================================================
      JSX (PARTE VISUAL)
      - classes referenciam compras.css
@@ -670,14 +682,11 @@ function calcularPrevisaoConclusao(dataEvento?: string) {
                   if (!prazo) return null;
 
                   return (
-                    <div
+                    <div className="modal-prazo"
                       style={{
-                        marginTop: 20,
-                        fontSize: 16,
-                        fontWeight: 500,
                         color: prazo.expirado ? "#f87171" : prazo.dias <= 5 ? "#ff624a" : "#fdab38",
                       }}
-                    >
+                    > 
                       ⏰ {prazo.texto}
                     </div>
                   );

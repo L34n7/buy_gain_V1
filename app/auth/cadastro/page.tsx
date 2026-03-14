@@ -292,7 +292,7 @@ export default function Cadastro() {
                 <Turnstile
                   ref={turnstileRef}
                   siteKey="0x4AAAAAACiJdMM95ZEJ0inL"
-                  options={{ theme: "dark", size: "normal" }}
+                  options={{ theme: "dark", size: "flexible" }}
                   onSuccess={(token) => {
                     setCaptchaToken(token);
                     setCaptchaError(false);

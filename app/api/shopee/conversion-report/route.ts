@@ -28,6 +28,7 @@ function hexToUUID(hex: string) {
 export async function GET() {
   try {
     const supabase = await createAdminSupabase();
+    let houveNovoEvento = false;
 
     const purchaseTimeStart = Math.floor(
       (Date.now() - 30 * 24 * 60 * 60 * 1000) / 1000
@@ -195,6 +196,8 @@ export async function GET() {
                 produto_nome: item.itemName,
                 produto_imagem: generateLink.produto_imagem || null,
                 pontos_liberados: liberarAgora,
+                email_analise_enviado: false,
+                email_analise_enviado_em: null,
               })
               .select("id")
               .single();
@@ -205,6 +208,7 @@ export async function GET() {
             }
 
             eventoId = insertedEvento.id;
+            houveNovoEvento = true;
           }
 
           if (liberarAgora && eventoId) {
@@ -233,6 +237,26 @@ export async function GET() {
             }
           }
         }
+      }
+    }
+
+    if (houveNovoEvento) {
+      try {
+        const response = await fetch(
+          `${process.env.SITE_URL}/api/jobs/enviar-email-compra-entrada`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${process.env.CRON_SECRET}`,
+            },
+            cache: "no-store",
+          }
+        );
+
+        const data = await response.json();
+        console.log("Job de email Shopee executado:", data);
+      } catch (emailError) {
+        console.error("Erro ao chamar job de email de compra:", emailError);
       }
     }
 

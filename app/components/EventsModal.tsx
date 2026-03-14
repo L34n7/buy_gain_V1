@@ -236,6 +236,7 @@ export default function EventsModal({
               />
 
               <input
+              className="modal-texto-file"
                 type="file"
                 accept="image/*,.pdf"
                 onChange={(e) =>

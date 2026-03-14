@@ -93,6 +93,14 @@
   border: none;
   cursor: pointer;
   font-size: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.6;
+  transition: 0.2s ease;
+}
+
+.eye-btn:hover {
+  opacity: 1;
 }
 
 .login-captcha {
@@ -177,13 +185,15 @@
 =========================== */
 
 .login-btn.error{
-  background: linear-gradient(90deg,#ff4d6d,#ff0033);
+  font-size: 18px;
+  color: #ffffff;
+  
+  background: linear-gradient(90deg, #aa60f9, #ff4d6ec5, #6b11cb8e);
 
   box-shadow:
-    0 0 18px rgba(255,0,60,0.7),
-    0 0 10px rgba(255,0,60,0.4);
-
-  animation: shakeBtn 0.35s ease;
+    0 0 10px rgba(132, 0, 255, 0.489),
+    0 0 20px rgba(255, 0, 60, 0.496);
+  animation: fadeIn 1.3s ease;
 }
 
 /* animação erro */
@@ -348,9 +358,9 @@ span{
 ========================================= */
 @media (max-width: 768px){
 
-.login-card {
-  margin-top: -40px;
-}
+  .login-card {
+    margin-top: -40px;
+  }
 
   .login-wrapper{
     flex-direction: column;   /*c 🔥 empilha logo + card */
@@ -391,25 +401,36 @@ span{
   /* CAPTCHA */
   .login-captcha{
     padding: 10px;
-    margin: 16px 0;
+    margin: 5px 0px 0px 0px;
+    size: 70%;
   }
 
   /* BOTÃO */
-.login-btn {
-  padding: 10px;
-  margin-top: 18px;
-  border-radius: 12px;
+  .login-btn {
+    padding: 10px;
+    margin-top: 18px;
+    border-radius: 12px;
 
-  font-size: 18px;
-  font-weight: 700;
-  color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
 
-  background: linear-gradient(90deg, #bb7bff, #6a11cb);
-  box-shadow: 0 0 14px rgba(155, 81, 255, 0.55);
+    background: linear-gradient(90deg, #bb7bff, #6a11cb);
+    box-shadow: 0 0 14px rgba(155, 81, 255, 0.55);
 
-  transition: 0.25s ease;
-}
-  
+    transition: 0.25s ease;
+  }
+
+  .login-btn.error{
+    padding: 13px;
+    margin-top: 5px;
+    font-weight: 500;
+
+    font-size: 16px;
+    box-shadow:
+      0 0 10px rgba(132, 0, 255, 0.392),
+      0 0 20px rgba(255, 0, 60, 0.333);
+  }
 
   .login-forgot button {
     font-size: 15px;

@@ -90,7 +90,7 @@ useEffect(() => {
           href="/dashboard/extrato"
           className={`nav-item ${isActive("/dashboard/extrato") ? "active" : ""}`}
         >
-          <span className="nav-ico">📊</span>
+          <span className="nav-ico">🧾</span>
           <span className="nav-text">Extrato</span>
         </Link>
 
@@ -133,8 +133,8 @@ useEffect(() => {
               isActive("/dashboard/admin/resgates") ? "active" : ""
             }`}
           >
-            <span className="nav-ico">🧑</span>
-            <span className="nav-text">Resgates</span>
+            <span className="nav-ico">🗡</span>
+            <span className="nav-text">Resgates ADMIN</span>
           </Link>
         </>
       )}
