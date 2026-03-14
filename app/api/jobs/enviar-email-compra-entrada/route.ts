@@ -72,14 +72,7 @@ async function enviarEmailsML(
 
       const nome = usuario.name || usuario.nickname || "cliente";
 
-      const origemFormatada =
-      evento.origem === "shopee"
-        ? "Shopee"
-        : evento.origem === "mercado_livre" ||
-          evento.origem === "mercadolivre" ||
-          evento.origem === "ml"
-        ? "Mercado Livre"
-        : evento.origem || "Parceiro";
+      const origemFormatada = "Mercado Livre";
 
         
       const html = getCompraEmAnaliseEmailTemplate({
@@ -154,14 +147,7 @@ async function enviarEmailsShopee(
 
       const nome = usuario.name || usuario.nickname || "cliente";
 
-    const origemFormatada =
-      evento.origem === "shopee"
-        ? "Shopee"
-        : evento.origem === "mercado_livre" ||
-          evento.origem === "mercadolivre" ||
-          evento.origem === "ml"
-        ? "Mercado Livre"
-        : evento.origem || "Parceiro";
+      const origemFormatada = "Shopee";
 
     const html = getCompraEmAnaliseEmailTemplate({
       userName: nome,
