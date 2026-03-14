@@ -1,0 +1,1 @@
+export const APP_VERSION = "Beta v1.0";

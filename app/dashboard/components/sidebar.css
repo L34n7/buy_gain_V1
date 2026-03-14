@@ -130,15 +130,6 @@
   justify-content: center;
 }
 
-/* ======================
-   DIVIDER ADMIN
-====================== */
-
-.sidebar-divider {
-  height: 1px;
-  background: rgba(255,255,255,0.1);
-  margin: 12px 8px;
-}
 
 /* ======================
    FOOTER

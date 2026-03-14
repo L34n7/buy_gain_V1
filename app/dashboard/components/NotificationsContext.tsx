@@ -29,15 +29,25 @@ export type EventoPendente = {
   produto_nome?: string;
 };
 
+type NotificacaoRecompensa = {
+  id: string;
+  titulo: string;
+  descricao: string;
+  created_at: string;
+  lida?: boolean;
+};
+
 type NotificationContextType = {
   pendentes: number;
   eventosPendentes: EventoPendente[];
   creditosNovos: NotificacaoCredito[];
   notificacoesLevelUp: NotificacaoLevelUp[];
   notificacoesConquista: NotificacaoConquista[]; 
+  notificacoesRecompensa: NotificacaoRecompensa[];
   marcarCreditoComoLido: (id: string) => void;
   marcarLevelUpComoLido: (id: string) => Promise<void>;
   marcarConquistaComoLida: (id: string) => Promise<void>;
+  marcarRecompensaComoLida: (id: string) => Promise<void>;
   abrirEvento: (id: string) => void;
   recarregar: () => void;
   marcarTodasComoLidas: () => Promise<void>;
@@ -49,9 +59,11 @@ const NotificationsContext = createContext<NotificationContextType>({
   creditosNovos: [],
   notificacoesLevelUp: [],
   notificacoesConquista: [],
+  notificacoesRecompensa: [],
   marcarCreditoComoLido: () => {},
   marcarLevelUpComoLido: async () => {},
   marcarConquistaComoLida: async () => {},
+  marcarRecompensaComoLida: async () => {},
   abrirEvento: () => {},
   recarregar: () => {},
   marcarTodasComoLidas: async () => {},
@@ -67,6 +79,7 @@ export function NotificationsProvider({
   const [creditosNovos, setCreditosNovos] = useState<NotificacaoCredito[]>([]);
   const [notificacoesLevelUp, setNotificacoesLevelUp] = useState<NotificacaoLevelUp[]>([]);
   const [notificacoesConquista, setNotificacoesConquista] = useState<NotificacaoConquista[]>([]);
+  const [notificacoesRecompensa, setNotificacoesRecompensa] = useState<NotificacaoRecompensa[]>([]);
 
   // =========================
   // MARCAR CRÉDITO COMO LIDO
@@ -131,6 +144,28 @@ export function NotificationsProvider({
   }
 }
 
+
+  // =========================
+  // MARCAR RECOMPENSA COMO LIDA
+  // =========================
+  async function marcarRecompensaComoLida(id: string) {
+    try {
+      await fetch("/api/notificacoes/marcar-lida", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ id }),
+      });
+
+      setNotificacoesRecompensa((prev) =>
+        prev.filter((n) => n.id !== id)
+      );
+    } catch (err) {
+      console.error("Erro ao marcar recompensa como lida:", err);
+    }
+  }
+
+
   // =========================
   // MARCAR TODAS LIDO 
   // =========================
@@ -191,6 +226,23 @@ async function marcarTodasComoLidas() {
   } catch (err) {
     console.error("Erro ao marcar todas como lidas:", err);
   }
+
+      // marca todas as notificações de recompensa no banco
+    await Promise.all(
+      notificacoesRecompensa.map((n) =>
+        fetch("/api/notificacoes/marcar-lida", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ id: n.id }),
+        })
+      )
+    );
+
+    // remove todas do state
+    setNotificacoesRecompensa([]);
 }
 
   // =========================
@@ -271,8 +323,13 @@ async function marcarTodasComoLidas() {
         (n: any) => n.tipo === "CONQUISTA"
       );
 
+      const apenasRecompensas = lista.filter(
+        (n: any) => n.tipo === "RECOMPENSA_PROCESSADA"
+      );
+
       setNotificacoesLevelUp(apenasLevelUp);
       setNotificacoesConquista(apenasConquistas);
+      setNotificacoesRecompensa(apenasRecompensas);
     } catch (err) {
       console.error("Erro ao carregar level ups:", err);
     }
@@ -294,14 +351,17 @@ async function marcarTodasComoLidas() {
           eventosPendentes.length +
           creditosNovos.length +
           notificacoesLevelUp.length +
-          notificacoesConquista.length,
+          notificacoesConquista.filter((n) => !n.lida).length +
+          notificacoesRecompensa.length,
         eventosPendentes,
         creditosNovos,
         notificacoesLevelUp,
         notificacoesConquista,
+        notificacoesRecompensa,
         marcarCreditoComoLido,
         marcarLevelUpComoLido,
         marcarConquistaComoLida,
+        marcarRecompensaComoLida,
         marcarTodasComoLidas,
         abrirEvento: (id: string) => setEventoAberto(id),
         recarregar: () => {

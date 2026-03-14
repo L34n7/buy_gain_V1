@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useNotifications } from "./NotificationsContext";
 import { useEffect, useState } from "react";
 import "./sidebar.css";
+import { APP_VERSION } from "@/lib/appConfig";
+
 
 export default function Sidebar({
   open,
@@ -14,7 +16,7 @@ export default function Sidebar({
   onToggleSidebar: () => void;
 }) {
   const pathname = usePathname();
-  const { eventosPendentes } = useNotifications();
+  const { eventosPendentes, notificacoesRecompensa } = useNotifications();
 
   const [Admin, setAdmin] = useState(false);
 
@@ -38,7 +40,7 @@ useEffect(() => {
       return pathname === "/dashboard";
     }
 
-    return pathname === path;
+    return pathname === path || pathname.startsWith(path + "/");
   }
 
   return (
@@ -107,6 +109,12 @@ useEffect(() => {
         >
           <span className="nav-ico">🎒</span>
           <span className="nav-text">Inventário</span>
+
+          {notificacoesRecompensa.length > 0 && (
+            <span className="nav-badge">
+              {notificacoesRecompensa.length}
+            </span>
+          )}
         </Link>
 
         <Link
@@ -119,8 +127,6 @@ useEffect(() => {
 
       {Admin && (
         <>
-          <div className="sidebar-divider" />
-
           <Link
             href="/dashboard/admin/resgates"
             className={`nav-item ${
@@ -135,7 +141,7 @@ useEffect(() => {
 
       
       </nav>
-      <div className="sidebar-footer">Beta v1.0</div>
+      <div className="sidebar-footer">{APP_VERSION}</div>
     </aside>
   );
 }

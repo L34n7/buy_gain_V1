@@ -25,11 +25,14 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     creditosNovos,
     notificacoesLevelUp,
     notificacoesConquista,
+    notificacoesRecompensa,
     marcarCreditoComoLido,
     marcarLevelUpComoLido,
     marcarConquistaComoLida,
+    marcarRecompensaComoLida,
     marcarTodasComoLidas,
   } = useNotifications();
+  
 
   const [points, setPoints] = useState<number>(0);
   const [displayPoints, setDisplayPoints] = useState(0);
@@ -388,6 +391,25 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
                 >
                   <div className="bell-item-title">
                     🏆 Nova conquista desbloqueada!
+                  </div>
+                  <div className="bell-item-sub">
+                    {n.descricao}
+                  </div>
+                </div>
+              ))}
+
+              {notificacoesRecompensa.map((n) => (
+                <div
+                  key={n.id}
+                  className="bell-item recompensa"
+                  onClick={async () => {
+                    await marcarRecompensaComoLida(n.id);
+                    setBellOpen(false);
+                    router.push("/dashboard/inventario");
+                  }}
+                >
+                  <div className="bell-item-title">
+                    🎁 Recompensa processada
                   </div>
                   <div className="bell-item-sub">
                     {n.descricao}

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import "./inventario.css";
 import { emitirXpUpdate } from "@/lib/xpEmitter";
+import { useNotifications } from "../components/NotificationsContext";
 
 type InventarioItem = {
   id: string;
@@ -30,6 +31,7 @@ export default function InventarioPage() {
   const [itemSelecionado, setItemSelecionado] = useState<InventarioItem | null>(null);
   const [modalAberto, setModalAberto] = useState(false);
   const [copiado, setCopiado] = useState(false);
+  const { notificacoesRecompensa, marcarRecompensaComoLida } = useNotifications();
 
   useEffect(() => {
     async function carregar() {
@@ -77,6 +79,20 @@ export default function InventarioPage() {
         return { label: status, className: "" };
     }
   }
+
+  useEffect(() => {
+  async function limparBadgeInventario() {
+    if (!notificacoesRecompensa.length) return;
+
+    await Promise.all(
+      notificacoesRecompensa.map((n) =>
+        marcarRecompensaComoLida(n.id)
+      )
+    );
+  }
+
+  limparBadgeInventario();
+}, []);
 
   return (
   <div className="inveboard-container">

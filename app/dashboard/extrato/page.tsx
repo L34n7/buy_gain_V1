@@ -109,8 +109,11 @@ function filtrarMesAtual() {
     carregar();
   }, []);
 
-  function formatarOrigem(e: ExtratoItem) {
-  if (e.tipo === "CREDITO" && e.origem === "ML_EVENTO") {
+function formatarOrigem(e: ExtratoItem) {
+  if (
+    e.tipo === "CREDITO" &&
+    (e.origem === "ML_EVENTO" || e.origem === "SHOPEE_EVENTO")
+  ) {
     return "Compra confirmada";
   }
 
@@ -192,20 +195,7 @@ function filtrarMesAtual() {
                     {e.tipo}
                   </td>
 
-                    <td>
-                    {e.origem === "RESGATE_RECOMPENSA" && e.resgate ? (
-                        <>
-                        Resgate ·{" "}
-                        <strong>{e.resgate.giftcards?.nome}</strong>
-                        {" · "}
-                        {e.resgate.giftcard_opcoes?.descricao}
-                        </>
-                    ) : e.tipo === "CREDITO" && e.origem === "ML_EVENTO" ? (
-                        "Compra confirmada"
-                    ) : (
-                        e.origem
-                    )}
-                    </td>
+                  <td>{formatarOrigem(e)}</td>
 
                   <td className={e.tipo === "CREDITO" ? "pts-credito" : "pts-debito"}>
                     {formatarPontos(e.pontos)}

@@ -27,7 +27,7 @@ export async function GET() {
 
     const { data: users } = await admin
       .from("users")
-      .select("id, name, email")
+      .select("id, name, nickname, email")
       .in("id", userIds);
 
     const userMap = new Map(users?.map(u => [u.id, u]) ?? []);

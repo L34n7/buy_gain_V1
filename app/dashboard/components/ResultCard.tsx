@@ -60,7 +60,7 @@ export default function ResultCard({
           <div className="reward-sub">
             Estimativa:{" "}
             {pontos
-              ? `${pointsMin ?? Math.floor(pontos * 0.8)}–${pontos} pontos`
+              ? `${pointsMin ?? Math.floor(pontos * 0.8)} – ${pontos} pontos`
               : "calculando..."}
           </div>
           </div>

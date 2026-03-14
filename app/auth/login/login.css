@@ -80,6 +80,21 @@
   box-shadow: 0 0 14px rgba(155, 81, 255, 0.55);
 }
 
+.password-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.eye-btn {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
 .login-captcha {
   display: flex;
   justify-content: center;

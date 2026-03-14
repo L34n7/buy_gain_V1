@@ -15,7 +15,6 @@ function generateSignature(payload: string, timestamp: string) {
     .digest("hex");
 }
 
-// 🔥 Converter HEX para UUID
 function hexToUUID(hex: string) {
   return [
     hex.substring(0, 8),
@@ -62,9 +61,8 @@ export async function GET() {
             }
           }
         }
-      `
+      `,
     };
-
 
     const payload = JSON.stringify(queryData);
     const timestamp = Math.floor(Date.now() / 1000).toString();
@@ -83,18 +81,28 @@ export async function GET() {
 
     console.log("CONVERSION RESPONSE:", result);
 
+    if (result?.errors?.length) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: result.errors[0]?.message || "Erro retornado pela Shopee",
+          details: result.errors,
+        },
+        { status: 400 }
+      );
+    }
+
     const nodes = result?.data?.conversionReport?.nodes || [];
 
     console.log("NODES RECEBIDOS:", JSON.stringify(nodes, null, 2));
 
-    
     for (const node of nodes) {
       console.log("UTM RECEBIDO:", node.utmContent);
 
-      //if (!node.utmContent) continue;
+      if (!node.utmContent) continue;
 
       const cleanHex = node.utmContent.replace(/-+$/, "");
-     // if (cleanHex.length !== 32) continue;
+      if (cleanHex.length !== 32) continue;
 
       const formattedUUID = hexToUUID(cleanHex);
 
@@ -106,49 +114,124 @@ export async function GET() {
 
       if (!generateLink) continue;
 
-      for (const order of node.orders) {
-        for (const item of order.items) {
+      for (const order of node.orders || []) {
+        for (const item of order.items || []) {
+          const comissao = Number(item.itemTotalCommission || 0);
+          const ganhoReais = Number((comissao * 0.3).toFixed(2));
+          const valorProduto = Number(item.actualAmount || 0);
 
-          // 🔁 Verifica duplicidade pelo pedido
+          const statusShopee = String(order.orderStatus || "").toUpperCase();
+          const pedidoConcluidoNaShopee = statusShopee === "COMPLETED";
+          const liberarAgora = pedidoConcluidoNaShopee && comissao < 30;
+
+          let statusFinal = "PENDING";
+
+          if (statusShopee === "CANCELLED") {
+            statusFinal = "CANCELLED";
+          } else if (statusShopee === "COMPLETED") {
+            statusFinal = "COMPLETED";
+          } else {
+            statusFinal = "PENDING";
+          }
+
           const { data: existing } = await supabase
             .from("shopee_eventos")
-            .select("id")
-            .eq("observacao", order.orderId)
+            .select("id, pontos_liberados")
+            .eq("pedido_id", order.orderId)
+            .eq("generate_link_id", generateLink.id)
             .maybeSingle();
 
-          if (existing) continue;
+          let eventoId: string | null = null;
 
-          const comissao = Number(item.itemTotalCommission || 0);
-          const pontos = Math.floor(comissao * 1000);
-          const valorProduto = Number(item.actualAmount || 0);
-          
-        await supabase.from("shopee_eventos").insert({
-          user_id: generateLink.user_id,
-          generate_link_id: generateLink.id, // ✅ correto
+          if (existing) {
+            const { data: updatedEvento, error: updateError } = await supabase
+              .from("shopee_eventos")
+              .update({
+                status: statusFinal,
+                origem: "shopee",
+                data_evento: new Date(node.purchaseTime * 1000).toISOString(),
+                data_update: item.completeTime
+                  ? new Date(item.completeTime * 1000).toISOString()
+                  : new Date().toISOString(),
+                variacao_id: item.itemId,
+                resposta: item.fraudStatus || null,
+                produto_vendas: valorProduto,
+                produto_ganhos: comissao,
+                produto_ganho_estimado: comissao,
+                ganho_pontos: ganhoReais,
+                produto_nome: item.itemName,
+                produto_imagem: generateLink.produto_imagem || null,
+                pontos_liberados: liberarAgora ? true : existing.pontos_liberados,
+              })
+              .eq("id", existing.id)
+              .select("id")
+              .single();
 
-          status: order.orderStatus,
-          origem: "shopee",
+            if (updateError) {
+              console.error("Erro ao atualizar shopee_eventos:", updateError);
+              continue;
+            }
 
-          pedido_id: order.orderId, // ✅ correto
+            eventoId = updatedEvento.id;
+          } else {
+            const { data: insertedEvento, error: insertError } = await supabase
+              .from("shopee_eventos")
+              .insert({
+                user_id: generateLink.user_id,
+                generate_link_id: generateLink.id,
+                status: statusFinal,
+                origem: "shopee",
+                pedido_id: order.orderId,
+                data_evento: new Date(node.purchaseTime * 1000).toISOString(),
+                data_update: item.completeTime
+                  ? new Date(item.completeTime * 1000).toISOString()
+                  : new Date().toISOString(),
+                variacao_id: item.itemId,
+                resposta: item.fraudStatus || null,
+                produto_vendas: valorProduto,
+                produto_ganhos: comissao,
+                produto_ganho_estimado: comissao,
+                ganho_pontos: ganhoReais,
+                produto_nome: item.itemName,
+                produto_imagem: generateLink.produto_imagem || null,
+                pontos_liberados: liberarAgora,
+              })
+              .select("id")
+              .single();
 
-          data_evento: new Date(node.purchaseTime * 1000),
-          data_update: item.completeTime
-            ? new Date(item.completeTime * 1000)
-            : new Date(),
+            if (insertError) {
+              console.error("Erro ao inserir shopee_eventos:", insertError);
+              continue;
+            }
 
-          variacao_id: item.itemId,
-          resposta: item.fraudStatus || null,
+            eventoId = insertedEvento.id;
+          }
 
-          produto_vendas: valorProduto,
-          produto_ganhos: comissao,
-          produto_ganho_estimado: comissao,
-          ganho_pontos: pontos,
+          if (liberarAgora && eventoId) {
 
-          produto_nome: item.itemName,
-          produto_imagem: generateLink.produto_imagem || null,
+            console.log("🔎 Tentando creditar pontos Shopee");
+            console.log({
+              eventoId,
+              orderId: order.orderId,
+              statusShopee: order.orderStatus,
+              comissao,
+              ganhoReais,
+              liberarAgora
+            });
 
-          pontos_liberados: false
-        });
+            const { data: rpcData, error: rpcError } = await supabase.rpc(
+              "creditar_pontos_shopee_evento",
+              { p_evento_id: eventoId }
+            );
+
+            console.log("RPC retorno:", rpcData);
+
+            if (rpcError) {
+              console.error("❌ Erro ao creditar pontos Shopee:", rpcError);
+            } else {
+              console.log("✅ RPC executada com sucesso para evento:", eventoId);
+            }
+          }
         }
       }
     }
@@ -157,7 +240,6 @@ export async function GET() {
       success: true,
       totalConversions: nodes.length,
     });
-
   } catch (error) {
     console.error("Erro conversionReport:", error);
 

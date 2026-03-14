@@ -5,6 +5,8 @@ import {
 } from "@/lib/supabaseServer";
 import { triggerConquistas } from "@/lib/conquistas";
 
+import { sendResgateEmail } from "@/lib/email/sendResgateEmail";
+
 export async function POST(req: Request) {
   try {
     const { giftcard_opcao_id } = await req.json();
@@ -51,16 +53,25 @@ export async function POST(req: Request) {
     // 4️⃣ Buscar opção do giftcard (JÁ EM PONTOS REAIS)
     const { data: opcao } = await admin
       .from("giftcard_opcoes")
-      .select("id, giftcard_id, pontos")
+      .select("id, giftcard_id, pontos, descricao")
       .eq("id", giftcard_opcao_id)
       .single();
 
-    if (!opcao) {
-      return NextResponse.json(
-        { error: "Opção não encontrada" },
-        { status: 404 }
-      );
-    }
+        if (!opcao) {
+          return NextResponse.json(
+            { error: "Opção não encontrada" },
+            { status: 404 }
+          );
+        }
+
+        
+    const { data: giftcard } = await admin
+      .from("giftcards")
+      .select("id, nome, descricao")
+      .eq("id", opcao.giftcard_id)
+      .single();
+
+
 
     // 5️⃣ Saldo atual (EM PONTOS REAIS)
     const { data: ultimoExtrato } = await admin
@@ -157,6 +168,52 @@ export async function POST(req: Request) {
         }
       });
     }
+
+
+    try {
+      const { data: userData } = await admin
+        .from("users")
+        .select("name, email")
+        .eq("id", user_id)
+        .single();
+
+      const emailDestino = userData?.email || user.email;
+      const prazoEntrega = "Em até 2 dias úteis";
+
+      if (emailDestino) {
+        await sendResgateEmail({
+          to: emailDestino,
+          userName: userData?.name || "Cliente",
+          resgateId: String(resgate.id),
+          giftcardNome: giftcard?.nome || "Gift Card",
+          opcaoLabel: opcao?.descricao || "Opção selecionada",
+          pontosUsados: Number(opcao?.pontos || 0),
+          saldoRestante: Number(novoSaldo || 0),
+          prazoEntrega,
+        });
+
+        await admin
+          .from("recompensa_resgates")
+          .update({
+            email_resgate_enviado: true,
+            email_resgate_enviado_em: new Date().toISOString(),
+            email_resgate_erro: null,
+          })
+          .eq("id", resgate.id);
+      }
+    } catch (emailError: any) {
+      console.error("Erro ao enviar email de resgate:", emailError);
+
+      await admin
+        .from("recompensa_resgates")
+        .update({
+          email_resgate_enviado: false,
+          email_resgate_erro: emailError?.message || "Erro desconhecido ao enviar email",
+        })
+        .eq("id", resgate.id);
+    }
+
+
 
     return NextResponse.json({
       success: true,

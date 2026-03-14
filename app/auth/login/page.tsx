@@ -15,6 +15,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const [showCaptcha, setShowCaptcha] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaError, setCaptchaError] = useState(false);
@@ -209,9 +211,10 @@ useEffect(() => {
             required
           />
 
-          <label className="login-label">Senha</label>
+        <label className="login-label">Senha</label>
+        <div className="password-field">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             className="login-input"
             placeholder="Digite sua senha"
             value={password}
@@ -221,6 +224,14 @@ useEffect(() => {
             }}
             required
           />
+          <button
+            type="button"
+            className="eye-btn"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? "🙈" : "👁"}
+          </button>
+        </div>
 
           {showCaptcha && (
             <div className="login-captcha">

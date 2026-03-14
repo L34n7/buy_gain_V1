@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { calcularPrazoRestante, statusExigeResposta } from "../dashboard/utils/prazo";
 import { formatDate } from "../dashboard/utils/format";
 
@@ -48,7 +48,20 @@ export default function EventsModal({
   setArquivo,
   onUploadProva,
 }: Props) {
+  useEffect(() => {
+    if (eventoModalId) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [eventoModalId]);
+
   if (!eventoModalId) return null;
+
 
   const eventoAtual = eventosPendentes.find(
     (e) => e.id === eventoModalId

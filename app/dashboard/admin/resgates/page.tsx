@@ -9,7 +9,8 @@ type ResgateAdmin = {
   pontos_usados: number;
   criado_em: string;
   user?: {
-    nome?: string;
+    name?: string;
+    nickname?: string;
     email?: string;
   };
   giftcard?: {
@@ -125,42 +126,100 @@ export default function AdminResgatesPage() {
         )}
 
         {!loading && resgates.length > 0 && (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Usuário</th>
-                <th>Giftcard</th>
-                <th>Opção</th>
-                <th>Pontos</th>
-                <th>Data</th>
-                <th>Ação</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            {/* DESKTOP */}
+            <div className="admin-table-wrap admin-desktop-only">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Usuário</th>
+                    <th>Giftcard</th>
+                    <th>Opção</th>
+                    <th>Pontos</th>
+                    <th>Data</th>
+                    <th>Ação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {resgates.map((r) => (
+                    <tr key={r.id}>
+                      <td>
+                        <strong>{r.user?.name || "Usuário sem nome"}</strong>
+
+                        {r.user?.nickname && (
+                          <div className="nickname">{r.user.nickname}</div>
+                        )}
+
+                        <div className="muted">{r.user?.email}</div>
+                      </td>
+                      <td>{r.giftcard?.nome}</td>
+                      <td>{r.opcao?.descricao}</td>
+                      <td>{r.pontos_usados.toLocaleString()}</td>
+                      <td>{formatarDataHora(r.criado_em)}</td>
+                      <td>
+                        <button
+                          className="btn-processar"
+                          onClick={() => abrirProcessar(r)}
+                        >
+                          Processar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* MOBILE */}
+            <div className="admin-cards admin-mobile-only">
               {resgates.map((r) => (
-                <tr key={r.id}>
-                  <td>
-                    <strong>{r.user?.nome}</strong>
-                    <div className="muted">{r.user?.email}</div>
-                  </td>
-                  <td>{r.giftcard?.nome}</td>
-                  <td>{r.opcao?.descricao}</td>
-                  <td>{r.pontos_usados.toLocaleString()}</td>
-                  <td>
-                    {formatarDataHora(r.criado_em)}
-                  </td>
-                  <td>
+                <div className="admin-card-resgate" key={r.id}>
+                  <div className="admin-card-top">
+                    <div className="admin-card-user">
+                      <strong>{r.user?.name || "Usuário sem nome"}</strong>
+
+                      {r.user?.nickname && (
+                        <div className="nickname">{r.user.nickname}</div>
+                      )}
+
+                      <div className="muted">{r.user?.email || "Sem e-mail"}</div>
+                    </div>
+                  </div>
+
+                  <div className="admin-card-body">
+                    <div className="admin-info-row">
+                      <span>Giftcard</span>
+                      <strong>{r.giftcard?.nome || "-"}</strong>
+                    </div>
+
+                    <div className="admin-info-row">
+                      <span>Opção</span>
+                      <strong>{r.opcao?.descricao || "-"}</strong>
+                    </div>
+
+                    <div className="admin-info-row">
+                      <span>Pontos</span>
+                      <strong>{r.pontos_usados.toLocaleString()}</strong>
+                    </div>
+
+                    <div className="admin-info-row">
+                      <span>Data</span>
+                      <strong>{formatarDataHora(r.criado_em)}</strong>
+                    </div>
+                  </div>
+
+                  <div className="admin-card-actions">
                     <button
                       className="btn-processar"
                       onClick={() => abrirProcessar(r)}
                     >
                       Processar
                     </button>
-                  </td>
-                </tr>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
 
         {/* MODAL */}

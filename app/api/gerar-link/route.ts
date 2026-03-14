@@ -145,6 +145,8 @@ export async function POST(req: Request) {
       );
     }
 
+    internalUserId = userInterno.id;
+
     /* -----------------------------------------------
        1️⃣ VERIFICA CACHE (3 HORAS)
        Busca EXATAMENTE pelo link colado

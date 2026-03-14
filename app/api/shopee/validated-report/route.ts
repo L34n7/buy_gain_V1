@@ -29,7 +29,7 @@ export async function GET() {
   try {
     const supabase = await createAdminSupabase();
 
-    const validationId = 123456; // 🔥 Ideal: buscar do banco depois
+    const validationId = 123456; // depois ideal é buscar isso do banco
 
     const queryData = {
       query: `
@@ -69,7 +69,11 @@ export async function GET() {
     });
 
     const result = await response.json();
+
+    console.log("VALIDATED RESPONSE:", JSON.stringify(result, null, 2));
+
     const nodes = result?.data?.validatedReport?.nodes || [];
+    console.log("TOTAL VALIDATED NODES:", nodes.length);
 
     for (const node of nodes) {
       if (!node.utmContent) continue;
@@ -81,36 +85,36 @@ export async function GET() {
 
       for (const order of node.orders) {
         for (const item of order.items) {
-
           const comissaoFinal = Number(item.itemTotalCommission || 0);
           const pontos = Math.floor(comissaoFinal * 1000);
 
-          // 1️⃣ Atualizar evento para CONCLUIDO
+          // 1) Atualiza o evento correto da Shopee
           await supabase
             .from("shopee_eventos")
             .update({
-              status: "CONCLUIDO",
+              status: order.orderStatus || "CONCLUIDO",
               produto_ganhos: comissaoFinal,
+              produto_ganho_estimado: comissaoFinal,
               ganho_pontos: pontos,
-              resposta: item.displayItemStatus,
+              resposta: item.displayItemStatus || null,
               data_update: item.completeTime
-                ? new Date(item.completeTime * 1000)
-                : new Date(),
+                ? new Date(item.completeTime * 1000).toISOString()
+                : new Date().toISOString(),
             })
-            .eq("link_rastreado", formattedUUID)
-            .eq("observacao", order.orderId);
+            .eq("generate_link_id", formattedUUID)
+            .eq("pedido_id", order.orderId);
 
-          // 2️⃣ Buscar evento atualizado
+          // 2) Busca o evento atualizado
           const { data: evento } = await supabase
             .from("shopee_eventos")
-            .select("id, user_id, ganho_pontos")
-            .eq("link_rastreado", formattedUUID)
-            .eq("observacao", order.orderId)
-            .single();
+            .select("id, user_id, ganho_pontos, pontos_liberados")
+            .eq("generate_link_id", formattedUUID)
+            .eq("pedido_id", order.orderId)
+            .maybeSingle();
 
           if (!evento) continue;
 
-          // 3️⃣ Verificar se já existe extrato
+          // 3) Verifica se já existe extrato para esse evento
           const { data: extratoExistente } = await supabase
             .from("extrato_pontos")
             .select("id")
@@ -119,7 +123,7 @@ export async function GET() {
 
           if (extratoExistente) continue;
 
-          // 4️⃣ Buscar último saldo
+          // 4) Busca último saldo do usuário
           const { data: ultimoRegistro } = await supabase
             .from("extrato_pontos")
             .select("saldo_apos")
@@ -128,19 +132,28 @@ export async function GET() {
             .limit(1)
             .maybeSingle();
 
-          const saldoAtual = ultimoRegistro?.saldo_apos || 0;
-          const novoSaldo = saldoAtual + evento.ganho_pontos;
+          const saldoAtual = Number(ultimoRegistro?.saldo_apos || 0);
+          const pontosEvento = Number(evento.ganho_pontos || 0);
+          const novoSaldo = saldoAtual + pontosEvento;
 
-          // 5️⃣ Inserir crédito no extrato
+          // 5) Insere crédito no extrato
           await supabase.from("extrato_pontos").insert({
             user_id: evento.user_id,
             tipo: "CREDITO",
             origem: "shopee",
             referencia_id: evento.id,
-            pontos: evento.ganho_pontos,
+            pontos: pontosEvento,
             saldo_apos: novoSaldo,
             criado_em: new Date().toISOString(),
           });
+
+          // 6) Marca pontos como liberados
+          await supabase
+            .from("shopee_eventos")
+            .update({
+              pontos_liberados: true,
+            })
+            .eq("id", evento.id);
         }
       }
     }
@@ -149,7 +162,6 @@ export async function GET() {
       success: true,
       totalValidated: nodes.length,
     });
-
   } catch (error) {
     console.error("Erro validatedReport:", error);
 

@@ -381,12 +381,12 @@ export default function RecompensasPage() {
               </p>
 
               <p className="reward-highlight">
-                Entrega em até <span>48 horas</span>
+                Será entrega em até <span>48 horas</span>
               </p>
 
               <p className="reward-sub">
-                Você poderá acompanhar o status na página
-                <strong> Inventário</strong>.
+                Você poderá acompanhar o status do pedido na página
+                <strong> Inventário</strong>
               </p>
 
               <div className="reward-buttons">

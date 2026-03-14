@@ -3,6 +3,7 @@ import {
   createUserSupabase,
   createAdminSupabase,
 } from "@/lib/supabaseServer";
+import { sendResgateProcessadoEmail } from "@/lib/email/sendResgateProcessadoEmail";
 
 /* Abrir modal / preview
 GET
@@ -129,6 +130,83 @@ export async function POST(req: Request) {
         processado_em: new Date().toISOString(),
       })
       .eq("id", resgate_id);
+
+
+    try {
+      const { data: userData } = await admin
+        .from("users")
+        .select("name, email, auth_user_id")
+        .eq("id", resgate.user_id)
+        .single();
+
+      const { data: giftcard } = await admin
+        .from("giftcards")
+        .select("nome, imagem, imagem_modal")
+        .eq("id", resgate.giftcard_id)
+        .single();
+
+      const rawImage = giftcard?.imagem || giftcard?.imagem_modal || "";
+
+      const giftcardImageUrl = rawImage
+        ? rawImage.startsWith("http")
+          ? rawImage
+          : `https://buygain.com.br/${rawImage.replace(/^\/+/, "")}`
+        : undefined;
+
+      const { data: opcao } = await admin
+        .from("giftcard_opcoes")
+        .select("descricao")
+        .eq("id", resgate.giftcard_opcao_id)
+        .single();
+
+      if (userData?.email) {
+        await sendResgateProcessadoEmail({
+          to: userData.email,
+          userName: userData.name || "Cliente",
+          resgateId: String(resgate.id),
+          giftcardNome: giftcard?.nome || "Gift Card",
+          opcaoLabel: opcao?.descricao || "Opção selecionada",
+          giftcardImageUrl,
+        });
+
+        // monta descrição da notificação
+        const descricaoNotificacao = `Seu ${giftcard?.nome || "Gift Card"} (${opcao?.descricao || "opção selecionada"}) foi liberado e já está disponível no inventário.`;
+
+        // criar notificação para o usuário
+        await admin.from("notificacoes").insert({
+          user_id: userData.auth_user_id,
+          titulo: "🎁 Gift Card liberado",
+          tipo: "RECOMPENSA_PROCESSADA",
+          descricao: descricaoNotificacao,
+          lida: false,
+        });
+
+
+        // ✅ REGISTRA SUCESSO DO EMAIL
+        await admin
+          .from("recompensa_resgates")
+          .update({
+            email_processado_enviado: true,
+            email_processado_enviado_em: new Date().toISOString(),
+            email_processado_erro: null,
+          })
+          .eq("id", resgate_id);
+      }
+    }
+    catch (emailError: any) {
+
+      console.error("Erro ao enviar email de recompensa processada:", emailError);
+
+      // ❌ REGISTRA ERRO DO EMAIL
+      await admin
+        .from("recompensa_resgates")
+        .update({
+          email_processado_enviado: false,
+          email_processado_erro: emailError?.message || "Erro ao enviar email",
+        })
+        .eq("id", resgate_id);
+
+    }
 
     return NextResponse.json({ success: true });
 

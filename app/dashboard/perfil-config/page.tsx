@@ -520,9 +520,9 @@ export default function ProfileForm() {
       showToast("Formato não suportado. Use JPG, PNG ou WEBP.");
       return;
     }
-    const maxBytes = 2 * 1024 * 1024;
+    const maxBytes = 5 * 1024 * 1024;
     if (file.size > maxBytes) {
-      showToast("Imagem muito grande. Máx: 2MB");
+      showToast("Imagem muito grande. Envie uma imagem de até 5MB.");
       return;
     }
     const url = URL.createObjectURL(file);
@@ -606,7 +606,7 @@ export default function ProfileForm() {
             <h2 className="profile-name-av">{form.nickname}</h2>
             <h3 className="profile-text-av"> Alterar Foto de Perfil </h3>
             <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleSelectImage} id="avatar-file-input" className="file-input" />
-            <small className="profile-avatar-help">JPG / PNG / WEBP — Máx 2MB — será cortada para círculo 512×512</small>
+            <small className="profile-avatar-help">JPG / PNG / WEBP — Máx 5MB • a imagem será otimizada automaticamente • será cortada em 512×512</small>
           </div>
         </div>
 
@@ -718,7 +718,7 @@ export default function ProfileForm() {
           <div className="modal-card">
             <div className="modal-card-header">
               <h3>Recortar avatar</h3>
-              <div className="modal-status">{uploadingAvatar ? "Enviando..." : "Ajuste e confirme"}</div>
+              <div className="modal-status">{uploadingAvatar ? "Processando imagem..." : "Ajuste e confirme"}</div>
             </div>
 
             <div className="cropper-container">
@@ -730,7 +730,7 @@ export default function ProfileForm() {
               <input className="range" type="range" min={1} max={3} step={0.01} value={zoom} onChange={(e) => setZoom(Number(e.target.value))} />
               <div className="crop-actions">
                 <button onClick={handleCancelCrop} className="btn btn-ghost">Cancelar</button>
-                <button onClick={handleConfirmCrop} className="btn btn-primary" disabled={uploadingAvatar}>{uploadingAvatar ? "Enviando..." : "Confirmar"}</button>
+                <button onClick={handleConfirmCrop} className="btn btn-primary" disabled={uploadingAvatar}>{uploadingAvatar ? "Processando..." : "Confirmar"}</button>
               </div>
             </div>
 

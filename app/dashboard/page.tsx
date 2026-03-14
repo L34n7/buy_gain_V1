@@ -243,6 +243,22 @@ useEffect(() => {
 
 
 
+function identificarLojaNaoSuportada(hostname: string): string | null {
+  if (hostname.includes("amazon.")) return "Amazon";
+  if (hostname.includes("aliexpress.")) return "AliExpress";
+  if (hostname.includes("kabum.")) return "KaBuM!";
+  if (hostname.includes("shein.")) return "Shein";
+  if (hostname.includes("magazineluiza.") || hostname.includes("magalu.")) return "Magazine Luiza";
+  if (hostname.includes("americanas.")) return "Americanas";
+  if (hostname.includes("casasbahia.")) return "Casas Bahia";
+  if (hostname.includes("carrefour.")) return "Carrefour";
+  if (hostname.includes("extra.")) return "Extra";
+  if (hostname.includes("pontofrio.") || hostname.includes("ponto.")) return "Ponto";
+
+  return null;
+}
+
+
 /* -----------------------------------------------------
    handleGenerate
 ----------------------------------------------------- */
@@ -250,6 +266,14 @@ async function handleGenerate(e: React.FormEvent) {
   e.preventDefault();
   setError(null);
   setTrackedLink(null);
+
+  setProdutoNome(null);
+  setProdutoImagem(null);
+  setValor(null);
+  setPontos(null);
+  setGain10(null);
+  setGain30(null);
+  setCupons([]);
 
   if (!url || !/^https?:\/\//i.test(url)) {
     setError("Cole um link válido que comece com http:// ou https://");
@@ -282,10 +306,25 @@ async function handleGenerate(e: React.FormEvent) {
     const isML =
       hostname.includes("mercadolivre") ||
       hostname.includes("mercadolibre");
-        let data;
+
+    const lojaNaoSuportada = identificarLojaNaoSuportada(hostname);
+
+    if (!isShopee && !isML && lojaNaoSuportada) {
+      setError(`🚧 Ainda não funciona para links da ${lojaNaoSuportada}. Estamos trabalhando para liberar essa loja em breve.`);
+      setLoading(false);
+      return;
+    }
+
+    if (!isShopee && !isML) {
+      setError("Esse link ainda não é compatível. No momento, use links da Shopee ou do Mercado Livre.");
+      setLoading(false);
+      return;
+    }
+
+    let data;
 
     console.log("URL:", originalUrl);
-    console.log("Shopee detectado:", isShopee)
+    console.log("Shopee detectado:", isShopee);
 
     /* ==============================
       🔥 SHOPEE

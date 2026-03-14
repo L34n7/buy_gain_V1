@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
+import sharp from "sharp";
 import {
   createUserSupabase,
   createAdminSupabase,
 } from "@/lib/supabaseServer";
+
+const MAX_UPLOAD_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_DIMENSION = 512; // avatar final 512x512
+const OUTPUT_QUALITY = 78;
 
 export async function POST(req: Request) {
   try {
@@ -35,28 +40,60 @@ export async function POST(req: Request) {
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: "Formato de imagem inválido" },
+        { error: "Formato de imagem inválido. Envie JPG, PNG ou WEBP." },
         { status: 400 }
       );
     }
 
-    if (file.size > 2 * 1024 * 1024) {
+    if (file.size > MAX_UPLOAD_SIZE) {
       return NextResponse.json(
-        { error: "Imagem muito grande (máx 2MB)" },
+        { error: "Imagem muito grande (máx 5MB)" },
         { status: 400 }
       );
     }
 
-    // 4️⃣ Supabase admin (storage)
+    // 4️⃣ Converter File -> Buffer
+    const arrayBuffer = await file.arrayBuffer();
+    const inputBuffer = Buffer.from(arrayBuffer);
+
+    // 5️⃣ Processar imagem
+    // rotate() corrige orientação com base no EXIF
+    // resize() reduz para tamanho ideal de avatar
+    // webp() comprime e padroniza formato
+    let outputBuffer: Buffer;
+
+    try {
+      outputBuffer = await sharp(inputBuffer, {
+        failOn: "error",
+      })
+        .rotate()
+        .resize(MAX_DIMENSION, MAX_DIMENSION, {
+          fit: "cover",
+          position: "centre",
+          withoutEnlargement: true,
+        })
+        .webp({
+          quality: OUTPUT_QUALITY,
+        })
+        .toBuffer();
+    } catch (imageError) {
+      console.error("Erro ao processar imagem:", imageError);
+      return NextResponse.json(
+        { error: "Não foi possível processar a imagem enviada" },
+        { status: 400 }
+      );
+    }
+
+    // 6️⃣ Supabase admin (storage)
     const admin = await createAdminSupabase();
 
-    // nome do arquivo (1 por usuário → sobrescreve)
+    // nome fixo por usuário → sobrescreve sempre
     const fileName = `avatar-${user.id}.webp`;
 
-    // 5️⃣ Upload
+    // 7️⃣ Upload do arquivo já comprimido
     const { error: uploadError } = await admin.storage
       .from("avatars")
-      .upload(fileName, file, {
+      .upload(fileName, outputBuffer, {
         upsert: true,
         contentType: "image/webp",
       });
@@ -69,7 +106,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // 6️⃣ URL pública
+    // 8️⃣ URL pública
     const { data } = admin.storage
       .from("avatars")
       .getPublicUrl(fileName);
@@ -81,14 +118,15 @@ export async function POST(req: Request) {
       );
     }
 
-    // 7️⃣ Retornar URL
+    // 9️⃣ Cache bust
     const cacheBustedUrl = `${data.publicUrl}?v=${Date.now()}`;
 
     return NextResponse.json({
       publicUrl: cacheBustedUrl,
+      optimized: true,
+      originalSize: file.size,
+      optimizedSize: outputBuffer.length,
     });
-
-
   } catch (err) {
     console.error("Erro upload-avatar:", err);
     return NextResponse.json(
