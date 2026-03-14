@@ -25,10 +25,12 @@ function hexToUUID(hex: string) {
   ].join("-");
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const supabase = await createAdminSupabase();
     let houveNovoEvento = false;
+    const { searchParams } = new URL(req.url);
+    const forceEmailJob = searchParams.get("forceEmailJob") === "true";
 
     const purchaseTimeStart = Math.floor(
       (Date.now() - 30 * 24 * 60 * 60 * 1000) / 1000
@@ -240,8 +242,13 @@ export async function GET() {
       }
     }
 
-    if (houveNovoEvento) {
+    if (houveNovoEvento || forceEmailJob) {
       try {
+        console.log("Chamando job de email...", {
+          houveNovoEvento,
+          forceEmailJob,
+        });
+
         const response = await fetch(
           `${process.env.SITE_URL}/api/jobs/enviar-email-compra-entrada`,
           {
@@ -253,11 +260,15 @@ export async function GET() {
           }
         );
 
+        console.log("Status HTTP do job de email:", response.status);
+
         const data = await response.json();
-        console.log("Job de email Shopee executado:", data);
+        console.log("Resposta do job de email:", data);
       } catch (emailError) {
         console.error("Erro ao chamar job de email de compra:", emailError);
       }
+    } else {
+      console.log("Nenhum novo evento e forceEmailJob=false. Job não chamado.");
     }
 
     return NextResponse.json({
