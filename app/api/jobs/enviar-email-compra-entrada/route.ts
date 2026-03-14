@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminSupabase } from "@/lib/supabaseServer";
 import { sendEmail } from "@/lib/email/email";
-import { compraEmAnaliseTemplate } from "@/lib/email/templates/compra-em-analise";
+import { getCompraEmAnaliseEmailTemplate } from "@/lib/email/templates/compra-em-analise";
 
 type EventoPendente = {
   id: string | number;
@@ -72,16 +72,29 @@ async function enviarEmailsML(
 
       const nome = usuario.name || usuario.nickname || "cliente";
 
-      const html = compraEmAnaliseTemplate({
-        nome,
-        produtoNome: evento.produto_nome,
-        produtoImagem: evento.produto_imagem,
-        origem: evento.origem || "Mercado Livre",
+      const origemFormatada =
+      evento.origem === "shopee"
+        ? "Shopee"
+        : evento.origem === "mercado_livre" ||
+          evento.origem === "mercadolivre" ||
+          evento.origem === "ml"
+        ? "Mercado Livre"
+        : evento.origem || "Parceiro";
+
+        
+      const html = getCompraEmAnaliseEmailTemplate({
+        userName: nome,
+        produtoNome: evento.produto_nome || "Produto não informado",
+        origem: origemFormatada,
+        produtoImageUrl: evento.produto_imagem || undefined,
+        comprasUrl: `${process.env.SITE_URL}/dashboard/compras`,
+        siteUrl: `${process.env.SITE_URL}`,
+        suporteUrl: `${process.env.SITE_URL}/suporte`,
       });
 
       await sendEmail({
         to: usuario.email,
-        subject: "Sua compra foi identificada no sistema",
+        subject: "Sua compra foi identificada na BuyGain",
         html,
       });
 
@@ -141,18 +154,30 @@ async function enviarEmailsShopee(
 
       const nome = usuario.name || usuario.nickname || "cliente";
 
-      const html = compraEmAnaliseTemplate({
-        nome,
-        produtoNome: evento.produto_nome,
-        produtoImagem: evento.produto_imagem,
-        origem: evento.origem || "Shopee",
-      });
+    const origemFormatada =
+      evento.origem === "shopee"
+        ? "Shopee"
+        : evento.origem === "mercado_livre" ||
+          evento.origem === "mercadolivre" ||
+          evento.origem === "ml"
+        ? "Mercado Livre"
+        : evento.origem || "Parceiro";
 
-      await sendEmail({
-        to: usuario.email,
-        subject: "Sua compra foi identificada no sistema",
-        html,
-      });
+    const html = getCompraEmAnaliseEmailTemplate({
+      userName: nome,
+      produtoNome: evento.produto_nome || "Produto não informado",
+      origem: origemFormatada,
+      produtoImageUrl: evento.produto_imagem || undefined,
+      comprasUrl: `${process.env.SITE_URL}/dashboard/compras`,
+      siteUrl: `${process.env.SITE_URL}`,
+      suporteUrl: `${process.env.SITE_URL}/suporte`,
+    });
+
+    await sendEmail({
+      to: usuario.email,
+      subject: "Sua compra foi identificada na BuyGain",
+      html,
+    });
 
       const { error: updateError } = await supabase
         .from("shopee_eventos")
