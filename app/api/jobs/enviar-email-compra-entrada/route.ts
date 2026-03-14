@@ -43,7 +43,7 @@ async function enviarEmailsML(
   const { data: eventos, error } = await supabase
     .from("ml_eventos")
     .select("id, user_id, produto_nome, produto_imagem, origem")
-    .or("email_analise_enviado.is.null,email_analise_enviado.eq.false")
+    .or("email_nova_compra.is.null,email_nova_compra.eq.false")
     .order("data_evento", { ascending: true })
     .limit(50);
 
@@ -62,8 +62,8 @@ async function enviarEmailsML(
         await supabase
           .from("ml_eventos")
           .update({
-            email_analise_enviado: true,
-            email_analise_enviado_em: new Date().toISOString(),
+            email_nova_compra: true,
+            data_email_nova_compra: new Date().toISOString(),
           })
           .eq("id", evento.id);
 
@@ -94,8 +94,8 @@ async function enviarEmailsML(
       const { error: updateError } = await supabase
         .from("ml_eventos")
         .update({
-          email_analise_enviado: true,
-          email_analise_enviado_em: new Date().toISOString(),
+          email_nova_compra: true,
+          data_email_nova_compra: new Date().toISOString(),
         })
         .eq("id", evento.id);
 
@@ -119,7 +119,7 @@ async function enviarEmailsShopee(
   const { data: eventos, error } = await supabase
     .from("shopee_eventos")
     .select("id, user_id, produto_nome, produto_imagem, origem")
-    .or("email_analise_enviado.is.null,email_analise_enviado.eq.false")
+    .or("email_nova_compra.is.null,email_nova_compra.eq.false")
     .order("data_evento", { ascending: true })
     .limit(50);
 
@@ -137,8 +137,8 @@ async function enviarEmailsShopee(
         await supabase
           .from("shopee_eventos")
           .update({
-            email_analise_enviado: true,
-            email_analise_enviado_em: new Date().toISOString(),
+            email_nova_compra: true,
+            data_email_nova_compra: new Date().toISOString(),
           })
           .eq("id", evento.id);
 
@@ -168,8 +168,8 @@ async function enviarEmailsShopee(
       const { error: updateError } = await supabase
         .from("shopee_eventos")
         .update({
-          email_analise_enviado: true,
-          email_analise_enviado_em: new Date().toISOString(),
+          email_nova_compra: true,
+          data_email_nova_compra: new Date().toISOString(),
         })
         .eq("id", evento.id);
 

@@ -198,8 +198,8 @@ export async function GET(req: Request) {
                 produto_nome: item.itemName,
                 produto_imagem: generateLink.produto_imagem || null,
                 pontos_liberados: liberarAgora,
-                email_analise_enviado: false,
-                email_analise_enviado_em: null,
+                email_nova_compra: false,
+                data_email_nova_compra: null,
               })
               .select("id")
               .single();

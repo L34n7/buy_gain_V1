@@ -102,10 +102,6 @@ ${
 <strong style="color:#ffffff;">Produto:</strong> ${produtoNome}
 </p>
 
-<p style="color:#34d399; font-size:15px; margin:0;">
-<strong style="color:#ffffff;">Status atual:</strong> EM ANÁLISE
-</p>
-
 </div>
 
 <div style="background-color:#0b1220;
