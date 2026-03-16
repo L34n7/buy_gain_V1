@@ -3,7 +3,7 @@
   "crons": [
     {
       "path": "/api/jobs/enviar-email-conquistas-semana",
-      "schedule": "30 17 * * *"
+      "schedule": "15 21 * * *"
     }
   ]
 }
