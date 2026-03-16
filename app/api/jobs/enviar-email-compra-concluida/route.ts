@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { createAdminSupabase } from "@/lib/supabaseServer";
 import { sendEmail } from "@/lib/email/email";
-import { getCompraEmAnaliseEmailTemplate } from "@/lib/email/templates/compra-em-analise";
+import { getCompraConcluidaEmailTemplate } from "@/lib/email/templates/compra-concluida";
 
 type EventoPendente = {
   id: string | number;
   user_id: string;
   produto_nome: string | null;
   produto_imagem: string | null;
-  origem: string | null;
+  ganho_pontos: number | string | null;
 };
 
 type Usuario = {
@@ -37,15 +37,17 @@ async function buscarUsuario(
   return data as Usuario;
 }
 
-async function enviarEmailsML(
-  supabase: Awaited<ReturnType<typeof createAdminSupabase>>
+async function enviarEmailsConclusaoML(
+  supabase: Awaited<ReturnType<typeof createAdminSupabase>>,
+  limit = 50
 ) {
   const { data: eventos, error } = await supabase
     .from("ml_eventos")
-    .select("id, user_id, produto_nome, produto_imagem, origem")
-    .or("email_nova_compra.is.null,email_nova_compra.eq.false")
-    .order("data_evento", { ascending: true })
-    .limit(50);
+    .select("id, user_id, produto_nome, produto_imagem, ganho_pontos")
+    .eq("status", "CONFIRMADO_FINAL")
+    .or("email_conclusao.is.null,email_conclusao.eq.false")
+    .order("data_update", { ascending: true })
+    .limit(limit);
 
   if (error) throw error;
   if (!eventos?.length) return { encontrados: 0, enviados: 0 };
@@ -57,13 +59,12 @@ async function enviarEmailsML(
       const usuario = await buscarUsuario(supabase, evento.user_id);
       if (!usuario?.email) continue;
 
-      // Se quiser respeitar a preferência do usuário
       if (usuario.allow_notifications === false) {
         await supabase
           .from("ml_eventos")
           .update({
-            email_nova_compra: true,
-            data_email_nova_compra: new Date().toISOString(),
+            email_conclusao: true,
+            data_email_conclusao: new Date().toISOString(),
           })
           .eq("id", evento.id);
 
@@ -71,15 +72,14 @@ async function enviarEmailsML(
       }
 
       const nome = usuario.nickname || usuario.name || "Jogador";
-
       const origemFormatada = "Mercado Livre";
 
-        
-      const html = getCompraEmAnaliseEmailTemplate({
+      const html = getCompraConcluidaEmailTemplate({
         userName: nome,
         produtoNome: evento.produto_nome || "Produto não informado",
         origem: origemFormatada,
         produtoImageUrl: evento.produto_imagem || undefined,
+        pontosGanhos: Number(evento.ganho_pontos || 0),
         comprasUrl: `${process.env.SITE_URL}/dashboard/compras`,
         siteUrl: `${process.env.SITE_URL}`,
         suporteUrl: `${process.env.SITE_URL}/suporte`,
@@ -87,41 +87,43 @@ async function enviarEmailsML(
 
       await sendEmail({
         to: usuario.email,
-        subject: "Sua compra foi identificada na BuyGain",
+        subject: "Sua compra foi confirmada na BuyGain",
         html,
       });
 
       const { error: updateError } = await supabase
         .from("ml_eventos")
         .update({
-          email_nova_compra: true,
-          data_email_nova_compra: new Date().toISOString(),
+          email_conclusao: true,
+          data_email_conclusao: new Date().toISOString(),
         })
         .eq("id", evento.id);
 
       if (updateError) {
-        console.error("Erro ao atualizar ML:", evento.id, updateError);
+        console.error("Erro ao atualizar email_conclusao ML:", evento.id, updateError);
         continue;
       }
 
       enviados++;
     } catch (err) {
-      console.error("Erro enviando email ML:", evento.id, err);
+      console.error("Erro enviando email de conclusão ML:", evento.id, err);
     }
   }
 
   return { encontrados: eventos.length, enviados };
 }
 
-async function enviarEmailsShopee(
-  supabase: Awaited<ReturnType<typeof createAdminSupabase>>
+async function enviarEmailsConclusaoShopee(
+  supabase: Awaited<ReturnType<typeof createAdminSupabase>>,
+  limit = 50
 ) {
   const { data: eventos, error } = await supabase
     .from("shopee_eventos")
-    .select("id, user_id, produto_nome, produto_imagem, origem")
-    .or("email_nova_compra.is.null,email_nova_compra.eq.false")
-    .order("data_evento", { ascending: true })
-    .limit(50);
+    .select("id, user_id, produto_nome, produto_imagem, ganho_pontos")
+    .eq("status", "COMPLETED")
+    .or("email_conclusao.is.null,email_conclusao.eq.false")
+    .order("data_update", { ascending: true })
+    .limit(limit);
 
   if (error) throw error;
   if (!eventos?.length) return { encontrados: 0, enviados: 0 };
@@ -137,8 +139,8 @@ async function enviarEmailsShopee(
         await supabase
           .from("shopee_eventos")
           .update({
-            email_nova_compra: true,
-            data_email_nova_compra: new Date().toISOString(),
+            email_conclusao: true,
+            data_email_conclusao: new Date().toISOString(),
           })
           .eq("id", evento.id);
 
@@ -146,41 +148,41 @@ async function enviarEmailsShopee(
       }
 
       const nome = usuario.nickname || usuario.name || "Jogador";
-
       const origemFormatada = "Shopee";
 
-    const html = getCompraEmAnaliseEmailTemplate({
-      userName: nome,
-      produtoNome: evento.produto_nome || "Produto não informado",
-      origem: origemFormatada,
-      produtoImageUrl: evento.produto_imagem || undefined,
-      comprasUrl: `${process.env.SITE_URL}/dashboard/compras`,
-      siteUrl: `${process.env.SITE_URL}`,
-      suporteUrl: `${process.env.SITE_URL}/suporte`,
-    });
+      const html = getCompraConcluidaEmailTemplate({
+        userName: nome,
+        produtoNome: evento.produto_nome || "Produto não informado",
+        origem: origemFormatada,
+        produtoImageUrl: evento.produto_imagem || undefined,
+        pontosGanhos: Number(evento.ganho_pontos || 0),
+        comprasUrl: `${process.env.SITE_URL}/dashboard/compras`,
+        siteUrl: `${process.env.SITE_URL}`,
+        suporteUrl: `${process.env.SITE_URL}/suporte`,
+      });
 
-    await sendEmail({
-      to: usuario.email,
-      subject: "Sua compra foi identificada na BuyGain",
-      html,
-    });
+      await sendEmail({
+        to: usuario.email,
+        subject: "Sua compra foi confirmada na BuyGain",
+        html,
+      });
 
       const { error: updateError } = await supabase
         .from("shopee_eventos")
         .update({
-          email_nova_compra: true,
-          data_email_nova_compra: new Date().toISOString(),
+          email_conclusao: true,
+          data_email_conclusao: new Date().toISOString(),
         })
         .eq("id", evento.id);
 
       if (updateError) {
-        console.error("Erro ao atualizar Shopee:", evento.id, updateError);
+        console.error("Erro ao atualizar email_conclusao Shopee:", evento.id, updateError);
         continue;
       }
 
       enviados++;
     } catch (err) {
-      console.error("Erro enviando email Shopee:", evento.id, err);
+      console.error("Erro enviando email de conclusão Shopee:", evento.id, err);
     }
   }
 
@@ -198,9 +200,10 @@ export async function GET(req: Request) {
     }
 
     const supabase = await createAdminSupabase();
+    const batchSize = forceRun ? 200 : 50;
 
-    const ml = await enviarEmailsML(supabase);
-    const shopee = await enviarEmailsShopee(supabase);
+    const ml = await enviarEmailsConclusaoML(supabase, batchSize);
+    const shopee = await enviarEmailsConclusaoShopee(supabase, batchSize);
 
     return NextResponse.json({
       ok: true,
@@ -209,9 +212,9 @@ export async function GET(req: Request) {
       shopee,
     });
   } catch (error) {
-    console.error("Erro no job enviar-email-compra-entrada:", error);
+    console.error("Erro no job enviar-email-compra-concluida:", error);
     return NextResponse.json(
-      { error: "Erro ao enviar emails de compra" },
+      { error: "Erro ao enviar emails de conclusão" },
       { status: 500 }
     );
   }

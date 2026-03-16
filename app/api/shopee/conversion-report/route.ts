@@ -240,35 +240,59 @@ export async function GET() {
       }
     }
 
-    if (houveNovoEvento) {
-      try {
-        console.log("Chamando job de email...", {
-          houveNovoEvento,
-        });
+    try {
+      console.log("Chamando job de email de compra registrada...", {
+        houveNovoEvento,
+      });
 
-        const response = await fetch(
-          `${process.env.SITE_URL}/api/jobs/enviar-email-compra-entrada`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${process.env.CRON_SECRET}`,
-            },
-            cache: "no-store",
-          }
-        );
+      const response = await fetch(
+        `${process.env.SITE_URL}/api/jobs/enviar-email-compra-entrada`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${process.env.CRON_SECRET}`,
+          },
+          cache: "no-store",
+        }
+      );
 
-        console.log("Status HTTP do job de email:", response.status);
+      console.log("Status HTTP do job de compra registrada:", response.status);
 
-        const data = await response.json();
-        console.log("Resposta do job de email:", data);
-      } catch (emailError) {
-        console.error("Erro ao chamar job de email de compra:", emailError);
-      }
-    } else {
-      console.log("Nenhum novo evento inserido. Job não chamado.");
+      const data = await response.json();
+      console.log("Resposta do job de compra registrada:", data);
+    } catch (emailError) {
+      console.error("Erro ao chamar job de email de compra registrada:", emailError);
     }
 
-    return NextResponse.json({
+  try {
+    console.log("Chamando job de email de compra concluída...");
+
+    const responseConclusao = await fetch(
+      `${process.env.SITE_URL}/api/jobs/enviar-email-compra-concluida`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${process.env.CRON_SECRET}`,
+        },
+        cache: "no-store",
+      }
+    );
+
+    console.log(
+      "Status HTTP do job de compra concluída:",
+      responseConclusao.status
+    );
+
+    const dataConclusao = await responseConclusao.json();
+    console.log("Resposta do job de compra concluída:", dataConclusao);
+  } catch (emailConclusaoError) {
+    console.error(
+      "Erro ao chamar job de email de compra concluída:",
+      emailConclusaoError
+    );
+  }
+
+  return NextResponse.json({
       success: true,
       totalConversions: nodes.length,
     });
