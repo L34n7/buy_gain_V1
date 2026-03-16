@@ -190,8 +190,10 @@ async function enviarEmailsShopee(
 export async function GET(req: Request) {
   try {
     const authHeader = req.headers.get("authorization");
+    const { searchParams } = new URL(req.url);
+    const forceRun = searchParams.get("forceRun") === "true";
 
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (!forceRun && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
@@ -202,6 +204,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({
       ok: true,
+      forceRun,
       ml,
       shopee,
     });
