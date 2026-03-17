@@ -229,7 +229,7 @@ useEffect(() => {
             className="eye-btn"
             onClick={() => setShowPassword(!showPassword)}
           >
-            {showPassword ? "🙈" : "👁"}
+            {showPassword ? "🙈" : "🐵"}
           </button>
         </div>
 

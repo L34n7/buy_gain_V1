@@ -82,7 +82,7 @@ async function enviarEmailsConclusaoML(
         pontosGanhos: Number(evento.ganho_pontos || 0),
         comprasUrl: `${process.env.SITE_URL}/dashboard/compras`,
         siteUrl: `${process.env.SITE_URL}`,
-        suporteUrl: `${process.env.SITE_URL}/suporte`,
+        suporteUrl: `${process.env.SITE_URL}/dashboard/ajuda`,
       });
 
       await sendEmail({
@@ -158,7 +158,7 @@ async function enviarEmailsConclusaoShopee(
         pontosGanhos: Number(evento.ganho_pontos || 0),
         comprasUrl: `${process.env.SITE_URL}/dashboard/compras`,
         siteUrl: `${process.env.SITE_URL}`,
-        suporteUrl: `${process.env.SITE_URL}/suporte`,
+        suporteUrl: `${process.env.SITE_URL}/dashboard/ajuda`,
       });
 
       await sendEmail({

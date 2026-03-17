@@ -229,7 +229,7 @@ export default function Cadastro() {
                     className="eye-btn"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? "🙈" : "👁"}
+                    {showPassword ? "🙈" : "🐵"}
                   </button>
                 </div>
               </div>
@@ -255,7 +255,7 @@ export default function Cadastro() {
                     className="eye-btn"
                     onClick={() => setShowConfirm(!showConfirm)}
                   >
-                    {showConfirm ? "🙈" : "👁"}
+                    {showConfirm ? "🙈" : "🐵"}
                   </button>
                 </div>
 

@@ -219,7 +219,7 @@ export async function GET(req: Request) {
           xpFaltaProximoNivel,
           perfilUrl: `${process.env.SITE_URL}/dashboard/perfil`,
           siteUrl: `${process.env.SITE_URL}`,
-          suporteUrl: `${process.env.SITE_URL}/suporte`,
+          suporteUrl: `${process.env.SITE_URL}/dashboard/ajuda`,
           conquistas: conquistasFormatadas,
         });
 
