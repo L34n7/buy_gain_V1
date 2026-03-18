@@ -13,7 +13,7 @@ export default function ResetPassword() {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // 👇 LOGO FADE (igual login)
   const [logoFaded, setLogoFaded] = useState(false);
@@ -24,14 +24,34 @@ export default function ResetPassword() {
   }, []);
 
   // 🔎 Regras
-  const hasMinLength = password.length >= 8;
+  const hasMinLength = password.length >= 6;
   const hasUpper = /[A-Z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
   const hasSpecial = /[!@#$%^&*]/.test(password);
   const passwordsMatch = password === confirmPassword && password.length > 0;
 
+  /* REQUISITOS MÍNIMOS PARA RESET */
   const passwordValid =
-    hasMinLength && hasUpper && hasNumber && hasSpecial && passwordsMatch;
+    hasMinLength && hasSpecial && passwordsMatch;
+
+  /* =========================
+    FORÇA DA SENHA
+  ========================= */
+
+  let strength = 0;
+
+  if (password.length >= 6) strength += 1;
+  if (hasUpper) strength += 1;
+  if (hasNumber) strength += 1;
+  if (hasSpecial) strength += 1;
+
+  const strengthPercent = (strength / 4) * 100;
+
+  let strengthLabel = "";
+
+  if (strength <= 1) strengthLabel = "Fraca";
+  else if (strength === 2 || strength === 3) strengthLabel = "Média";
+  else strengthLabel = "Forte";
 
   useEffect(() => {
     supabase.auth.getSession();
@@ -39,19 +59,27 @@ export default function ResetPassword() {
 
   async function handleReset(e: React.FormEvent) {
     e.preventDefault();
-    if (!passwordValid) return;
+
+    if (!passwordValid) {
+      setError("A senha não atende aos requisitos");
+      return;
+    }
 
     setLoading(true);
-    setMessage(null);
+    setError(null);
 
-    const { error } = await supabase.auth.updateUser({
+    const { error: updateError } = await supabase.auth.updateUser({
       password,
     });
 
-    if (error) {
-      setMessage(error.message);
+    if (updateError) {
+      if (updateError.message.includes("different from the old password")) {
+        setError("A nova senha deve ser diferente da senha antiga");
+      } else {
+        setError("Erro ao atualizar senha. Tente novamente.");
+      }
     } else {
-      setMessage("Senha atualizada com sucesso! Redirecionando...");
+      setError(null);
       setTimeout(() => {
         window.location.href = "/auth/login";
       }, 2000);
@@ -90,7 +118,10 @@ export default function ResetPassword() {
               className="reset-input"
               placeholder="Digite sua nova senha"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setError(null);
+              }}
               required
             />
             <button
@@ -109,7 +140,10 @@ export default function ResetPassword() {
               className="reset-input"
               placeholder="Confirme sua nova senha"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                setError(null);
+              }}
               required
             />
             <button
@@ -122,26 +156,39 @@ export default function ResetPassword() {
           </div>
 
           <div className="password-rules">
-            <Rule valid={hasMinLength} text="Mínimo de 8 caracteres" />
-            <Rule valid={hasUpper} text="Pelo menos 1 letra maiúscula" />
-            <Rule valid={hasNumber} text="Pelo menos 1 número" />
+            <Rule valid={hasMinLength} text="Mínimo de 6 caracteres" />
             <Rule valid={hasSpecial} text="1 caractere especial (!@#$%^&*)" />
             <Rule valid={passwordsMatch} text="As senhas conferem" />
+            <Rule valid={hasNumber} text="Número (senha mais forte)" />
+            <Rule valid={hasUpper} text="Letra maiúscula (senha mais forte)" />
           </div>
+
+          {password.length > 0 && (
+            <>
+              <div className="password-strength-bar">
+                <div
+                  className="password-strength-fill"
+                  style={{ width: `${strengthPercent}%` }}
+                ></div>
+              </div>
+
+              <p className={`password-strength-text level-${strength}`}>
+                Segurança da senha: {strengthLabel}
+              </p>
+            </>
+          )}
 
           <button
             type="submit"
-            className="reset-btn"
-            disabled={!passwordValid || loading}
+            className={`reset-btn ${error ? "error" : ""}`}
+            disabled={loading}
           >
-            {loading ? "Atualizando..." : "Atualizar senha"}
+            {loading
+              ? "Atualizando..."
+              : error
+              ? error
+              : "Atualizar senha"}
           </button>
-
-          {message && (
-            <p className="reset-message">
-              {message}
-            </p>
-          )}
         </form>
       </div>
     </div>

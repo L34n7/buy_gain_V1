@@ -12,7 +12,8 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [loading, setLoading] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [recoverLoading, setRecoverLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -35,7 +36,7 @@ useEffect(() => {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setLoading(true);
+    setLoginLoading(true);
 
     try {
       let response;
@@ -44,8 +45,8 @@ useEffect(() => {
       if (showCaptcha) {
         if (!captchaToken) {
           setCaptchaError(true);
-          setError("Confirme que você não é um robô.");
-          setLoading(false);
+          setError("Confirme que você não é um robô");
+          setLoginLoading(false);
           turnstileRef.current?.reset();
           setCaptchaToken(null);
           return;
@@ -80,23 +81,23 @@ useEffect(() => {
 
         // credenciais inválidas
         else if (msg.includes("invalid login credentials")) {
-          setError("Email ou senha incorretos.");
+          setError("Email ou senha incorretos");
         }
 
         // email não confirmado
         else if (msg.includes("email not confirmed")) {
-          setError("Confirme seu email antes de acessar.");
+          setError("Confirme seu email antes de acessar");
         }
 
         // fallback
         else {
-          setError("Não foi possível fazer login.");
+          setError("Não foi possível fazer login");
         }
 
         turnstileRef.current?.reset();
         setCaptchaToken(null);
 
-        setLoading(false);
+        setLoginLoading(false);
         return;
       }
 
@@ -128,7 +129,7 @@ useEffect(() => {
       turnstileRef.current?.reset();
       setCaptchaToken(null);
     } finally {
-      setLoading(false);
+      setLoginLoading(false);
     }
   }
 
@@ -137,7 +138,7 @@ useEffect(() => {
   =============================== */
   async function handleRecover() {
     if (!email) {
-      setError("Digite seu email primeiro.");
+      setError("Digite seu email primeiro");
       return;
     }
 
@@ -150,15 +151,15 @@ useEffect(() => {
 
     if (!captchaToken) {
       setCaptchaError(true);
-      setError("Confirme que você não é um robô.");
+      setError("Confirme que você não é um robô");
       turnstileRef.current?.reset();
       setCaptchaToken(null);
-      setLoading(false);
+      setRecoverLoading(false);
       return;
     }
 
     setError(null);
-    setLoading(true);
+    setRecoverLoading(true);
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -173,9 +174,9 @@ useEffect(() => {
         setSuccess("Email enviado com sucesso! Verifique sua caixa de entrada.");
       }
     } catch {
-      setError("Erro ao enviar email.");
+      setError("Erro ao enviar email");
     } finally {
-      setLoading(false);
+      setRecoverLoading(false);
     }
   }
 
@@ -229,7 +230,7 @@ useEffect(() => {
             className="eye-btn"
             onClick={() => setShowPassword(!showPassword)}
           >
-            {showPassword ? "🙈" : "🐵"}
+            {showPassword ? "🙈" : "👁"}
           </button>
         </div>
 
@@ -253,10 +254,12 @@ useEffect(() => {
           <button
             type="submit"
             className={`login-btn ${error ? "error" : ""}`}
-            disabled={loading}
+            disabled={loginLoading || recoverLoading}
           >
-            {loading
+            {loginLoading
               ? "Entrando..."
+              : recoverLoading
+              ? "Enviando email..."
               : error
               ? error
               : "Entrar"}

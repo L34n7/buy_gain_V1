@@ -211,6 +211,7 @@
 .btn {
   padding: 12px 18px;
   font-size: 18px;
+  font-weight: 700;
   border-radius: 10px;
   border: none;
   cursor: pointer;

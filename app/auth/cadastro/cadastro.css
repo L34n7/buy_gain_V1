@@ -152,6 +152,7 @@
 
 .cadastro-btn.error {
   font-size: 18px;
+  font-weight: 500;
   color: #ffffff;
   
   background: linear-gradient(90deg, #4aa9ff, #ff4d6ec5, #9b51ff);

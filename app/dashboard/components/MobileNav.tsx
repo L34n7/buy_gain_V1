@@ -116,7 +116,7 @@ export default function MobileNav() {
           className={`mobile-item ${isActive("/dashboard") ? "active" : ""}`}
         >
           🏠
-          <span>Home</span>
+          <span>Início</span>
         </Link>
 
       <Link

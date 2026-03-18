@@ -1,0 +1,425 @@
+.meus-chamados-root {
+  min-height: 100vh;
+  padding: 24px 16px 40px;
+}
+
+.meus-chamados-shell {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.meus-chamados-hero {
+  position: relative;
+  padding: 34px 34px 30px;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(17, 25, 56, 0.92), rgba(9, 14, 34, 0.94));
+  border: 1px solid rgba(121, 97, 255, 0.24);
+  box-shadow:
+    0 0 0 1px rgba(90, 160, 255, 0.06) inset,
+    0 18px 60px rgba(12, 18, 40, 0.6),
+    0 0 30px rgba(111, 91, 255, 0.12);
+  overflow: hidden;
+}
+
+.meus-chamados-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.25), transparent 35%),
+    radial-gradient(circle at 80% 10%, rgba(34, 211, 238, 0.22), transparent 35%),
+    radial-gradient(circle at 50% 100%, rgba(34, 197, 94, 0.12), transparent 40%);
+  pointer-events: none;
+}
+
+.meus-chamados-badge {
+  position: relative;
+  display: inline-flex;
+  margin-bottom: 14px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(111, 91, 255, 0.16);
+  border: 1px solid rgba(111, 91, 255, 0.3);
+  color: #cabdff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.meus-chamados-hero h1 {
+  position: relative;
+  margin: 0 0 12px;
+  font-size: 2.35rem;
+  line-height: 1.05;
+  color: #ffffff;
+  text-shadow: 0 0 24px rgba(111, 91, 255, 0.16);
+}
+
+.meus-chamados-hero p {
+  position: relative;
+  margin: 0;
+  max-width: 760px;
+  color: rgba(226, 232, 240, 0.86);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.meus-chamados-topbar {
+  margin-top: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-primario,
+.btn-secundario,
+.btn-expandir {
+  appearance: none;
+  border: none;
+  border-radius: 16px;
+  padding: 13px 18px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    opacity 0.16s ease,
+    box-shadow 0.16s ease,
+    border-color 0.16s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primario {
+  color: white;
+  background: linear-gradient(135deg, #7c3aed, #22d3ee, #22c55e);
+  background-size: 200% 200%;
+  animation: gradientMove 6s ease infinite;
+  box-shadow:
+    0 12px 30px rgba(124, 58, 237, 0.35),
+    0 0 20px rgba(34, 211, 238, 0.25);
+}
+
+.btn-secundario,
+.btn-expandir {
+  color: white;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.btn-primario:hover,
+.btn-secundario:hover,
+.btn-expandir:hover {
+  transform: translateY(-2px);
+  opacity: 0.97;
+}
+
+.estado-card {
+  margin-top: 20px;
+  padding: 24px;
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(13, 19, 41, 0.94), rgba(7, 11, 27, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow:
+    0 12px 32px rgba(6, 10, 25, 0.36),
+    inset 0 0 0 1px rgba(111, 91, 255, 0.03);
+}
+
+.estado-card h2 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.estado-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.7;
+}
+
+.estado-card.vazio {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.estado-card.erro {
+  border-color: rgba(239, 68, 68, 0.18);
+  box-shadow:
+    0 12px 32px rgba(6, 10, 25, 0.36),
+    0 0 20px rgba(239, 68, 68, 0.06);
+}
+
+.chamados-lista {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chamado-item {
+  border-radius: 24px;
+  border: 1px solid rgba(139, 92, 246, 0.18);
+  background:
+    linear-gradient(180deg, rgba(13, 19, 41, 0.92), rgba(7, 11, 27, 0.96));
+  box-shadow:
+    0 12px 32px rgba(6, 10, 25, 0.36),
+    0 0 20px rgba(139, 92, 246, 0.06),
+    inset 0 0 0 1px rgba(34, 211, 238, 0.04);
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.chamado-item:hover {
+  transform: translateY(-3px);
+  border-color: rgba(139, 92, 246, 0.35);
+  box-shadow:
+    0 18px 40px rgba(6, 10, 25, 0.45),
+    0 0 30px rgba(139, 92, 246, 0.12);
+}
+
+.chamado-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 22px;
+}
+
+.chamado-head-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.chamado-protocolo-wrap {
+  margin-bottom: 10px;
+}
+
+.chamado-protocolo-label {
+  display: inline-block;
+  margin-bottom: 6px;
+  color: #67e8f9;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.chamado-protocolo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(139, 92, 246, 0.12);
+  color: #e9d5ff;
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.15);
+  word-break: break-all;
+}
+
+.chamado-head h2 {
+  margin: 0 0 12px;
+  font-size: 1.15rem;
+  line-height: 1.45;
+  color: #ffffff;
+}
+
+.chamado-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.chamado-meta span {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.74);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem !important;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-aberto {
+  background: rgba(255, 183, 77, 0.18);
+  color: #ffb74d !important;
+  border: 1px solid rgba(255, 183, 77, 0.35);
+  box-shadow: 0 0 10px rgba(255, 183, 77, 0.2);
+}
+
+.status-analise {
+  background: rgba(59, 130, 246, 0.18);
+  color: #60a5fa !important;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+}
+
+.status-respondido {
+  background: rgba(168, 85, 247, 0.18);
+  color: #c084fc !important;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
+}
+
+.status-resolvido {
+  background: rgba(34, 197, 94, 0.18);
+  color: #4ade80 !important;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
+}
+
+.status-default {
+  background: rgba(255, 255, 255, 0.08);
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.chamado-body {
+  padding: 0 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.chamado-bloco {
+  padding: 18px;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(20, 28, 65, 0.9), rgba(10, 15, 33, 0.95));
+  border: 1px solid rgba(139, 92, 246, 0.18);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.05);
+}
+
+.chamado-kicker {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #67e8f9;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.chamado-bloco h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+.chamado-bloco p {
+  margin: 0;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.84);
+  white-space: pre-wrap;
+}
+
+.imagem-link {
+  display: inline-block;
+  width: 100%;
+}
+
+.chamado-imagem {
+  display: block;
+  width: 100%;
+  max-width: 520px;
+  max-height: 360px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 10px 22px rgba(2, 6, 23, 0.28);
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@media (max-width: 980px) {
+  .meus-chamados-topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-primario,
+  .btn-secundario {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .chamado-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-expandir {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .meus-chamados-root {
+    padding: 16px 12px 28px;
+  }
+
+  .meus-chamados-hero,
+  .estado-card,
+  .chamado-item {
+    border-radius: 22px;
+  }
+
+  .meus-chamados-hero {
+    padding: 20px;
+  }
+
+  .meus-chamados-hero h1 {
+    font-size: 1.85rem;
+  }
+
+  .chamado-head,
+  .chamado-body {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .chamado-head {
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+
+  .chamado-body {
+    padding-bottom: 16px;
+  }
+
+  .chamado-bloco {
+    padding: 16px;
+    border-radius: 18px;
+  }
+}

@@ -98,7 +98,7 @@
 }
 
 .filtros-atalhos button:hover {
-  background: #374151;
+  background: #1d3b6b;
 }
 
 .filtros-data {
@@ -117,7 +117,7 @@
 }
 
 .filtros-data input {
-  background: #111827;
+  background: #313846;
   color: #e5e7eb;
   border: 1px solid #374151;
   padding: 6px 10px;
@@ -137,6 +137,75 @@
 .btn-filtrar:hover {
   background: #1d4ed8;
 }
+
+
+.pagination {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  cursor: default;
+}
+
+.pagination-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+}
+
+.pagination-info strong {
+  font-size: 14px;
+  color: #cfd8e3;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.pagination-info span {
+  font-size: 14px;
+  color: #e6eef8;
+}
+
+.pagination button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: linear-gradient(120deg,#8b3cf2,#572dff76);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.pagination button:hover {
+  transform: scale(1.03);
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination button:disabled:hover {
+  transform: scale(1);
+}
+
+.pagination span {
+  font-size: 14px;
+  color: #e6eef8;
+}
+
+.extrato-meta {
+  margin-bottom: 12px;
+}
+
+.extrato-total {
+  font-size: 14px;
+  color: #ffffffb6;
+  cursor: default;
+}
+
 
 
 /* =========================

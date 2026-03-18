@@ -5,22 +5,6 @@ import {
 } from "@/lib/supabaseServer";
 import { triggerConquistas } from "@/lib/conquistas";
 
-type ShopeeEventoComJoin = {
-  id: string;
-  status: string;
-  data_evento: string;
-  data_update: string;
-  produto_nome: string;
-  produto_imagem: string;
-  produto_vendas: number;
-  ganho_pontos: number;
-  generate_link: {
-    link_rastreado: string;
-  } | null;
-};
-
-
-
 function mapStatusShopee(status?: string) {
   switch (status) {
     case "PENDING":
@@ -36,10 +20,20 @@ function mapStatusShopee(status?: string) {
   }
 }
 
-
-export async function POST() {
+export async function POST(req: Request) {
   try {
-    // 1️⃣ Supabase do usuário (Auth)
+    let page = 1;
+    let limit = 20;
+
+    try {
+      const body = await req.json();
+      page = Number(body?.page) || 1;
+      limit = Number(body?.limit) || 20;
+    } catch {
+      // se não vier body, usa padrão
+    }
+
+    // 1) Supabase do usuário (Auth)
     const supabaseUser = await createUserSupabase();
 
     const {
@@ -54,10 +48,10 @@ export async function POST() {
       );
     }
 
-    // 2️⃣ Supabase admin (Service Role)
+    // 2) Supabase admin (Service Role)
     const admin = await createAdminSupabase();
 
-    // 3️⃣ Mapeia usuário antigo
+    // 3) Mapeia usuário antigo
     const { data: legacyUser, error: legacyError } = await admin
       .from("users")
       .select("id")
@@ -73,83 +67,106 @@ export async function POST() {
 
     const user_id = legacyUser.id;
 
-// 4️⃣ Buscar eventos Mercado Livre
-const { data: mlEventos } = await admin
-  .from("ml_eventos")
-  .select(`
-    id,
-    status,
-    data_evento,
-    data_update,
-    link_rastreado,
-    produto_nome,
-    produto_imagem,
-    produto_vendas,
-    ganho_pontos
-  `)
-  .eq("user_id", user_id)
-  .not("status", "in", '("CRIADO","SEM_MATCH")');
+    // 4) Buscar eventos Mercado Livre
+    const { data: mlEventos, error: mlError } = await admin
+      .from("ml_eventos")
+      .select(`
+        id,
+        status,
+        data_evento,
+        data_update,
+        link_rastreado,
+        produto_nome,
+        produto_imagem,
+        produto_vendas,
+        ganho_pontos
+      `)
+      .eq("user_id", user_id)
+      .not("status", "in", '("CRIADO","SEM_MATCH")');
 
+    if (mlError) {
+      console.error("Erro ml_eventos:", mlError);
+      return NextResponse.json(
+        { error: "Erro ao buscar eventos do Mercado Livre" },
+        { status: 500 }
+      );
+    }
 
-// 5️⃣ Buscar eventos Shopee (com JOIN generate_link)
-const { data: shopeeEventos } = await admin
-  .from("shopee_eventos")
-  .select(`
-    id,
-    status,
-    data_evento,
-    data_update,
-    produto_nome,
-    produto_imagem,
-    produto_vendas,
-    ganho_pontos,
-    generate_link:generate_link_id (
-      link_rastreado
-    )
-  `)
-  .eq("user_id", user_id);
+    // 5) Buscar eventos Shopee
+    const { data: shopeeEventos, error: shopeeError } = await admin
+      .from("shopee_eventos")
+      .select(`
+        id,
+        status,
+        data_evento,
+        data_update,
+        produto_nome,
+        produto_imagem,
+        produto_vendas,
+        ganho_pontos,
+        generate_link:generate_link_id (
+          link_rastreado
+        )
+      `)
+      .eq("user_id", user_id);
 
+    if (shopeeError) {
+      console.error("Erro shopee_eventos:", shopeeError);
+      return NextResponse.json(
+        { error: "Erro ao buscar eventos da Shopee" },
+        { status: 500 }
+      );
+    }
 
-// 6️⃣ Mapear Shopee para mesmo formato
-const shopeeFormatado = (shopeeEventos ?? []).map((item: any) => ({
-  id: item.id,
-  status: mapStatusShopee(item.status),
-  data_evento: item.data_evento,
-  data_update: item.data_update,
-  produto_nome: item.produto_nome,
-  produto_imagem: item.produto_imagem,
-  produto_vendas: item.produto_vendas,
-  ganho_pontos: item.ganho_pontos,
-  link_rastreado: item.generate_link?.link_rastreado,
-}));
+    // 6) Mapear Shopee para mesmo formato
+    const shopeeFormatado = (shopeeEventos ?? []).map((item: any) => ({
+      id: item.id,
+      status: mapStatusShopee(item.status),
+      data_evento: item.data_evento,
+      data_update: item.data_update,
+      produto_nome: item.produto_nome,
+      produto_imagem: item.produto_imagem,
+      produto_vendas: item.produto_vendas,
+      ganho_pontos: item.ganho_pontos,
+      link_rastreado: item.generate_link?.link_rastreado ?? null,
+      marketplace: "SHOPEE" as const,
+    }));
 
+    // 7) Mapear ML
+    const mlFormatado = (mlEventos || []).map((item: any) => ({
+      ...item,
+      status: item.status,
+      marketplace: "MERCADO_LIVRE" as const,
+    }));
 
+    // 8) Unir tudo
+    const todosEventos = [...mlFormatado, ...shopeeFormatado];
 
-// 7️⃣ Mapear ML (garantir consistência)
-const mlFormatado = (mlEventos || []).map((item) => ({
-  ...item,
-  status: item.status
-}));
+    // 9) Ordenar por data_evento desc
+    todosEventos.sort((a, b) => {
+      return (
+        new Date(b.data_evento || 0).getTime() -
+        new Date(a.data_evento || 0).getTime()
+      );
+    });
 
+    // 10) Paginar após unir e ordenar
+    const count = todosEventos.length;
+    const totalPages = Math.max(1, Math.ceil(count / limit));
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const paginaAtual = todosEventos.slice(start, end);
 
-// 8️⃣ Unir tudo
-const todosEventos = [...mlFormatado, ...shopeeFormatado];
+    const conquistasData = await triggerConquistas(admin, user.id);
 
-// 9️⃣ Ordenar por data_evento desc
-todosEventos.sort((a, b) => {
-  return new Date(b.data_evento || 0).getTime() -
-         new Date(a.data_evento || 0).getTime();
-});
-
-const conquistasData = await triggerConquistas(admin, user.id);
-
-return NextResponse.json({
-  ...(conquistasData || {}),
-  data: todosEventos,
-  count: todosEventos.length,
-});
-
-
+    return NextResponse.json({
+      ...(conquistasData || {}),
+      data: paginaAtual,
+      count,
+      page,
+      limit,
+      totalPages,
+    });
   } catch (err) {
     console.error("Erro API compras:", err);
     return NextResponse.json(

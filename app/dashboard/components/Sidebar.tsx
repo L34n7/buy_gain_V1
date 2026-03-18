@@ -61,7 +61,7 @@ useEffect(() => {
           className={`nav-item ${isActive("/dashboard") ? "active" : ""}`}
         >
           <span className="nav-ico">🏠</span>
-          <span className="nav-text">Dashboard</span>
+          <span className="nav-text">Início</span>
         </Link>
 
         <Link

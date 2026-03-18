@@ -40,6 +40,9 @@ const handleClick = () => {
 const [displayCount, setDisplayCount] = useState(0);
 const [rewardStep, setRewardStep] = useState<"idle" | "link" | "cupom">("idle");
 
+const [pasteLoading, setPasteLoading] = useState(false);
+const [pasteSuccess, setPasteSuccess] = useState(false);
+
 useEffect(() => {
   if (!buscaExecutada) return;
 
@@ -115,6 +118,40 @@ useEffect(() => {
 }, [error]);
 
 
+const handlePaste = async () => {
+  try {
+    setPasteLoading(true);
+    setPasteSuccess(false);
+
+    const text = await navigator.clipboard.readText();
+
+    if (!text) {
+      setError("Nada encontrado para colar");
+      return;
+    }
+
+    setUrl(text);
+    if (error) setError(null);
+
+    setReward(false);
+    setRewardSuccess(false);
+    setBuscaExecutada(false);
+    setRewardStep("idle");
+    setDisplayCount(0);
+
+    setPasteSuccess(true);
+
+    setTimeout(() => {
+      setPasteSuccess(false);
+    }, 2000);
+  } catch (err) {
+    setError("Não foi possível acessar a área de transferência");
+  } finally {
+    setPasteLoading(false);
+  }
+};
+
+
 
   return (
     <>
@@ -153,22 +190,34 @@ useEffect(() => {
               Cole aqui o link da sua compra e clique em gerar
             </div>
 
-          <input
-            value={url}
-            onChange={(e) => {
-              setUrl(e.target.value);
-              if (error) setError(null);
+          <div className="hero-input-shell">
+            <input
+              value={url}
+              onChange={(e) => {
+                setUrl(e.target.value);
+                if (error) setError(null);
 
-              setReward(false);
-              setRewardSuccess(false);
-              setBuscaExecutada(false);
-              setRewardStep("idle");
-              setDisplayCount(0);
-            }}
-            placeholder="https://marketplace/produto"
-            className="hero-input"
-            aria-label="Link do produto"
-          />
+                setReward(false);
+                setRewardSuccess(false);
+                setBuscaExecutada(false);
+                setRewardStep("idle");
+                setDisplayCount(0);
+              }}
+              placeholder="https://marketplace/produto"
+              className="hero-input"
+              aria-label="Link do produto"
+            />
+
+            <button
+              type="button"
+              className={`hero-paste-inline-btn ${pasteSuccess ? "pasted" : ""}`}
+              onClick={handlePaste}
+              disabled={pasteLoading}
+              aria-label="Colar link"
+            >
+              {pasteSuccess ? "Colado" : "Colar"}
+            </button>
+          </div>
 
           <button
             className={`hero-cta ${

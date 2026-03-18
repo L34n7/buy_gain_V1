@@ -197,7 +197,7 @@ export async function POST(req: Request) {
     console.log("Chamando automação...");
 
     const res = await fetch(
-      "https://unonerous-subglacially-ryan.ngrok-free.dev/executar",
+      "https://unonerous-subglacially-ryan.ngrok-free.dev",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

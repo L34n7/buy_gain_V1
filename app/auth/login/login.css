@@ -88,14 +88,14 @@
 
 .eye-btn {
   position: absolute;
-  right: 12px;
+  right: 14px;
   background: transparent;
   border: none;
   cursor: pointer;
   font-size: 18px;
   top: 50%;
   transform: translateY(-50%);
-  opacity: 0.3;
+  opacity: 0.4;
   transition: 0.2s ease;
 }
 
@@ -154,7 +154,7 @@
 /* Placeholder apagado */
 .login-input::placeholder { 
   color: #aaa;
-  opacity: 0.25;
+  opacity: 0.45;
   font-style: italic;
 }
 
@@ -185,7 +185,7 @@
 =========================== */
 
 .login-btn.error{
-  font-size: 18px;
+  font-size: 16px;
   color: #ffffff;
   
   background: linear-gradient(90deg, #aa60f9, #ff4d6ec5, #6b11cb8e);
@@ -262,8 +262,8 @@ span{
 
 .login-success {
   margin-top: 12px;
-  font-size: 13px;
-  padding: 10px;
+  font-size: 15px;
+  padding: 12px;
   border-radius: 8px;
   background: rgba(0, 255, 140, 0.08);
   border: 1px solid rgba(0, 255, 140, 0.4);
@@ -348,6 +348,7 @@ span{
 .login-input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 1000px rgba(69, 38, 102, 0.679) inset !important;
   -webkit-text-fill-color: #e5e5e5 !important;
+  caret-color: #fff !important;
   transition: background-color 9999s ease-in-out 0s;
   border: 1px solid rgba(155, 81, 255, 0.35);
 }

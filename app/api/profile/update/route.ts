@@ -74,6 +74,20 @@ export async function POST(req: Request) {
       document_value,
     } = await req.json();
 
+    console.log("Payload recebido em /api/profile/update:", {
+      name,
+      nickname,
+      birth_date,
+      phone,
+      avatar_url,
+      gender,
+      city,
+      state,
+      allow_notifications,
+      document_type,
+      document_value,
+    });
+
     if (nickname && !isValidNickname(nickname)) {
       return NextResponse.json(
         { error: "Nickname inválido." },
@@ -81,7 +95,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const admin = await createAdminSupabase();
+    const admin = createAdminSupabase();
 
     const { data: legacyUser, error: legacyError } = await admin
       .from("users")
@@ -90,7 +104,11 @@ export async function POST(req: Request) {
       .single();
 
     if (legacyError || !legacyUser) {
-      return NextResponse.json({ error: "Perfil não encontrado" }, { status: 404 });
+      console.error("Erro ao buscar perfil legado:", legacyError);
+      return NextResponse.json(
+        { error: "Perfil não encontrado" },
+        { status: 404 }
+      );
     }
 
     const normalizedBirthDate =
@@ -120,7 +138,7 @@ export async function POST(req: Request) {
 
     const normalizedState =
       state && String(state).trim() !== ""
-        ? (state as string).toUpperCase()
+        ? String(state).toUpperCase()
         : legacyUser.state;
 
     const normalizedDocumentType =
@@ -138,6 +156,9 @@ export async function POST(req: Request) {
         ? allow_notifications
         : legacyUser.allow_notifications;
 
+    const finalName = name ?? legacyUser.name;
+    const finalNickname = nickname ?? legacyUser.nickname;
+
     const docValid =
       normalizedDocumentType === "CPF"
         ? isValidCPF(String(normalizedDocumentValue || ""))
@@ -146,8 +167,8 @@ export async function POST(req: Request) {
         : false;
 
     const willBeCompleted =
-      Boolean(String(name ?? legacyUser.name).trim()) &&
-      Boolean(String(nickname ?? legacyUser.nickname).trim()) &&
+      Boolean(String(finalName ?? "").trim()) &&
+      Boolean(String(finalNickname ?? "").trim()) &&
       Boolean(normalizedBirthDate) &&
       isValidPhone(normalizedPhone) &&
       Boolean(normalizedAvatar) &&
@@ -160,11 +181,27 @@ export async function POST(req: Request) {
     const shouldMarkCompleted =
       willBeCompleted && !legacyUser.profile_completed;
 
-    const { error: updateError } = await admin
+    console.log("Valores normalizados para update:", {
+      name: finalName,
+      nickname: finalNickname,
+      birth_date: normalizedBirthDate,
+      phone: normalizedPhone,
+      avatar_url: normalizedAvatar,
+      gender: normalizedGender,
+      city: normalizedCity,
+      state: normalizedState,
+      allow_notifications: normalizedAllowNotifications,
+      document_type: normalizedDocumentType,
+      document_value: normalizedDocumentValue,
+      willBeCompleted,
+      shouldMarkCompleted,
+    });
+
+    const { data: updatedUser, error: updateError } = await admin
       .from("users")
       .update({
-        name: name ?? legacyUser.name,
-        nickname: nickname ?? legacyUser.nickname,
+        name: finalName,
+        nickname: finalNickname,
         birth_date: normalizedBirthDate,
         phone: normalizedPhone,
         avatar_url: normalizedAvatar,
@@ -182,18 +219,33 @@ export async function POST(req: Request) {
           : legacyUser.profile_completed_at,
         updated_at: new Date().toISOString(),
       })
-      .eq("auth_user_id", user.id);
+      .eq("auth_user_id", user.id)
+      .select("id, auth_user_id, avatar_url, nickname, updated_at")
+      .single();
 
     if (updateError) {
+      console.error("Erro update users:", {
+        message: updateError.message,
+        code: (updateError as any).code ?? null,
+        hint: (updateError as any).hint ?? null,
+        details: (updateError as any).details ?? null,
+      });
+
       return NextResponse.json(
-        { error: "Erro ao atualizar perfil" },
+        {
+          error: "Erro ao atualizar perfil",
+          details: updateError.message,
+          code: (updateError as any).code ?? null,
+          hint: (updateError as any).hint ?? null,
+        },
         { status: 500 }
       );
     }
 
+    console.log("Usuário atualizado com sucesso:", updatedUser);
+
     if (shouldMarkCompleted) {
       try {
-        // 🎯 PONTOS
         const { data: extrato } = await admin
           .from("extrato_pontos")
           .select("tipo, pontos")
@@ -217,7 +269,6 @@ export async function POST(req: Request) {
           pontos: PROFILE_REWARD_POINTS,
           saldo_apos: novoSaldo,
         });
-
       } catch (e) {
         console.error("Erro ao aplicar bônus perfil:", e);
       }
@@ -227,6 +278,7 @@ export async function POST(req: Request) {
       success: true,
       profile_completed:
         shouldMarkCompleted || legacyUser.profile_completed,
+      user: updatedUser,
     });
   } catch (err) {
     console.error("Erro API profile/update:", err);

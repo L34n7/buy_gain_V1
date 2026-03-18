@@ -108,7 +108,27 @@
   border: none;
   cursor: pointer;
   color: #eaeaf0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
+
+.bell.no-notifications {
+  opacity: 0.6;
+}
+
+.bell.has-notifications {
+  opacity: 0.9;
+}
+
+.bell.no-notifications:hover {
+  opacity: 0.7;
+  transform: scale(1.02);
+}
+
+.bell.has-notifications:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
 
 .bell-badge {
   position: absolute;
@@ -614,15 +634,11 @@
   }
 
   .bell {
-    font-size: 18px; 
+    font-size: 17px; 
     margin: 5px 30px 0px 0px;
     
   }
   
-  .bell p {
-    opacity: 0.8;
-  }
-
   .bell-badge {
     height: 16px;
     font-size: 16px;

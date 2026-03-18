@@ -11,7 +11,6 @@ const OUTPUT_QUALITY = 78;
 
 export async function POST(req: Request) {
   try {
-    // 1️⃣ Auth do usuário (cookie)
     const supabaseUser = await createUserSupabase();
     const {
       data: { user },
@@ -25,7 +24,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 2️⃣ Ler FormData
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
 
@@ -36,7 +34,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 3️⃣ Validações extras (segurança)
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
@@ -52,14 +49,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // 4️⃣ Converter File -> Buffer
     const arrayBuffer = await file.arrayBuffer();
     const inputBuffer = Buffer.from(arrayBuffer);
 
-    // 5️⃣ Processar imagem
-    // rotate() corrige orientação com base no EXIF
-    // resize() reduz para tamanho ideal de avatar
-    // webp() comprime e padroniza formato
     let outputBuffer: Buffer;
 
     try {
@@ -84,29 +76,75 @@ export async function POST(req: Request) {
       );
     }
 
-    // 6️⃣ Supabase admin (storage)
-    const admin = await createAdminSupabase();
+    const admin = createAdminSupabase();
 
-    // nome fixo por usuário → sobrescreve sempre
     const fileName = `avatar-${user.id}.webp`;
+    const fileBody = new Uint8Array(outputBuffer);
 
-    // 7️⃣ Upload do arquivo já comprimido
-    const { error: uploadError } = await admin.storage
-      .from("avatars")
-      .upload(fileName, outputBuffer, {
-        upsert: true,
-        contentType: "image/webp",
-      });
+    console.log("Iniciando upload avatar...", {
+      userId: user.id,
+      fileName,
+      originalSize: file.size,
+      processedSize: outputBuffer.length,
+      originalType: file.type,
+    });
+
+    const startedAt = Date.now();
+
+    let uploadError: any = null;
+
+    const updateRes = await admin.storage.from("avatars").update(fileName, fileBody, {
+      contentType: "image/webp",
+      cacheControl: "3600",
+    });
+
+    uploadError = updateRes.error;
 
     if (uploadError) {
-      console.error("Erro upload avatar:", uploadError);
+      const message = String(uploadError.message || "").toLowerCase();
+
+      const seemsMissingFile =
+        message.includes("not found") ||
+        message.includes("does not exist") ||
+        message.includes("no such") ||
+        message.includes("404") ||
+        message.includes("object not found");
+
+      if (seemsMissingFile) {
+        console.log("Arquivo ainda não existe. Fazendo upload inicial...");
+
+        const createRes = await admin.storage.from("avatars").upload(fileName, fileBody, {
+          upsert: false,
+          contentType: "image/webp",
+          cacheControl: "3600",
+        });
+
+        uploadError = createRes.error;
+      }
+    }
+
+    console.log("Upload avatar finalizado em ms:", Date.now() - startedAt);
+
+    if (uploadError) {
+      console.error("Erro upload avatar:", {
+        message: uploadError.message,
+        name: uploadError.name,
+        status: (uploadError as any).status ?? null,
+        statusCode: (uploadError as any).statusCode ?? null,
+        error: (uploadError as any).error ?? null,
+        details: (uploadError as any).details ?? null,
+      });
+
       return NextResponse.json(
-        { error: "Erro ao salvar avatar" },
+        {
+          error: "Erro ao salvar avatar",
+          details: uploadError.message,
+          code: (uploadError as any).statusCode ?? null,
+        },
         { status: 500 }
       );
     }
 
-    // 8️⃣ URL pública
     const { data } = admin.storage
       .from("avatars")
       .getPublicUrl(fileName);
@@ -118,11 +156,11 @@ export async function POST(req: Request) {
       );
     }
 
-    // 9️⃣ Cache bust
     const cacheBustedUrl = `${data.publicUrl}?v=${Date.now()}`;
 
     return NextResponse.json({
       publicUrl: cacheBustedUrl,
+      fileName,
       optimized: true,
       originalSize: file.size,
       optimizedSize: outputBuffer.length,

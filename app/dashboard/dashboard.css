@@ -271,23 +271,131 @@ body {
 .hero-right { flex:1; display:flex; flex-direction:column; gap:12px; }
 .hero-label { color: rgba(255, 255, 255, 0.841); font-weight:700; font-size:18px; cursor: default;}
 
+
+.hero-input-shell {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 56px;
+  border: 1px solid rgba(165, 52, 252, 0.322);
+  border-radius: 14px;
+  background: linear-gradient(90deg, #612dff40, #a734ff00);
+  overflow: hidden;
+  box-shadow: inset 0 6px 18px rgba(0,0,0,0.55);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hero-input-shell:focus-within {
+  border-color: rgba(138,60,242,0.9);
+  box-shadow: 0 0 0 6px rgba(138,60,242,0.06);
+}
+
 /* input estilo 'glass' escuro */
 .hero-input {
-  width:100%;
-  padding:14px 16px;
-  border-radius:10px;
-  background: linear-gradient(90deg, #612dff40, #a734ff00);
-  color: rgba(255,255,255,0.94);
-  border: 1px solid rgba(165, 52, 252, 0.322);
-  box-shadow: inset 0 6px 18px rgba(0,0,0,0.55);
-  font-size:15px;
-  outline:none;
+  flex: 1;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0 18px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 400;
+  box-shadow: none;
 }
-.hero-input::placeholder { color: rgba(255,255,255,0.28); }
+
+.hero-input::placeholder {
+  color: rgba(255, 255, 255, 0.34);
+}
 .hero-input:focus {
   border-color: rgba(138,60,242,0.9);
   box-shadow: 0 0 0 6px rgba(138,60,242,0.06);
 }
+
+.hero-input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+
+.hero-paste-inline-btn {
+  height: 100%;
+  min-width: 116px;
+  padding: 0 18px;
+  border: none;
+  border-left: 1px solid rgba(165, 52, 252, 0.098);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.402);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.hero-paste-inline-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  border-left: 1px solid rgba(165, 52, 252, 0.155);
+}
+
+.hero-paste-inline-btn:active {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.hero-paste-inline-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.hero-paste-inline-btn.pasted {
+  color: #8fffd4;
+  background: rgba(80, 255, 180, 0.06);
+  border-left: 1px solid rgba(165, 52, 252, 0.155);
+}
+
+
+/* Paste degrade preto sem bordas
+
+.hero-paste-inline-btn {
+  height: 100%;
+  min-width: 136px;
+  padding: 0 18px;
+  border: none;
+  background: linear-gradient(90deg, #612dff00,#0000004e, #0000004e);
+  color: rgba(255, 255, 255, 0.402);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.hero-paste-inline-btn:hover {
+  background: linear-gradient(90deg, #612dff00,#0000007c, #05000099);
+  color: #ffffff;
+
+}
+
+.hero-paste-inline-btn:active {
+  background: linear-gradient(90deg, #612dff00,#0000007c, #05000099);
+}
+
+.hero-paste-inline-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.hero-paste-inline-btn.pasted {
+  color: #8fffd4;
+  background: linear-gradient(90deg, #612dff00,#50ffb40f, #50ffb40f);
+}
+
+*/
 
 /* =====================================================
    BOTÃO CTA BASE
@@ -350,7 +458,7 @@ body {
    ESTADO DE ERRO
 ===================================================== */
 .btn-error {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   color: #ffffff;
 
@@ -641,6 +749,22 @@ body {
     border-radius: 10px;
     font-size: 13px;
     outline: none;
+  }
+
+   .hero-input-shell {
+    height: 52px;
+    border-radius: 12px;
+  }
+
+  .hero-input {
+    padding: 0 14px;
+    font-size: 14px;
+  }
+
+  .hero-paste-inline-btn {
+    min-width: 71px;
+    padding: 0 14px;
+    font-size: 13px;
   }
 
   .hero-icon {

@@ -58,6 +58,10 @@ export default function Compras() {
   // arquivo selecionado no modal
   const [arquivo, setArquivo] = useState<File | null>(null);
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 20;
+
   /* ======================================================
      UTILITÁRIOS / HELPERS
   ====================================================== */
@@ -162,7 +166,7 @@ export default function Compras() {
         return;
       }
 
-      window.location.reload();
+      await loadCompras(page);
     } catch (e) {
       alert("Erro de conexão com o servidor");
     }
@@ -191,7 +195,7 @@ export default function Compras() {
         return;
       }
 
-      window.location.reload();
+      await loadCompras(page);
     } catch (e) {
       alert("Erro de conexão com o servidor");
     }
@@ -213,7 +217,7 @@ export default function Compras() {
         return;
       }
 
-      window.location.reload();
+      await loadCompras(page);
     } catch (e) {
       alert("Erro de conexão com o servidor");
     }
@@ -251,7 +255,7 @@ export default function Compras() {
 
       // fecha modal e atualiza lista
       setModalEventoId(null);
-      window.location.reload();
+      await loadCompras(page);
     } catch (e) {
       alert("Erro de conexão com o servidor");
     }
@@ -408,12 +412,25 @@ export default function Compras() {
   /* ======================================================
      Calcular dias restantes para conclusão
   ====================================================== */
-function calcularPrevisaoConclusao(dataEvento?: string) {
+function calcularPrevisaoConclusao(
+  dataEvento?: string,
+  marketplace?: "SHOPEE" | "MERCADO_LIVRE"
+) {
   if (!dataEvento) return null;
 
+  // ✅ Regra fixa para Shopee
+  if (marketplace === "SHOPEE") {
+    return {
+      tipo: "fixo" as const,
+      textoPrincipal: "Prazo de até 30 dias",
+      textoSecundario: "A análise da Shopee pode levar até 30 dias.",
+    };
+  }
+
+  // ✅ Regra padrão para Mercado Livre
   const inicio = new Date(dataEvento).getTime();
 
-  // 🔥 90 dias após data_evento
+  // 90 dias após a data do evento
   const previsao = inicio + 90 * 24 * 60 * 60 * 1000;
 
   const agora = Date.now();
@@ -422,6 +439,7 @@ function calcularPrevisaoConclusao(dataEvento?: string) {
   const dias = Math.ceil(diff / (1000 * 60 * 60 * 24));
 
   return {
+    tipo: "calculado" as const,
     dataFormatada: new Date(previsao).toLocaleDateString("pt-BR"),
     dias,
     expirado: diff <= 0,
@@ -433,23 +451,32 @@ function calcularPrevisaoConclusao(dataEvento?: string) {
   /* ======================================================
      CARREGAMENTO DOS DADOS (useEffect)
   ====================================================== */
-    async function loadCompras() {
+    async function loadCompras(currentPage = page) {
       try {
+        setLoading(true);
+        setError(null);
+
         const res = await fetch("/api/compras", {
           method: "POST",
           credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            page: currentPage,
+            limit,
+          }),
         });
 
         if (!res.ok) {
-          const err = await res.json();
+          const err = await res.json().catch(() => ({ error: "Erro ao carregar compras" }));
           setError(err.error || "Erro ao carregar compras");
-          setLoading(false);
+          setCompras([]);
+          setTotalCount(0);
+          setTotalPages(1);
           return;
         }
 
         const json = await res.json();
 
-        // 🔥 dispara conquistas
         emitirXpUpdate(json);
 
         const dadosNormalizados = (json.data || []).map((item: any) => ({
@@ -458,17 +485,21 @@ function calcularPrevisaoConclusao(dataEvento?: string) {
         }));
 
         setCompras(dadosNormalizados);
-        setTotalCount(json.count || 0);
+        setTotalCount(typeof json.count === "number" ? json.count : 0);
+        setTotalPages(json.totalPages || 1);
       } catch (e) {
         setError("Erro de conexão com o servidor");
+        setCompras([]);
+        setTotalCount(0);
+        setTotalPages(1);
       } finally {
         setLoading(false);
       }
     }
 
     useEffect(() => {
-      loadCompras();
-    }, []);
+      loadCompras(page);
+    }, [page]);
 
     useEffect(() => {
       if (modalEventoId) {
@@ -508,80 +539,104 @@ function calcularPrevisaoConclusao(dataEvento?: string) {
             <p className="empty-state">Nenhuma compra em análise.</p>
           )}
 
-          <div className="compras-meta">
-            <div className="compras-total">Total: <span className="muted-number">{totalCount ?? 0}</span></div>
+        <div className="compras-meta">
+          <div className="compras-total">
+            Mostrando <span className="muted-number">{compras.length}</span> de{" "}
+            <span className="muted-number">{totalCount ?? 0}</span>
           </div>
+        </div>
 
-          {!loading && compras.length > 0 && (
-            <div className="table-wrapper">
-              <table className="compras-table">
-                <thead>
-                  <tr>
-                    <th className="col-produto">Produto</th>
-                    <th className="col-status">Status</th>
-                    <th className="col-valor">Valor</th>
-                    <th className="col-ganho">Ganho</th>
-                    <th className="col-data-evento">Data</th>
-                    <th className="col-data-update">Data Atualização</th>
-                    <th className="col-acoes">Ações</th>
-                  </tr>
-                </thead>
+      {!loading && compras.length > 0 && (
+        <>
+          <div className="table-wrapper">
+            <table className="compras-table">
+              <thead>
+                <tr>
+                  <th className="col-produto">Produto</th>
+                  <th className="col-status">Status</th>
+                  <th className="col-valor">Valor</th>
+                  <th className="col-ganho">Ganho</th>
+                  <th className="col-data-evento">Data</th>
+                  <th className="col-data-update">Data Atualização</th>
+                  <th className="col-acoes">Ações</th>
+                </tr>
+              </thead>
 
-                <tbody>
-                  {compras.map((item) => {
-                    const prazo =
-                      item.status === "SOLICITAR_PROVA"
-                        ? calcularPrazoRestante(item.data_update || item.data_evento, "PROVA")
-                        : item.status === "AGUARDANDO_CONFIRMACAO"
-                        ? calcularPrazoRestante(item.data_update || item.data_evento, "CONFIRMACAO")
-                        : item.status === "AGUARDANDO_RESPOSTA_CANCELADO"
-                        ? calcularPrazoRestante(item.data_update || item.data_evento, "CANCELAMENTO")
-                        : null;
+              <tbody>
+                {compras.map((item) => {
+                  const prazo =
+                    item.status === "SOLICITAR_PROVA"
+                      ? calcularPrazoRestante(item.data_update || item.data_evento, "PROVA")
+                      : item.status === "AGUARDANDO_CONFIRMACAO"
+                      ? calcularPrazoRestante(item.data_update || item.data_evento, "CONFIRMACAO")
+                      : item.status === "AGUARDANDO_RESPOSTA_CANCELADO"
+                      ? calcularPrazoRestante(item.data_update || item.data_evento, "CANCELAMENTO")
+                      : null;
 
+                  return (
+                    <tr key={item.id} className="compras-row">
+                      <td className="product-cell">
+                        <div className="product-title">{item.produto_nome ?? "Produto não identificado"}</div>
+                        <div className="product-sub">{item.link_rastreado}</div>
+                      </td>
 
-                    return (
-                      <tr key={item.id} className="compras-row">
-                        <td className="product-cell">
-                          <div className="product-title"> {item.produto_nome ?? "Produto não identificado"}</div>
-                          <div className="product-sub">{item.link_rastreado}</div>
-                        </td>
+                      <td className="status-cell">
+                        <div className="status-tooltip">
+                          {renderStatusBadge(item.status)}
 
-                        <td className="status-cell">
-                          <div className="status-tooltip">
-                            {renderStatusBadge(item.status)}
+                          {renderStatusMensagem(item.status) && (
+                            <div className="status-tooltip-content">
+                              {renderStatusMensagem(item.status)}
+                            </div>
+                          )}
+                        </div>
 
-                            {renderStatusMensagem(item.status) && (
-                              <div className="status-tooltip-content">
-                                {renderStatusMensagem(item.status)}
-                              </div>
-                            )}
-                          </div>
+                        {(item.status === "SOLICITAR_PROVA" ||
+                          item.status === "AGUARDANDO_CONFIRMACAO" ||
+                          item.status === "AGUARDANDO_RESPOSTA_CANCELADO") &&
+                          prazo && (
+                            <div
+                              className="status-prazo"
+                              style={{
+                                color: prazo.expirado
+                                  ? "#f87171"
+                                  : prazo.dias <= 5
+                                  ? "#ff624a"
+                                  : "#fdab38",
+                              }}
+                            >
+                              ⏰ {prazo.texto}
+                            </div>
+                          )}
 
-                          {(item.status === "SOLICITAR_PROVA" ||
-                            item.status === "AGUARDANDO_CONFIRMACAO" ||
-                            item.status === "AGUARDANDO_RESPOSTA_CANCELADO") &&
-                            prazo && (
-                              <div
-                                className="status-prazo"
-                                style={{
-                                  color: prazo.expirado
-                                    ? "#f87171"
-                                    : prazo.dias <= 5
-                                    ? "#ff624a"
-                                    : "#fdab38",
-                                }}
-                              >
-                                ⏰ {prazo.texto}
-                              </div>
-                            )}
-
-                            {item.status === "EM_ANALISE" &&
+                          {item.status === "EM_ANALISE" &&
                             item.data_evento &&
                             (() => {
-                              const previsao = calcularPrevisaoConclusao(item.data_evento);
+                              const previsao = calcularPrevisaoConclusao(
+                                item.data_evento,
+                                item.marketplace
+                              );
 
                               if (!previsao) return null;
 
+                              // ✅ Caso Shopee: texto fixo
+                              if (previsao.tipo === "fixo") {
+                                return (
+                                  <div
+                                    className="status-previsao"
+                                    style={{
+                                      marginTop: 6,
+                                      fontSize: 12,
+                                      color: "#a3a3a3",
+                                    }}
+                                  >
+                                    <div>{previsao.textoPrincipal}</div>
+                                    <div>{previsao.textoSecundario}</div>
+                                  </div>
+                                );
+                              }
+
+                              // ✅ Caso Mercado Livre: previsão calculada
                               return (
                                 <div
                                   className="status-previsao"
@@ -601,32 +656,53 @@ function calcularPrevisaoConclusao(dataEvento?: string) {
                                 </div>
                               );
                             })()}
-                        </td>
+                      </td>
 
-                        <td className="numeric-cell-VALOR">
-                          {typeof item.produto_vendas === "number"
-                            ? `R$ ${item.produto_vendas.toFixed(2)}`
-                            : "-"}
-                        </td>
+                      <td className="numeric-cell-VALOR">
+                        {typeof item.produto_vendas === "number"
+                          ? `R$ ${item.produto_vendas.toFixed(2)}`
+                          : "-"}
+                      </td>
 
-                        <td className="numeric-cell-GANHO">
-                          {typeof item.ganho_pontos === "number"
-                            ? `${Math.round(item.ganho_pontos * 100)}`
-                            : "-"}
-                        </td>
+                      <td className="numeric-cell-GANHO">
+                        {typeof item.ganho_pontos === "number"
+                          ? `${Math.round(item.ganho_pontos * 100)}`
+                          : "-"}
+                      </td>
 
+                      <td className="date-cell">{formatDate(item.data_evento)}</td>
+                      <td className="date-cell">{formatDate(item.data_update)}</td>
 
-                        <td className="date-cell">{formatDate(item.data_evento)}</td>
-                        <td className="date-cell">{formatDate(item.data_update)}</td>
+                      <td className="actions-cell">{renderAcoes(item)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
 
-                        <td className="actions-cell">{renderAcoes(item)}</td>
+          <div className="pagination">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              ⬅ Anterior
+            </button>
 
-                      </tr>
-                    )})}
-                </tbody>
-              </table>
-            </div>
-          )}
+            <span className="pagination-info">
+              <strong>Página</strong>
+              <span>{page} de {totalPages}</span>
+            </span>
+
+            <button
+              disabled={page === totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            >
+              Próxima ➡
+            </button>
+          </div>
+        </>
+      )}
         </div>
       </div>
 

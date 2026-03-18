@@ -184,6 +184,16 @@
   border: 1px solid rgba(94,94,94,0.2);
 }
 
+.btn-success {
+  background: linear-gradient(120deg,#00fff7,#02ff39b9);
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.btn-success:hover {
+  background-color: #16a34a;
+}
+
 
 .pagination {
   margin-top: 18px;
@@ -202,11 +212,38 @@
   color: white;
   font-weight: 600;
   cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.pagination button:hover{
+  transform: scale(1.03);
 }
 
 .pagination button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.pagination button:disabled:hover{
+  transform: scale(1);
+}
+
+.pagination-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+}
+
+.pagination-info strong {
+  font-size: 13px;
+  color: #cfd8e3;
+  font-weight: 600;
+}
+
+.pagination-info span {
+  font-size: 14px;
+  color: #e6eef8;
 }
 
 .pagination span {

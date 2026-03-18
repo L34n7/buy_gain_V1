@@ -313,7 +313,7 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
         {/* 🔔 NOTIFICAÇÕES */}
         <div className="bell-wrapper">
           <button
-            className="bell"
+            className={`bell ${pendentes > 0 ? "has-notifications" : "no-notifications"}`}
             onClick={() => setBellOpen((v) => !v)}
           >
             <p>🔔</p>

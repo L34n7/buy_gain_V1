@@ -21,6 +21,7 @@ export default function Historico() {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [copiadoId, setCopiadoId] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -180,25 +181,6 @@ export default function Historico() {
                             <button
                               className="btn btn-primary"
                               onClick={() => {
-                                const toCopy =
-                                  item.link_rastreado ||
-                                  item.produto_url ||
-                                  "";
-                                if (!toCopy) {
-                                  alert("Sem link para copiar");
-                                  return;
-                                }
-                                navigator.clipboard
-                                  ?.writeText(toCopy)
-                                  .then(() => alert("Link copiado!"));
-                              }}
-                            >
-                              Copiar
-                            </button>
-
-                            <button
-                              className="btn btn-secondary"
-                              onClick={() => {
                                 const url =
                                   item.link_rastreado || item.produto_url;
                                 if (!url) {
@@ -209,6 +191,33 @@ export default function Historico() {
                               }}
                             >
                               Abrir
+                            </button>
+
+                            <button
+                              className={`btn ${
+                                copiadoId === item.id ? "btn-success" : "btn-secondary"
+                              }`}
+                              onClick={() => {
+                                const toCopy =
+                                  item.link_rastreado ||
+                                  item.produto_url ||
+                                  "";
+
+                                if (!toCopy) {
+                                  alert("Sem link para copiar");
+                                  return;
+                                }
+
+                                navigator.clipboard?.writeText(toCopy).then(() => {
+                                  setCopiadoId(item.id);
+
+                                  setTimeout(() => {
+                                    setCopiadoId(null);
+                                  }, 2000);
+                                });
+                              }}
+                            >
+                              {copiadoId === item.id ? "Copiado" : "Copiar"}
                             </button>
                           </div>
                         </td>
@@ -225,8 +234,9 @@ export default function Historico() {
                   ⬅ Anterior
                 </button>
 
-                <span>
-                  Página {page} de {totalPages}
+                <span className="pagination-info">
+                  <strong>Página</strong>
+                  <span>{page} de {totalPages}</span>
                 </span>
 
                 <button

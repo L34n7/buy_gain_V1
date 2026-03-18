@@ -85,7 +85,7 @@ export default function Cadastro() {
     e.preventDefault();
     if (loading) return;
     if (!passwordValid) {
-      setError("A senha não atende aos requisitos.");
+      setError("A senha não atende aos requisitos");
       return;
     }
 
@@ -106,7 +106,7 @@ export default function Cadastro() {
       if (!res.ok) {
 
         if (data?.error?.includes("timeout-or-duplicate")) {
-          setError("O captcha expirou. Confirme novamente que você não é um robô.");
+          setError("O captcha expirou. Confirme novamente que você não é um robô");
         } else {
           setError(data.error || "Erro ao cadastrar");
         }
@@ -229,7 +229,7 @@ export default function Cadastro() {
                     className="eye-btn"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? "🙈" : "🐵"}
+                    {showPassword ? "🙈" : "👁"}
                   </button>
                 </div>
               </div>
@@ -255,7 +255,7 @@ export default function Cadastro() {
                     className="eye-btn"
                     onClick={() => setShowConfirm(!showConfirm)}
                   >
-                    {showConfirm ? "🙈" : "🐵"}
+                    {showConfirm ? "🙈" : "👁"}
                   </button>
                 </div>
 
