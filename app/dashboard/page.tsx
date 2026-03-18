@@ -305,6 +305,7 @@ async function handleGenerate(e: React.FormEvent) {
 
     const isML =
       hostname.includes("mercadolivre") ||
+      hostname.includes("meli.la") ||
       hostname.includes("mercadolibre");
 
     const lojaNaoSuportada = identificarLojaNaoSuportada(hostname);
