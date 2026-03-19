@@ -479,8 +479,14 @@
   flex-wrap: wrap;
 }
 
+.admin-msg-topo p {
+  color: #00ff66e9;
+  font-size: 18px;
+  cursor: default;
+}
+
 .admin-msg-topo strong {
-  color: #00ff73dc;
+  color: #00ffc8;
   font-size: 18px;
   cursor: default;
 }

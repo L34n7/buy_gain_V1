@@ -475,7 +475,7 @@ export default function AdminChamadosPage() {
                     >
                       <div className="admin-msg-topo">
                         <strong>
-                          {msg.autor_tipo === "ADMIN" ? "Suporte" : "Usuário"}
+                          {msg.autor_tipo === "ADMIN" ? "Suporte" : <p>Usuário</p>}
                         </strong>
                         <span>{formatarDataHora(msg.criado_em)}</span>
                       </div>
