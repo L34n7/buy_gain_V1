@@ -9,6 +9,9 @@ type ChamadoRow = {
   titulo: string | null;
   status: string;
   criado_em: string;
+  avaliacao_nota: number | null;
+  avaliacao_mensagem: string | null;
+  avaliado_em: string | null;
 };
 
 type MensagemRow = {
@@ -58,7 +61,9 @@ export async function GET() {
     // 1) busca chamados
     const { data: chamados, error: chamadosError } = await admin
       .from("chamados_suporte")
-      .select("id, titulo, status, criado_em")
+      .select(
+        "id, titulo, status, criado_em, avaliacao_nota, avaliacao_mensagem, avaliado_em"
+      )
       .eq("user_id", user_id)
       .order("criado_em", { ascending: false });
 

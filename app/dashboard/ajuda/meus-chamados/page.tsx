@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./meus-chamados.css";
 
 type MensagemChamado = {
@@ -21,6 +21,9 @@ type Chamado = {
   titulo: string | null;
   status: string;
   criado_em: string;
+  avaliacao_nota: number | null;
+  avaliacao_mensagem: string | null;
+  avaliado_em: string | null;
   mensagens: MensagemChamado[];
 };
 
@@ -85,6 +88,13 @@ export default function MeusChamadosPage() {
   const [imagemPreviews, setImagemPreviews] = useState<Record<string, string>>(
     {}
   );
+
+  const [avaliacoesNota, setAvaliacoesNota] = useState<Record<string, number>>({});
+  const [avaliacoesMensagem, setAvaliacoesMensagem] = useState<Record<string, string>>({});
+  const [enviandoAvaliacaoId, setEnviandoAvaliacaoId] = useState<string | null>(null);
+  const [erroAvaliacao, setErroAvaliacao] = useState<Record<string, string>>({});
+  const [destacarAvaliacaoId, setDestacarAvaliacaoId] = useState<string | null>(null);
+  const avaliacaoRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     async function carregarChamados() {
@@ -287,6 +297,86 @@ export default function MeusChamadosPage() {
     }
   }
 
+
+  function abrirAvaliacao(chamadoId: string) {
+    setExpandedId(chamadoId);
+    setExpandedAnexoId(null);
+    setDestacarAvaliacaoId(chamadoId);
+
+    setTimeout(() => {
+      const el = avaliacaoRefs.current[chamadoId];
+      if (el) {
+        el.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }, 150);
+  }
+
+
+
+  async function enviarAvaliacao(chamadoId: string) {
+    const nota = avaliacoesNota[chamadoId];
+    const mensagem = (avaliacoesMensagem[chamadoId] || "").trim();
+
+    if (!nota || nota < 1 || nota > 5) {
+      setErroAvaliacao((prev) => ({
+        ...prev,
+        [chamadoId]: "Selecione uma nota de 1 a 5.",
+      }));
+      return;
+    }
+
+    try {
+      setEnviandoAvaliacaoId(chamadoId);
+      setErroAvaliacao((prev) => ({ ...prev, [chamadoId]: "" }));
+
+      const res = await fetch(`/api/chamados/${chamadoId}/avaliar`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          nota,
+          mensagem,
+        }),
+      });
+
+      let json: any = {};
+      try {
+        json = await res.json();
+      } catch {
+        json = {};
+      }
+
+      if (!res.ok) {
+        throw new Error(json.error || "Erro ao enviar avaliação.");
+      }
+
+      setAvaliacoesNota((prev) => ({
+        ...prev,
+        [chamadoId]: 0,
+      }));
+
+      setAvaliacoesMensagem((prev) => ({
+        ...prev,
+        [chamadoId]: "",
+      }));
+
+      await recarregarChamados(chamadoId);
+    } catch (err: any) {
+      setErroAvaliacao((prev) => ({
+        ...prev,
+        [chamadoId]: err.message || "Erro ao enviar avaliação.",
+      }));
+    } finally {
+      setEnviandoAvaliacaoId(null);
+    }
+  }
+
+
   return (
     <div className="meus-chamados-root">
       <div className="dashboard-container">
@@ -348,24 +438,23 @@ export default function MeusChamadosPage() {
                 const podeResponder =
                   chamado.status !== "FINALIZADO" && temRespostaDoAdmin;
 
+                const jaFoiAvaliado = chamado.avaliacao_nota !== null;
+                const podeAvaliar = chamado.status === "FINALIZADO" && !jaFoiAvaliado;
+
                 return (
                   <article key={chamado.id} className="chamado-item">
                     <div className="chamado-head">
                       <div className="chamado-head-left">
                         <div className="chamado-top-row">
                           <div className="chamado-protocolo-wrap">
-                            <span className="chamado-protocolo-label">
-                              Protocolo
-                            </span>
+                            <span className="chamado-protocolo-label">Protocolo</span>
                             <div className="chamado-protocolo">
                               <strong>{chamado.id}</strong>
                             </div>
                           </div>
 
                           <span
-                            className={`estatus-badge ${getStatusClass(
-                              chamado.status
-                            )}`}
+                            className={`estatus-badge ${getStatusClass(chamado.status)}`}
                           >
                             {getStatusLabel(chamado.status)}
                           </span>
@@ -382,27 +471,48 @@ export default function MeusChamadosPage() {
                         </div>
                       </div>
 
-                      <button
-                        type="button"
-                        className="btn-expandir"
-                        onClick={() => {
-                          if (expandido) {
-                            setExpandedId(null);
-                            setExpandedAnexoId(null);
-                          } else {
-                            setExpandedId(chamado.id);
-                            setExpandedAnexoId(null);
-                            setErroResposta((prev) => ({
-                              ...prev,
-                              [chamado.id]: "",
-                            }));
-                          }
-                        }}
-                      >
-                        {expandido ? "Ocultar detalhes" : "Ver detalhes"}
-                      </button>
-                    </div>
+                      <div className="chamado-head-actions">
+                        {podeAvaliar && (
+                          <button
+                            type="button"
+                            className="btn-avaliar-card"
+                            onClick={() => abrirAvaliacao(chamado.id)}
+                          >
+                            Avaliar chamado
+                          </button>
+                        )}
 
+                        {jaFoiAvaliado && (
+                          <span className="selo-avaliado">AVALIADO </span>
+                        )}
+
+                        <button
+                          type="button"
+                          className="btn-expandir"
+                          onClick={() => {
+                            if (expandido) {
+                              setExpandedId(null);
+                              setExpandedAnexoId(null);
+                              setDestacarAvaliacaoId(null);
+                            } else {
+                              setExpandedId(chamado.id);
+                              setExpandedAnexoId(null);
+                              setErroResposta((prev) => ({
+                                ...prev,
+                                [chamado.id]: "",
+                              }));
+                              setErroAvaliacao((prev) => ({
+                                ...prev,
+                                [chamado.id]: "",
+                              }));
+                            }
+                          }}
+                        >
+                          {expandido ? "Ocultar detalhes" : "Ver detalhes"}
+                        </button>
+                      </div>
+                    </div>
+                    
                     {expandido && (
                       <div className="chamado-body">
                         <div className="chamado-bloco">
@@ -490,6 +600,12 @@ export default function MeusChamadosPage() {
                           </div>
                         )}
 
+                        {erroAvaliacao[chamado.id] && (
+                          <div className="chamado-bloco chamado-bloco-erro">
+                            <p>{erroAvaliacao[chamado.id]}</p>
+                          </div>
+                        )}
+
                         {!podeResponder && chamado.status !== "FINALIZADO" && (
                           <div className="chamado-bloco chamado-bloco-aviso">
                             <p>
@@ -554,6 +670,105 @@ export default function MeusChamadosPage() {
                             </div>
                           </div>
                         )}
+
+                        {podeAvaliar && (
+                            <div
+                              ref={(el) => {
+                                avaliacaoRefs.current[chamado.id] = el;
+                              }}
+                              className={`resposta-box ${
+                                destacarAvaliacaoId === chamado.id ? "resposta-box-destaque" : ""
+                              }`}
+                            >
+                            <span className="chamado-kicker">Avaliação do atendimento</span>
+                            <h3>Como foi sua experiência com este chamado?</h3>
+
+                            <div className="avaliacao-notas">
+                              {[
+                                { valor: 1, label: "1", classe: "nota-1" },
+                                { valor: 2, label: "2", classe: "nota-2" },
+                                { valor: 3, label: "3", classe: "nota-3" },
+                                { valor: 4, label: "4", classe: "nota-4" },
+                                { valor: 5, label: "5", classe: "nota-5" },
+                              ].map((item) => (
+                                <button
+                                  key={item.valor}
+                                  type="button"
+                                  className={`btn-nota ${item.classe} ${
+                                    avaliacoesNota[chamado.id] === item.valor ? "btn-nota-ativa" : ""
+                                  }`}
+                                  onClick={() =>
+                                    setAvaliacoesNota((prev) => ({
+                                      ...prev,
+                                      [chamado.id]: item.valor,
+                                    }))
+                                  }
+                                >
+                                  {item.label}
+                                </button>
+                              ))}
+                            </div>
+
+                            <div className="avaliacao-resposta">
+                              Descreva abaixo como foi o seu atendimento e como podemos.
+                            </div>
+
+                            <textarea
+                              className="resposta-textarea"
+                              placeholder="Deixe um comentário opcional sobre o atendimento..."
+                              value={avaliacoesMensagem[chamado.id] || ""}
+                              onChange={(e) =>
+                                setAvaliacoesMensagem((prev) => ({
+                                  ...prev,
+                                  [chamado.id]: e.target.value,
+                                }))
+                              }
+                            />
+
+                            <div className="resposta-actions">
+                              <span className="resposta-hint">
+                                Sua nota ajuda a melhorar o atendimento
+                              </span>
+
+                              <button
+                                type="button"
+                                className="btn-primario"
+                                disabled={enviandoAvaliacaoId === chamado.id}
+                                onClick={() => enviarAvaliacao(chamado.id)}
+                              >
+                                {enviandoAvaliacaoId === chamado.id
+                                  ? "Enviando..."
+                                  : "Enviar avaliação"}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {jaFoiAvaliado && (
+                          <div className="resposta-box">
+                            <span className="chamado-kicker">Avaliação enviada</span>
+                            <h3>Obrigado pelo seu feedback!</h3>
+
+                            <div className="avaliacao-resumo">
+                              <p>
+                                <strong>Nota:</strong> {chamado.avaliacao_nota}/5
+                              </p>
+
+                              {chamado.avaliacao_mensagem?.trim() && (
+                                <p>
+                                  <strong>Comentário:</strong> {chamado.avaliacao_mensagem}
+                                </p>
+                              )}
+
+                              {chamado.avaliado_em && (
+                                <p>
+                                  <strong>Avaliado em:</strong> {formatarData(chamado.avaliado_em)}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
                       </div>
                     )}
                   </article>

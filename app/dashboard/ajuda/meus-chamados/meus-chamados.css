@@ -508,6 +508,13 @@
   border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
+.resposta-box h3{
+  font-size: 24px;
+  color: rgba(0, 207, 152, 0.955);
+  padding: 10px 0px 10px;
+  cursor: default;
+}
+
 .resposta-textarea {
   width: 100%;
   min-height: 120px;
@@ -621,10 +628,132 @@
 }
 
 .resposta-hint {
-  font-size: 0.78rem;
+  font-size: 14px;
   color: rgba(255, 255, 255, 0.6);
   text-align: right;
   letter-spacing: 0.02em;
+  cursor: default;
+}
+
+
+
+.chamado-head-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 25px;
+  margin-left: 10px;
+
+}
+
+.btn-avaliar-card {
+  background: linear-gradient(80deg, rgb(102, 0, 255), rgba(204, 0, 255, 0.989));
+  color: #eeeeee;
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin: -5px 0px 0px 0px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-avaliar-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 196, 0, 0.5);
+  background: linear-gradient(80deg, rgba(102, 0, 255, 0.897), rgba(204, 0, 255, 0.989));
+  box-shadow: 0 0 0 1px rgba(119, 0, 255, 0.624), 0 0 24px rgba(221, 0, 255, 0.608);
+}
+
+.selo-avaliado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 6px 12px;
+  margin-right: 17px;
+  border-radius: 999px;
+  background: rgba(179, 60, 159, 0.278);
+  border: 1px solid rgba(212, 0, 255, 0.32);
+  color: #fec8ff;
+  font-weight: 800;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.resposta-box-destaque {
+  border: 1px solid rgba(255, 0, 247, 0.365);
+  box-shadow: 0 0 0 1px rgba(255, 196, 0, 0.12), 0 0 24px rgba(255, 196, 0, 0.08); 
+  cursor: default;
+  font-size: 19px;
+  text-align: center;
+}
+
+.avaliacao-notas {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 14px 0 18px;
+  justify-content: center;
+}
+
+.btn-nota {
+  min-width: 48px;
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
+  opacity: 0.88;
+}
+
+.btn-nota:hover {
+  transform: translateY(-2px);
+  opacity: 1;
+}
+
+.btn-nota-ativa {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18), 0 10px 24px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.28);
+  opacity: 1;
+}
+
+.nota-1 {
+  background: linear-gradient(180deg, rgba(220, 53, 69, 0.95), rgba(176, 42, 55, 0.95));
+}
+
+.nota-2 {
+  background: linear-gradient(180deg, rgba(253, 126, 20, 0.95), rgba(217, 95, 2, 0.95));
+}
+
+.nota-3 {
+  background: linear-gradient(180deg, rgba(255, 193, 7, 0.95), rgba(214, 158, 0, 0.95));
+  color: #2d2400;
+}
+
+.nota-4 {
+  background: linear-gradient(180deg, rgba(25, 135, 84, 0.95), rgba(20, 108, 67, 0.95));
+}
+
+.nota-5 {
+  background: linear-gradient(180deg, rgba(13, 110, 253, 0.95), rgba(10, 88, 202, 0.95));
+}
+
+.avaliacao-resposta {
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: left;
+  margin-left: 10px;
+  cursor: default;
+}
+
+.avaliacao-resumo{
   cursor: default;
 }
 
@@ -744,6 +873,10 @@
     width: 100%;
     min-height: 52px;
     padding: 15 14px;
+  }
+
+  .btn-avaliar-card {
+    width: 100%;
   }
 
 }
