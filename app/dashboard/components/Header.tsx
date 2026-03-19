@@ -26,11 +26,13 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     notificacoesLevelUp,
     notificacoesConquista,
     notificacoesRecompensa,
+    notificacoesChamado,
     marcarCreditoComoLido,
     marcarLevelUpComoLido,
     marcarConquistaComoLida,
     marcarRecompensaComoLida,
     marcarTodasComoLidas,
+    marcarChamadoComoLida,
   } = useNotifications();
   
 
@@ -410,6 +412,26 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
                 >
                   <div className="bell-item-title">
                     🎁 Recompensa processada
+                  </div>
+                  <div className="bell-item-sub">
+                    {n.descricao}
+                  </div>
+                </div>
+              ))}
+
+
+              {notificacoesChamado.map((n) => (
+                <div
+                  key={n.id}
+                  className="bell-item chamado"
+                  onClick={async () => {
+                    await marcarChamadoComoLida(n.id);
+                    setBellOpen(false);
+                    router.push("/dashboard/ajuda/meus-chamados");
+                  }}
+                >
+                  <div className="bell-item-title">
+                     {n.titulo}
                   </div>
                   <div className="bell-item-sub">
                     {n.descricao}

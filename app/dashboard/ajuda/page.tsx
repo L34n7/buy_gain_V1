@@ -177,122 +177,159 @@ export default function AjudaPage() {
       <div className="dashboard-container">
         <div className="ajuda-shell">
           <section className="ajuda-hero">
-            <div className="ajuda-badge">Suporte premium</div>
-            <h1>Central de Ajuda</h1>
+            <span className="ajuda-badge">Central de ajuda</span>
+            <h1>Como podemos te ajudar?</h1>
             <p>
-              Encontre respostas rápidas, acompanhe seus chamados e fale com o
-              suporte da BuyGain com uma experiência integrada ao seu painel.
+              Consulte as perguntas frequentes e, se precisar, abra um chamado
+              ou fale com o suporte por um canal direto.
             </p>
           </section>
 
-          <section className="ajuda-actions-grid">
-            <button
-              type="button"
-              className="ajuda-action-card destaque"
-              onClick={() => setModalOpen(true)}
-            >
-              <div className="ajuda-action-icon">📝</div>
+          <section className="ajuda-faq-section">
+            <div className="ajuda-section-head">
               <div>
-                <h2>Abrir chamado</h2>
-                <p>Envie uma mensagem curta e anexe uma imagem, se necessário.</p>
-              </div>
-            </button>
-
-            <Link href="/dashboard/ajuda/meus-chamados" className="ajuda-action-card">
-              <div className="ajuda-action-icon">📂</div>
-              <div>
-                <h2>Meus chamados</h2>
-                <p>Acompanhe protocolos, status e anexos enviados.</p>
-              </div>
-            </Link>
-
-            <a
-              href="https://wa.me/5531999999999?text=Olá,%20preciso%20de%20ajuda%20no%20BuyGain"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ajuda-action-card whatsapp"
-            >
-              <div className="ajuda-action-icon">💬</div>
-              <div>
-                <h2>WhatsApp</h2>
-                <p>Fale diretamente com o suporte em um canal rápido.</p>
-              </div>
-            </a>
-          </section>
-
-          <section className="ajuda-content-grid">
-            <div className="ajuda-panel faq-panel">
-              <div className="ajuda-panel-head">
-                <div>
-                  <span className="ajuda-panel-kicker">FAQ</span>
-                  <h2>Perguntas frequentes</h2>
-                </div>
-              </div>
-
-              <div className="faq-list">
-                {faqItems.map((item, index) => {
-                  const open = faqOpenIndex === index;
-
-                  return (
-                    <div
-                      key={index}
-                      className={`faq-item ${open ? "open" : ""}`}
-                    >
-                      <button
-                        type="button"
-                        className="faq-question"
-                        onClick={() => setFaqOpenIndex(open ? null : index)}
-                      >
-                        <span>{item.pergunta}</span>
-                        <span className="faq-icon">{open ? "−" : "+"}</span>
-                      </button>
-
-                      {open && (
-                        <div className="faq-answer">
-                          <p>{item.resposta}</p>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                <span className="section-kicker">FAQ</span>
+                <h2>Respostas rápidas</h2>
+                <p>
+                  Veja abaixo as dúvidas mais comuns antes de abrir um chamado.
+                </p>
               </div>
             </div>
 
-            <div className="ajuda-panel info-panel">
-              <div className="ajuda-panel-head">
+            <div className="faq-list">
+              {faqItems.map((item, index) => {
+                const open = faqOpenIndex === index;
+
+                return (
+                  <div key={index} className={`faq-item ${open ? "open" : ""}`}>
+                    <button
+                      type="button"
+                      className="faq-question"
+                      onClick={() => setFaqOpenIndex(open ? null : index)}
+                    >
+                      <div className="faq-question-left">
+                        <span className="faq-number">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        <span>{item.pergunta}</span>
+                      </div>
+
+                      <span className="faq-icon">{open ? "−" : "+"}</span>
+                    </button>
+
+                    {open && (
+                      <div className="faq-answer">
+                        <p>{item.resposta}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="ajuda-actions-section">
+            <div className="ajuda-section-head centralizado">
+              <div>
+                <span className="section-kicker">Atendimento</span>
+                <h2>Escolha a melhor opção</h2>
+                <p>
+                  Se não encontrou a resposta no FAQ, continue por um dos canais
+                  abaixo.
+                </p>
+              </div>
+            </div>
+
+            <div className="ajuda-actions-grid">
+              <button
+                type="button"
+                className="ajuda-action-card destaque"
+                onClick={() => setModalOpen(true)}
+              >
+                <div className="ajuda-action-icon">📝</div>
+                <div className="ajuda-action-content">
+                  <span className="ajuda-action-tag">Mais completo</span>
+                  <h3>Abrir chamado</h3>
+                  <p>
+                    Envie sua dúvida, problema ou solicitação com mais detalhes.
+                  </p>
+                </div>
+              </button>
+
+              <Link
+                href="/dashboard/ajuda/meus-chamados"
+                className="ajuda-action-card"
+              >
+                <div className="ajuda-action-icon">📂</div>
+                <div className="ajuda-action-content">
+                  <span className="ajuda-action-tag">Acompanhar</span>
+                  <h3>Meus chamados</h3>
+                  <p>Consulte protocolos, status e anexos enviados.</p>
+                </div>
+              </Link>
+
+              <a
+                href="https://wa.me/5531999999999?text=Olá,%20preciso%20de%20ajuda%20no%20BuyGain"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ajuda-action-card whatsapp"
+              >
+                <div className="ajuda-action-icon">💬</div>
+                <div className="ajuda-action-content">
+                  <span className="ajuda-action-tag">Canal rápido</span>
+                  <h3>WhatsApp</h3>
+                  <p>Fale diretamente com o suporte em um atendimento rápido.</p>
+                </div>
+              </a>
+            </div>
+          </section>
+
+          <section className="ajuda-bottom-grid">
+            <div className="ajuda-info-panel">
+              <div className="ajuda-section-head">
                 <div>
-                  <span className="ajuda-panel-kicker">Atendimento</span>
-                  <h2>Como funciona o suporte</h2>
+                  <span className="section-kicker">Como funciona</span>
+                  <h2>Suporte dentro do painel</h2>
                 </div>
               </div>
 
-              <div className="info-card">
-                <h3>Chamados registrados</h3>
-                <p>
-                  Ao abrir um chamado, você recebe um protocolo e um email de
-                  confirmação para acompanhar tudo com segurança.
-                </p>
-              </div>
+              <div className="ajuda-info-cards">
+                <div className="info-card">
+                  <h3>Protocolo automático</h3>
+                  <p>
+                    Ao abrir um chamado, você recebe um protocolo para
+                    acompanhar o atendimento.
+                  </p>
+                </div>
 
-              <div className="info-card">
-                <h3>Acompanhamento fácil</h3>
-                <p>
-                  Você pode consultar seus chamados a qualquer momento pela área
-                  “Meus chamados”, com status e imagem anexada.
-                </p>
-              </div>
+                <div className="info-card">
+                  <h3>Acompanhamento simples</h3>
+                  <p>
+                    Consulte seus chamados com praticidade na área “Meus
+                    chamados”.
+                  </p>
+                </div>
 
-              <div className="info-card">
-                <h3>Canal direto</h3>
-                <p>
-                  Para situações rápidas, o WhatsApp continua disponível como
-                  apoio imediato.
-                </p>
+                <div className="info-card">
+                  <h3>Canal direto</h3>
+                  <p>
+                    Para casos rápidos, o WhatsApp continua disponível como
+                    apoio imediato.
+                  </p>
+                </div>
               </div>
+            </div>
 
-              <Link href="/dashboard" className="btn-voltar-dashboard">
-                Voltar para o início
-              </Link>
+            <div className="ajuda-shortcuts-panel">
+              <div className="shortcut-card">
+                <span className="section-kicker">Voltar</span>
+                <h3>Retornar ao dashboard</h3>
+                <p>Continue navegando normalmente pela sua conta BuyGain.</p>
+
+                <Link href="/dashboard" className="btn-voltar-dashboard">
+                  Voltar para o início
+                </Link>
+              </div>
             </div>
           </section>
         </div>
@@ -333,9 +370,9 @@ export default function AjudaPage() {
                   placeholder="Ex: Compra não apareceu no histórico"
                   value={titulo}
                   onChange={(e) => setTitulo(e.target.value)}
-                  maxLength={100}
+                  maxLength={40}
                 />
-                <small>{titulo.length}/100</small>
+                <small>{titulo.length}/40</small>
               </div>
 
               <div className="form-group">
@@ -376,23 +413,31 @@ export default function AjudaPage() {
 
                   {protocolo && (
                     <div className="protocolo-box">
-                      <span className="protocolo-label">Protocolo do chamado</span>
+                      <span className="protocolo-label">
+                        Protocolo do chamado
+                      </span>
+
                       <div className="protocolo-row">
                         <code className="protocolo-code">{protocolo}</code>
 
                         <button
                           type="button"
-                          className={`btn-copiar-protocolo ${copiado ? "copiado" : ""}`}
+                          className={`btn-copiar-protocolo ${
+                            copiado ? "copiado" : ""
+                          }`}
                           onClick={handleCopiarProtocolo}
                         >
-                          {copiado ? "Copiado" : "Copiar"}
+                          {copiado ? "Copiado!" : "Copiar"}
                         </button>
                       </div>
                     </div>
                   )}
 
                   <div className="sucesso-acoes">
-                    <Link href="/dashboard/ajuda/meus-chamados" className="btn-sucesso-link">
+                    <Link
+                      href="/dashboard/ajuda/meus-chamados"
+                      className="btn-sucesso-link"
+                    >
                       Ver meus chamados
                     </Link>
 

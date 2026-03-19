@@ -96,7 +96,14 @@ export default function MobileNav() {
                   href="/dashboard/admin/resgates"
                   className={isActive("/dashboard/admin/resgates") ? "active" : ""}
                 >
-                  <span>🗡 Resgates ADM</span>
+                  <span>🗡 Resgates - Admin</span>
+                </Link>
+
+                <Link
+                  href="/dashboard/admin/chamados"
+                  className={isActive("/dashboard/admin/chamados") ? "active" : ""}
+                >
+                  <span>💻 Chamados - Admin</span>
                 </Link>
               </>
             )}

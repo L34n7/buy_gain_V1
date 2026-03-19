@@ -138,7 +138,7 @@
 }
 
 /* variações específicas */
-.status-EM_ANALISE { background: linear-gradient(90deg, rgba(0, 238, 255, 0.998), rgba(139, 60, 242, 0.752)); color: #000000; }
+.status-EM_ANALISE {   font-weight: 700; background: linear-gradient(90deg, rgba(0, 238, 255, 0.998), rgba(139, 60, 242, 0.752)); color: #000000; }
 .status-AGUARDANDO_CONFIRMACAO { background: linear-gradient(90deg, rgb(250, 200, 0), rgba(255, 128, 0, 0.356)); color: #f7f3e4; }
 .status-SOLICITAR_PROVA { background: linear-gradient(90deg, rgba(255, 119, 0, 0.933), rgba(255, 30, 0, 0.453)); color: #ffffff; }
 .status-ANALISE_MANUAL { background: linear-gradient(90deg, rgba(209, 2, 255, 0.994), rgba(69, 2, 251, 0.978)); color: #000000; }

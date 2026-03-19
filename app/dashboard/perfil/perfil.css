@@ -149,10 +149,10 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 180px;
+  cursor: default;
 }
 
-.avatar-wrapper img,
-.avatar-fallback {
+.avatar-wrapper img{
   width: 100%;
   height: 100%;
   aspect-ratio: 1 / 1;   
@@ -162,6 +162,20 @@
   object-fit: cover;
   font-size: 40px;
   font-weight: 900;
+  text-align: center;
+}
+.avatar-fallback {
+  padding: 50px 0px 0px 0px;
+  font-size: 40px;
+  font-weight: 900;
+  text-align: center;
+  background: linear-gradient(
+    120deg,
+    #7c0094 10%,
+    #001b51 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* AÇÃO */

@@ -47,7 +47,7 @@ export function getResgateProcessadoEmailTemplate({
 
 <img src="https://buygain.com.br/logo.png"
      alt="BuyGain"
-     width="180"
+     width="160"
      style="display:block; margin-bottom:20px;" />
 
 <h1 style="color:#ffffff; margin:0; font-size:24px; letter-spacing:1px;">

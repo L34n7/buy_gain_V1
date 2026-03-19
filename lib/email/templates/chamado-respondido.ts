@@ -1,24 +1,28 @@
-type ChamadoAbertoEmailProps = {
+type ChamadoRespondidoEmailProps = {
   userName: string;
   protocolo: string;
   titulo?: string | null;
-  mensagem: string;
+  mensagemOriginal: string;
+  respostaSuporte: string;
   meusChamadosUrl: string;
   siteUrl: string;
   suporteUrl: string;
 };
 
-export function getChamadoAbertoEmailTemplate({
+export function getChamadoRespondidoEmailTemplate({
   userName,
   protocolo,
   titulo,
-  mensagem,
+  mensagemOriginal,
+  respostaSuporte,
   meusChamadosUrl,
   siteUrl,
   suporteUrl,
-}: ChamadoAbertoEmailProps) {
+}: ChamadoRespondidoEmailProps) {
   const mensagemCurta =
-    mensagem.length > 220 ? `${mensagem.slice(0, 220)}...` : mensagem;
+    mensagemOriginal.length > 220
+      ? `${mensagemOriginal.slice(0, 220)}...`
+      : mensagemOriginal;
 
   return `
 <!DOCTYPE html>
@@ -40,7 +44,7 @@ export function getChamadoAbertoEmailTemplate({
        bgcolor="#0f172a"
        style="background-color:#0f172a !important;
               border-radius:20px;
-              border:1px solid #8b5cf6;
+              border:1px solid #06b6d4;
               overflow:hidden;">
 
 <tr>
@@ -52,11 +56,11 @@ export function getChamadoAbertoEmailTemplate({
      style="display:block; margin-bottom:20px;" />
 
 <h1 style="color:#ffffff; margin:0; font-size:24px; letter-spacing:1px;">
-📩 Chamado aberto com sucesso
+💬 Seu chamado foi respondido
 </h1>
 
-<p style="color:#a78bfa; margin-top:8px; font-size:14px;">
-Recebemos sua solicitação e ela já está registrada na BuyGain
+<p style="color:#67e8f9; margin-top:8px; font-size:14px;">
+A equipe da BuyGain enviou uma atualização no seu atendimento
 </p>
 
 </td>
@@ -70,11 +74,8 @@ Olá, ${userName}! 👋
 </h2>
 
 <p style="color:#cbd5e1; font-size:16px; line-height:1.6;">
-Seu chamado foi aberto com sucesso na <strong style="color:#ffffff;">BuyGain</strong>.
-</p>
-
-<p style="color:#cbd5e1; font-size:16px; line-height:1.6;">
-Nossa equipe poderá analisar seu caso a partir das informações enviadas.
+Seu chamado recebeu uma resposta da equipe de suporte da
+<strong style="color:#ffffff;">BuyGain</strong>.
 </p>
 
 <div style="background-color:#0b1220;
@@ -109,16 +110,28 @@ ${
 
 <div style="background-color:#111827;
             border:1px solid #06b6d4;
+            padding:22px;
+            border-radius:14px;
+            margin:30px 0;">
+
+<p style="color:#22d3ee; font-size:14px; margin:0 0 14px 0;">
+📩 Resposta do suporte
+</p>
+
+<p style="color:#e2e8f0; font-size:15px; line-height:1.7; margin:0; white-space:pre-line;">
+${respostaSuporte}
+</p>
+
+</div>
+
+<div style="background-color:#0f172a;
+            border:1px solid #1e293b;
             padding:20px;
             border-radius:14px;
             margin:30px 0;">
 
-<p style="color:#22d3ee; font-size:14px; margin:0 0 10px 0;">
-📂 Acompanhe seu atendimento
-</p>
-
-<p style="color:#e2e8f0; font-size:15px; line-height:1.6; margin:0;">
-Você pode acessar a área de <strong style="color:#ffffff;">Meus chamados</strong> para acompanhar o status da solicitação e consultar seus protocolos.
+<p style="color:#cbd5e1; font-size:15px; line-height:1.6; margin:0;">
+Acesse <strong style="color:#ffffff;">Meus chamados</strong> para acompanhar o status atualizado, consultar a resposta e continuar seu atendimento se necessário.
 </p>
 
 </div>
@@ -127,7 +140,7 @@ Você pode acessar a área de <strong style="color:#ffffff;">Meus chamados</stro
   <a href="${meusChamadosUrl}"
      style="display:inline-block;
             padding:16px 32px;
-            background-color:#8b5cf6;
+            background-color:#06b6d4;
             color:#ffffff;
             font-weight:bold;
             font-size:15px;
@@ -136,10 +149,6 @@ Você pode acessar a área de <strong style="color:#ffffff;">Meus chamados</stro
     Ver meus chamados
   </a>
 </div>
-
-<p style="color:#cbd5e1; font-size:15px; line-height:1.6;">
-Guarde o protocolo acima para facilitar seu atendimento.
-</p>
 
 <p style="color:#94a3b8; font-size:14px; line-height:1.8; margin-top:28px;">
 <a href="${siteUrl}" style="color:#22d3ee; text-decoration:none;">Acessar plataforma</a>
@@ -150,7 +159,7 @@ Guarde o protocolo acima para facilitar seu atendimento.
 </p>
 
 <p style="color:#64748b; font-size:13px; line-height:1.6; margin-top:25px;">
-Este é um email automático enviado após a abertura do seu chamado.
+Este é um email automático enviado quando seu chamado recebe uma resposta.
 </p>
 
 </td>

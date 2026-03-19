@@ -1,181 +1,111 @@
 .ajuda-root {
   min-height: 100vh;
-  padding: 24px 16px 40px;
+  padding: 0px 16px 40px;
 }
 
 .ajuda-shell {
-  max-width: 1100px;
-  margin: 0 auto;
+  max-width: 1120px;
+  margin: -20 auto;
 }
+
+/* HERO */
 
 .ajuda-hero {
-  position: relative;
-  padding: 34px 34px 30px;
-  border-radius: 28px;
-  background:
-    linear-gradient(180deg, rgba(17, 25, 56, 0.92), rgba(9, 14, 34, 0.94));
-  border: 1px solid rgba(121, 97, 255, 0.24);
-  box-shadow:
-    0 0 0 1px rgba(90, 160, 255, 0.06) inset,
-    0 18px 60px rgba(12, 18, 40, 0.6),
-    0 0 30px rgba(111, 91, 255, 0.12);
-  overflow: hidden;
-}
-
-.ajuda-hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at top left, rgba(127, 90, 240, 0.18), transparent 34%),
-    radial-gradient(circle at top right, rgba(34, 211, 238, 0.16), transparent 28%);
-  pointer-events: none;
+  padding: 0px 4px 22px;
+  text-align: center;
 }
 
 .ajuda-badge {
-  position: relative;
   display: inline-flex;
-  margin-bottom: 14px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
   padding: 7px 14px;
   border-radius: 999px;
-  background: rgba(111, 91, 255, 0.16);
-  border: 1px solid rgba(111, 91, 255, 0.3);
-  color: #cabdff;
-  font-size: 0.82rem;
-  font-weight: 700;
+  background: rgba(111, 91, 255, 0.12);
+  border: 1px solid rgba(111, 91, 255, 0.18);
+  color: #d7d0ffd3;
+  font-size: 0.8rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  cursor: default;
 }
 
 .ajuda-hero h1 {
-  position: relative;
-  margin: 0 0 12px;
-  font-size: 2.35rem;
-  line-height: 1.05;
-  color: #ffffff;
-  text-shadow: 0 0 24px rgba(111, 91, 255, 0.16);
+  margin: 0 0 10px;
+  color: #ffffffe7;
+  font-size: clamp(2rem, 3vw, 2.7rem);
+  line-height: 1.08;
+  font-weight: 900;
+  cursor: default;
 }
 
 .ajuda-hero p {
-  position: relative;
-  margin: 0;
+  margin: 0 auto;
   max-width: 760px;
-  color: rgba(226, 232, 240, 0.86);
+  color: rgba(226, 232, 240, 0.82);
   font-size: 1rem;
   line-height: 1.75;
+  cursor: default;
 }
 
-.ajuda-actions-grid {
-  margin-top: 22px;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
+/* BLOCOS */
 
-.ajuda-action-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 22px 20px;
-  border-radius: 22px;
-  text-decoration: none;
-  color: white;
-  background:
-    linear-gradient(180deg, rgba(16, 24, 49, 0.92), rgba(8, 13, 31, 0.94));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow:
-    0 12px 32px rgba(6, 10, 25, 0.38),
-    inset 0 0 0 1px rgba(120, 100, 255, 0.03);
-  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
-  cursor: pointer;
-}
-
-.ajuda-action-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(111, 91, 255, 0.26);
-  box-shadow:
-    0 18px 40px rgba(6, 10, 25, 0.44),
-    0 0 22px rgba(111, 91, 255, 0.08);
-}
-
-.ajuda-action-card.destaque {
-  border-color: rgba(111, 91, 255, 0.26);
-  box-shadow:
-    0 18px 38px rgba(6, 10, 25, 0.44),
-    0 0 24px rgba(111, 91, 255, 0.14);
-}
-
-.ajuda-action-card.whatsapp:hover {
-  border-color: rgba(34, 197, 94, 0.34);
-  box-shadow:
-    0 18px 40px rgba(6, 10, 25, 0.44),
-    0 0 24px rgba(34, 197, 94, 0.1);
-}
-
-.ajuda-action-icon {
-  flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background:
-    linear-gradient(135deg, rgba(111, 91, 255, 0.2), rgba(34, 211, 238, 0.18));
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  font-size: 1.35rem;
-}
-
-.ajuda-action-card h2 {
-  margin: 2px 0 8px;
-  font-size: 1.08rem;
-  color: #f8fafc;
-}
-
-.ajuda-action-card p {
-  margin: 0;
-  color: rgba(203, 213, 225, 0.8);
-  font-size: 0.94rem;
-  line-height: 1.65;
-}
-
-.ajuda-content-grid {
-  margin-top: 22px;
-  display: grid;
-  grid-template-columns: 1.5fr 0.9fr;
-  gap: 18px;
-}
-
-.ajuda-panel {
-  padding: 24px;
-  border-radius: 26px;
-  background:
-    linear-gradient(180deg, rgba(13, 19, 41, 0.94), rgba(7, 11, 27, 0.96));
+.ajuda-faq-section,
+.ajuda-info-panel,
+.ajuda-shortcuts-panel {
+  background: rgba(10, 14, 28, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow:
-    0 12px 32px rgba(6, 10, 25, 0.36),
-    inset 0 0 0 1px rgba(111, 91, 255, 0.03);
+  border-radius: 24px;
 }
 
-.ajuda-panel-head {
-  margin-bottom: 16px;
+.ajuda-faq-section {
+  padding: 24px;
 }
 
-.ajuda-panel-kicker {
+.ajuda-info-panel {
+  padding: 24px;
+}
+
+.ajuda-shortcuts-panel {
+  padding: 18px;
+}
+
+.ajuda-section-head {
+  margin-bottom: 18px;
+}
+
+.ajuda-section-head.centralizado {
+  text-align: center;
+}
+
+.section-kicker {
   display: inline-block;
   margin-bottom: 8px;
-  color: #7dd3fc;
+  color: #67e8f9;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  cursor: default;
 }
 
-.ajuda-panel-head h2 {
-  margin: 0;
-  font-size: 1.28rem;
+.ajuda-section-head h2 {
+  margin: 0 0 8px;
+  font-size: 1.4rem;
   color: #ffffff;
+  cursor: default;
 }
+
+.ajuda-section-head p {
+  margin: 0;
+  color: rgba(203, 213, 225, 0.76);
+  line-height: 1.7;
+  cursor: default;
+}
+
+/* FAQ */
 
 .faq-list {
   display: flex;
@@ -184,123 +114,271 @@
 }
 
 .faq-item {
-  border-radius: 18px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.025);
   border: 1px solid rgba(255, 255, 255, 0.07);
-  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
 }
 
 .faq-item.open {
-  border-color: rgba(111, 91, 255, 0.28);
+  border-color: rgba(111, 91, 255, 0.24);
   background: rgba(111, 91, 255, 0.05);
-  box-shadow: 0 0 18px rgba(111, 91, 255, 0.06);
 }
 
 .faq-question {
   width: 100%;
   border: none;
   background: transparent;
-  color: white;
-  padding: 18px 18px;
+  color: #ffffffdc;
+  padding: 18px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  gap: 14px;
   text-align: left;
   cursor: pointer;
-  font-size: 0.98rem;
+}
+
+.faq-question-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  font-size: 1.20rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.faq-number {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(111, 91, 255, 0.16);
+  border: 1px solid rgba(111, 91, 255, 0.2);
+  color: #ffffff;
+  font-size: 0.85rem;
   font-weight: 700;
+  cursor: default;
 }
 
 .faq-icon {
-  font-size: 1.3rem;
-  color: #67e8f9;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  color: #67e8f9;
+  font-size: 1.2rem;
+  font-weight: 700;
 }
 
 .faq-answer {
-  padding: 0 18px 18px;
+  padding: 0 18px 18px 68px;
 }
 
 .faq-answer p {
   margin: 0;
-  color: rgba(203, 213, 225, 0.82);
+  color: rgba(255, 255, 255, 0.768);
   line-height: 1.75;
+  font-size: 1.07rem;
+  font-weight: 400;
+  cursor: default;
 }
 
-.info-panel {
+/* AÇÕES */
+
+.ajuda-actions-section {
+  margin-top: 22px;
+}
+
+.ajuda-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.ajuda-action-card {
   display: flex;
-  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px 18px;
+  border-radius: 20px;
+  text-decoration: none;
+  color: #ffffff;
+  background: linear-gradient(135deg, #090139, #03546836);
+  border: 1px solid rgba(3, 56, 136, 0.842);
+  cursor: pointer;
+}
+
+
+.ajuda-action-icon {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(111, 91, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 1.3rem;
+}
+
+.ajuda-action-content {
+  text-align: left;
+  margin-left: 10px;
+  min-width: 0;
+}
+
+.ajuda-action-tag {
+  display: inline-flex;
+  margin-bottom: 8px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ajuda-action-card h3 {
+  margin: 0 0 8px;
+  color: #ffffff;
+  font-size: 1.05rem;
+}
+
+.ajuda-action-card p {
+  margin: 0;
+  color: rgba(203, 213, 225, 0.78);
+  font-size: 0.94rem;
+  line-height: 1.65;
+}
+
+/* INFERIOR */
+
+.ajuda-bottom-grid {
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: 1.35fr 0.75fr;
+  gap: 18px;
+}
+
+.ajuda-info-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  cursor: default;
+}
+
+.info-card,
+.shortcut-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 18px;
+  cursor: default;
 }
 
 .info-card {
   padding: 18px;
-  border-radius: 18px;
-  background:
-    linear-gradient(180deg, rgba(19, 27, 57, 0.88), rgba(10, 15, 33, 0.94));
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  margin-bottom: 12px;
 }
 
 .info-card h3 {
   margin: 0 0 8px;
-  font-size: 1rem;
   color: #ffffff;
+  font-size: 1rem;
+  cursor: default;
 }
 
-.info-card p {
+.info-card p,
+.shortcut-card p {
   margin: 0;
   color: rgba(203, 213, 225, 0.8);
   line-height: 1.7;
   font-size: 0.95rem;
 }
 
+.shortcut-card {
+  width: 100%;
+  min-height: 100%;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.shortcut-card h3 {
+  margin: 0 0 10px;
+  color: #ffffff;
+  font-size: 1.12rem;
+  cursor: default;
+}
+
 .btn-voltar-dashboard {
-  margin-top: auto;
+  margin-top: 18px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 50px;
-  border-radius: 16px;
+  padding: 0 18px;
+  border-radius: 14px;
   text-decoration: none;
-  font-weight: 700;
   color: #ffffff;
+  font-weight: 800;
   background: linear-gradient(135deg, #6f5bff, #31d7ff);
-  box-shadow: 0 12px 28px rgba(77, 99, 255, 0.22);
 }
+
+/* MODAL */
 
 .chamado-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(2, 6, 23, 0.76);
-  backdrop-filter: blur(8px);
+  background: rgba(2, 6, 23, 0.84);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 18px;
+  padding: 16px;
 }
 
 .chamado-modal {
-  width: 100%;
-  max-width: 620px;
-  border-radius: 28px;
+  width: min(100%, 620px);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
   padding: 24px;
-  background:
-    linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(8, 13, 31, 0.98));
-  border: 1px solid rgba(111, 91, 255, 0.22);
-  box-shadow:
-    0 20px 60px rgba(2, 6, 23, 0.64),
-    0 0 28px rgba(111, 91, 255, 0.12);
+  border-radius: 24px;
+  background: #0b1223;
+  border: 1px solid rgba(111, 91, 255, 0.18);
+  box-sizing: border-box;
 }
 
 .chamado-modal-header {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
   align-items: flex-start;
+  gap: 16px;
   margin-bottom: 18px;
+}
+
+.chamado-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .modal-kicker {
@@ -311,28 +389,32 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  cursor: default;
 }
 
 .chamado-modal-header h3 {
   margin: 0 0 8px;
-  font-size: 1.35rem;
-  color: #fff;
+  color: #ffffff;
+  font-size: 1.3rem;
+  cursor: default;
 }
 
 .chamado-modal-header p {
   margin: 0;
   color: rgba(203, 213, 225, 0.8);
   line-height: 1.7;
+  cursor: default;
 }
 
 .chamado-close {
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
+  padding: 0px 10px 45px;
   border: none;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  color: white;
-  font-size: 1.5rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.079);
+  color: #ffffff76;
+  font-size: 1.82rem;
   cursor: pointer;
 }
 
@@ -352,28 +434,29 @@
   color: #f8fafc;
   font-size: 0.95rem;
   font-weight: 700;
+  cursor: default;
 }
 
 .form-group input,
 .form-group textarea {
   width: 100%;
-  border-radius: 16px;
+  padding: 14px 15px;
+  border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.09);
   background: rgba(255, 255, 255, 0.04);
-  color: white;
-  padding: 14px 15px;
+  color: #ffffff;
   outline: none;
 }
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: rgba(203, 213, 225, 0.4);
+  color: rgba(203, 213, 225, 0.42);
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
-  border-color: rgba(111, 91, 255, 0.46);
-  box-shadow: 0 0 0 3px rgba(111, 91, 255, 0.14);
+  border-color: rgba(111, 91, 255, 0.38);
+  box-shadow: 0 0 0 2px rgba(111, 91, 255, 0.12);
 }
 
 .form-group small {
@@ -382,16 +465,17 @@
 
 .arquivo-selecionado {
   padding: 11px 12px;
-  border-radius: 14px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.04);
   color: rgba(226, 232, 240, 0.88);
   font-size: 0.92rem;
+  cursor: default;
 }
 
 .form-error,
 .form-success {
   padding: 14px;
-  border-radius: 16px;
+  border-radius: 14px;
   line-height: 1.6;
 }
 
@@ -409,14 +493,13 @@
 
 .btn-enviar-chamado {
   width: 100%;
-  min-height: 54px;
+  min-height: 52px;
   border: none;
-  border-radius: 16px;
-  color: white;
+  border-radius: 14px;
+  color: #ffffff;
   font-weight: 800;
   cursor: pointer;
   background: linear-gradient(135deg, #6f5bff, #31d7ff);
-  box-shadow: 0 14px 30px rgba(77, 99, 255, 0.24);
 }
 
 .btn-enviar-chamado.loading {
@@ -429,7 +512,7 @@
   padding: 14px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08); 
 }
 
 .protocolo-label {
@@ -437,13 +520,14 @@
   margin-bottom: 8px;
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.72);
+  cursor: default;
 }
 
 .protocolo-row {
   display: flex;
   gap: 10px;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: wrap; 
 }
 
 .protocolo-code {
@@ -451,7 +535,7 @@
   padding: 10px 12px;
   border-radius: 12px;
   background: rgba(2, 6, 23, 0.42);
-  color: #fff;
+  color: #ffffff;
   font-size: 0.92rem;
   word-break: break-all;
 }
@@ -462,20 +546,20 @@
   padding: 10px 14px;
   font-weight: 700;
   cursor: pointer;
-  color: white;
-  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  background: rgba(1, 131, 48, 0.789);
 }
 
 .btn-copiar-protocolo.copiado {
-  background: rgba(34, 197, 94, 0.18);
-  color: #bbf7d0;
+  background: rgba(136, 255, 0, 0.985);
+  color: #000000;
 }
 
 .sucesso-acoes {
   margin-top: 16px;
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: wrap; 
 }
 
 .btn-sucesso-link,
@@ -484,6 +568,7 @@
   border: none;
   border-radius: 12px;
   padding: 12px 14px;
+  font-size: 18px;
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
@@ -493,21 +578,88 @@
 }
 
 .btn-sucesso-link {
-  color: white;
+  color: #ffffff;
   background: linear-gradient(135deg, #6f5bff, #31d7ff);
 }
 
 .btn-sucesso-fechar {
-  color: white;
+  color: #ffffff;
   background: rgba(255, 255, 255, 0.08);
 }
+
+
+/* HOVER DOS BOTÕES E CARDS */
+
+.ajuda-action-card,
+.btn-voltar-dashboard,
+.btn-enviar-chamado,
+.btn-sucesso-link,
+.btn-sucesso-fechar,
+.btn-copiar-protocolo,
+.chamado-close {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    opacity 0.18s ease;
+}
+
+.ajuda-action-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.22);
+}
+
+.ajuda-action-card.destaque:hover {
+  border-color: rgba(111, 91, 255, 0.34);
+  box-shadow: 0 12px 28px rgba(111, 91, 255, 0.14);
+}
+
+.ajuda-action-card.whatsapp:hover {
+  border-color: rgba(34, 197, 94, 0.3);
+  box-shadow: 0 12px 28px rgba(34, 197, 94, 0.12);
+}
+
+.btn-voltar-dashboard:hover,
+.btn-enviar-chamado:hover,
+.btn-sucesso-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(77, 99, 255, 0.22);
+}
+
+.btn-sucesso-fechar:hover,
+.chamado-close:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.13);
+  color: #ffffffc2;
+}
+
+.btn-copiar-protocolo:hover {
+  transform: translateY(-2px);
+  background: rgb(0, 189, 13);
+  color: #fffffffe;
+}
+
+
+.btn-copiar-protocolo.copiado:hover {
+  background: rgba(136, 255, 0, 0.985);
+  box-shadow: 0 8px 18px rgba(34, 197, 94, 0.12);
+  color: #000000c2;
+}
+
+
+/* RESPONSIVO */
 
 @media (max-width: 980px) {
   .ajuda-actions-grid {
     grid-template-columns: 1fr;
   }
 
-  .ajuda-content-grid {
+  .ajuda-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ajuda-info-cards {
     grid-template-columns: 1fr;
   }
 }
@@ -517,15 +669,112 @@
     padding: 16px 12px 28px;
   }
 
-  .ajuda-hero,
-  .ajuda-panel,
+  .ajuda-faq-section,
+  .ajuda-info-panel,
+  .ajuda-shortcuts-panel,
   .chamado-modal {
     padding: 20px;
-    border-radius: 22px;
+    border-radius: 20px;
+  }
+
+  .ajuda-hero {
+    padding: 8px 0 18px;
   }
 
   .ajuda-hero h1 {
     font-size: 1.85rem;
+  }
+
+  .ajuda-section-head h2 {
+    font-size: 1.24rem;
+  }
+
+  .faq-question {
+    padding: 16px;
+  }
+
+  .faq-question-left {
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.96rem;
+  }
+
+  .faq-answer {
+    padding: 0 16px 16px 16px;
+  }
+
+  .sucesso-acoes {
+    flex-direction: column;
+  }
+
+  .btn-sucesso-link,
+  .btn-sucesso-fechar {
+    width: 100%;
+  }
+}
+
+ /* Modal Mobile */
+ 
+@media (max-width: 640px) {
+  .chamado-overlay {
+    padding: 10px;
+    align-items: flex-start;
+    overflow-y: auto;
+  }
+
+  .chamado-modal {
+    max-width: 95%;
+    max-height: 75vh;
+    margin: 22px 0;
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .chamado-modal-header {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .chamado-modal-header h3 {
+    font-size: 1.42rem;
+    line-height: 1.3;
+  }
+
+  .chamado-modal-header p {
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  .chamado-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 1.82rem;
+    flex-shrink: 0;
+  }
+
+  .chamado-form {
+    gap: 14px;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    padding: 13px 14px;
+    font-size: 16px;
+  }
+
+  .protocolo-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .protocolo-code {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .btn-copiar-protocolo {
+    width: 100%;
   }
 
   .sucesso-acoes {

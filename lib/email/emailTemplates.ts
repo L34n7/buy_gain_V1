@@ -29,7 +29,7 @@ export function getCompraEmAnaliseEmail({
             <td align="center" style="padding:40px 30px 20px 30px;">
               <img src="https://buygain.com.br/logo.png"
                   alt="BuyGain"
-                  width="180"
+                  width="160"
                   style="display:block; margin:0 auto 20px auto; height:auto;" />
 
               <h1 style="color:#ffffff; margin:0; font-size:24px; letter-spacing:1px;">

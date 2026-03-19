@@ -170,6 +170,14 @@
   z-index: 999;
 }
 
+.bell-item.chamado {
+  border-left: 3px solid rgba(34, 211, 238, 0.9);
+}
+
+.bell-item.chamado:hover {
+  background: rgba(34, 211, 238, 0.08);
+}
+
 /* MOBILE VERSION */
 
 @media (max-width: 900px) {
@@ -301,6 +309,10 @@
   transform: none;
 }
 
+.bell-item + .bell-item {
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
 
 /* =====================================================
    PROFILE
@@ -349,7 +361,7 @@
 
 .profile-level-under-avatar {
   position: absolute;
-  top: 57px;
+  top: 56px;
   left: 23px;
   padding: 0px 12px 0px 12px ;
   border-radius: 99px;
@@ -673,8 +685,8 @@
   }
 
   .profile-level-under-avatar {
-    top: 48px;
-    left: 11px;
+    top: 47.5px;
+    left: 13px;
     padding: 0px 12px 0px 12px ;
     font-size: 10px;
     font-weight: 700;

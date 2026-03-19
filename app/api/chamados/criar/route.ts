@@ -5,6 +5,25 @@ import {
 } from "@/lib/supabaseServer";
 import { sendEmail } from "@/lib/email/email";
 import { getChamadoAbertoEmailTemplate } from "@/lib/email/templates/chamado-aberto";
+import { sendTelegramMessage } from "@/lib/telegram/sendTelegramMessage";
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function formatTelegramDate(date: string) {
+  try {
+    return new Date(date).toLocaleString("pt-BR", {
+      dateStyle: "short",
+      timeStyle: "short",
+    });
+  } catch {
+    return date;
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -16,7 +35,17 @@ export async function POST(req: Request) {
       imagemTipo,
     } = await req.json();
 
-    if (!mensagem || mensagem.trim().length < 10) {
+    const tituloLimpo = String(titulo || "").trim();
+    const mensagemLimpa = String(mensagem || "").trim();
+
+    if (!tituloLimpo || tituloLimpo.length < 3) {
+      return NextResponse.json(
+        { error: "O título é obrigatório e deve ter pelo menos 3 caracteres." },
+        { status: 400 }
+      );
+    }
+
+    if (!mensagemLimpa || mensagemLimpa.length < 10) {
       return NextResponse.json(
         { error: "A mensagem deve ter pelo menos 10 caracteres." },
         { status: 400 }
@@ -70,7 +99,7 @@ export async function POST(req: Request) {
         );
       }
 
-      const partes = imagemBase64.split(",");
+      const partes = String(imagemBase64).split(",");
       if (partes.length < 2) {
         return NextResponse.json(
           { error: "Imagem inválida." },
@@ -80,7 +109,6 @@ export async function POST(req: Request) {
 
       const buffer = Buffer.from(partes[1], "base64");
 
-      // 5 MB
       const maxBytes = 5 * 1024 * 1024;
       if (buffer.length > maxBytes) {
         return NextResponse.json(
@@ -89,15 +117,7 @@ export async function POST(req: Request) {
         );
       }
 
-      const extensao =
-        imagemNome.split(".").pop()?.toLowerCase() ||
-        (imagemTipo === "image/png"
-          ? "png"
-          : imagemTipo === "image/webp"
-          ? "webp"
-          : "jpg");
-
-      const nomeSeguro = imagemNome
+      const nomeSeguro = String(imagemNome)
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/[^a-zA-Z0-9.\-_]/g, "-");
@@ -122,33 +142,54 @@ export async function POST(req: Request) {
       imagem_path = caminhoArquivo;
     }
 
-    // 5️⃣ Insere chamado
     const agora = new Date().toISOString();
 
-    const { data: chamado, error: insertError } = await admin
+    // 5️⃣ Cria o chamado principal
+    const { data: chamado, error: insertChamadoError } = await admin
       .from("chamados_suporte")
       .insert({
         user_id,
-        titulo: titulo?.trim() || null,
-        mensagem: mensagem.trim(),
-        imagem_path,
+        titulo: tituloLimpo,
         status: "ABERTO",
         criado_em: agora,
-        data_update: agora,
       })
       .select("id")
       .single();
 
-    if (insertError) {
-      console.error("Erro ao salvar chamado:", insertError);
+    if (insertChamadoError || !chamado) {
+      console.error("Erro ao salvar chamado:", insertChamadoError);
       return NextResponse.json(
         { error: "Erro ao salvar chamado." },
         { status: 500 }
       );
     }
 
+    // 6️⃣ Cria a mensagem inicial do chamado
+    const { error: mensagemInicialError } = await admin
+      .from("chamados_mensagens")
+      .insert({
+        chamado_id: chamado.id,
+        user_id,
+        admin_id: null,
+        autor_tipo: "USER",
+        mensagem: mensagemLimpa,
+        imagem_path,
+        criado_em: agora,
+      });
 
-    const siteUrl = process.env.SITE_URL || "https://buygain.com.br/dashboard";
+    if (mensagemInicialError) {
+      console.error(
+        "Erro ao salvar mensagem inicial do chamado:",
+        mensagemInicialError
+      );
+
+      return NextResponse.json(
+        { error: "Chamado criado, mas houve erro ao salvar a mensagem inicial." },
+        { status: 500 }
+      );
+    }
+
+    const siteUrl = process.env.SITE_URL || "https://buygain.com.br";
     const meusChamadosUrl = `${siteUrl}/dashboard/ajuda/meus-chamados`;
     const suporteUrl = `${siteUrl}/dashboard/ajuda`;
 
@@ -165,8 +206,8 @@ export async function POST(req: Request) {
         const html = getChamadoAbertoEmailTemplate({
           userName,
           protocolo: chamado.id,
-          titulo: titulo?.trim() || null,
-          mensagem: mensagem.trim(),
+          titulo: tituloLimpo,
+          mensagem: mensagemLimpa,
           meusChamadosUrl,
           siteUrl,
           suporteUrl,
@@ -182,7 +223,37 @@ export async function POST(req: Request) {
       }
     }
 
+    // 7️⃣ Notificação Telegram (não quebra a API se falhar)
+    try {
+      const mensagemPreview =
+        mensagemLimpa.length > 500
+          ? `${mensagemLimpa.slice(0, 500)}...`
+          : mensagemLimpa;
 
+      const telegramMessage = [
+        `<b>📩 Novo chamado aberto</b>`,
+        ``,
+        `<b>Protocolo:</b> <code>${escapeHtml(chamado.id)}</code>`,
+        `<b>Usuário:</b> ${escapeHtml(userName)}`,
+        userEmail ? `<b>Email:</b> ${escapeHtml(userEmail)}` : null,
+        `<b>Título:</b> ${escapeHtml(tituloLimpo)}`,
+        `<b>Status:</b> ABERTO`,
+        `<b>Data:</b> ${escapeHtml(formatTelegramDate(agora))}`,
+        `<b>Imagem anexada:</b> ${imagem_path ? "Sim" : "Não"}`,
+        ``,
+        `<b>Mensagem:</b>`,
+        escapeHtml(mensagemPreview),
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      await sendTelegramMessage(telegramMessage);
+    } catch (telegramError) {
+      console.error(
+        "Erro ao enviar notificação Telegram do chamado:",
+        telegramError
+      );
+    }
 
     return NextResponse.json({
       success: true,

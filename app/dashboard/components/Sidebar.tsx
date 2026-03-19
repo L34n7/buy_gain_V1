@@ -136,6 +136,16 @@ useEffect(() => {
             <span className="nav-ico">🗡</span>
             <span className="nav-text">Resgates ADMIN</span>
           </Link>
+
+          <Link
+            href="/dashboard/admin/chamados"
+            className={`nav-item ${
+              isActive("/dashboard/admin/chamados") ? "active" : ""
+            }`}
+          >
+            <span className="nav-ico">💻</span>
+            <span className="nav-text">Chamados ADMIN</span>
+          </Link>
         </>
       )}
 

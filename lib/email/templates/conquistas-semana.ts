@@ -116,7 +116,7 @@ export function getConquistasSemanaEmailTemplate({
 
 <img src="https://buygain.com.br/logo.png"
      alt="BuyGain"
-     width="180"
+     width="160"
      style="display:block; margin-bottom:20px;" />
 
 <h1 style="color:#ffffff; margin:0; font-size:26px; letter-spacing:0.5px;">
