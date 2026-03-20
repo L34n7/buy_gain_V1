@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import { useNotifications } from "./NotificationsContext";
 import "./global-avaliacao-popup.css";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/navigation";
 
 export default function GlobalAvaliacaoPopup() {
   const { notificacoesAvaliacao, recarregar } = useNotifications();
@@ -15,9 +13,7 @@ export default function GlobalAvaliacaoPopup() {
   const [comentario, setComentario] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  
+
   useEffect(() => {
     if (notificacoesAvaliacao.length > 0) {
       setMostrarPopup(true);
@@ -44,22 +40,29 @@ export default function GlobalAvaliacaoPopup() {
     };
   }, []);
 
-
+  // Abre o modal automaticamente quando vier do email:
+  // /dashboard/compras?avaliar=1
   useEffect(() => {
-    const avaliar = searchParams.get("avaliar");
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const avaliar = params.get("avaliar");
 
     if (avaliar === "1") {
-      setTimeout(() => {
-        window.dispatchEvent(
-          new Event("abrir-modal-avaliacao-plataforma")
-        );
+      const timer = window.setTimeout(() => {
+        setErro(null);
+        setMostrarModal(true);
+        setMostrarPopup(false);
 
-        // limpa a URL
-        router.replace("/dashboard/compras");
+        // limpa a query da URL sem recarregar a página
+        const url = new URL(window.location.href);
+        url.searchParams.delete("avaliar");
+        window.history.replaceState({}, "", url.toString());
       }, 300);
-    }
-  }, [searchParams, router]);
 
+      return () => window.clearTimeout(timer);
+    }
+  }, []);
 
   function abrirModal() {
     setErro(null);
@@ -109,7 +112,7 @@ export default function GlobalAvaliacaoPopup() {
     }
   }
 
-  if (notificacoesAvaliacao.length === 0) {
+  if (notificacoesAvaliacao.length === 0 && !mostrarModal && !mostrarPopup) {
     return null;
   }
 
@@ -175,7 +178,7 @@ export default function GlobalAvaliacaoPopup() {
             <div className="avaliacao-stars-text">
               Dê a sua nota:
             </div>
-            
+
             <div className="avaliacao-stars">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
