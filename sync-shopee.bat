@@ -1,1 +1,1 @@
-curl -X GET http://localhost:3000/api/shopee/conversion-report
+curl -X GET https://buygain.com.br/api/shopee/conversion-report

@@ -42,7 +42,9 @@
   display: block;
   font-size: 18px;
   color: #e5edf8;
-  line-height: 1.3;
+  line-height: 1.3;  
+  margin-left: 10px;
+
 }
 
 
@@ -61,7 +63,7 @@
   font-size: 15px;
   font-weight: 600;
   white-space: nowrap;
-  cursor: default;
+  cursor: default;  
 }
 
 .admin-table td {
@@ -69,12 +71,13 @@
 }
 
 .muted {
+  margin-left: 10px;
   font-size: 14px;
   color: #9ca3af;
   word-break: break-word;
 }
 
-.btn-processar {
+.btn-res-processar {
   background: #22c55e;
   color: #000;
   border: none;
@@ -83,10 +86,12 @@
   cursor: pointer;
   font-weight: 700;
   white-space: nowrap;
+  transition: 0.2s ease;
 }
 
-.btn-processar:hover {
-  background: #16a34a;
+.btn-res-processar:hover {
+  background: #63fe9c;
+  transform: translateY(-3px);
 }
 
 .admin-desktop-only {
@@ -125,7 +130,8 @@
 .nickname {
   font-size: 17px;
   color: #ebf4ff;
-  opacity: 0.9;
+  opacity: 0.9;  margin-left: 10px;
+
 }
 
 .admin-card-body {
@@ -160,16 +166,16 @@
   margin-top: 14px;
 }
 
-.admin-card-actions .btn-processar {
+.admin-card-actions .btn-res-processar {
   width: 100%;
   padding: 10px 14px;
   border-radius: 10px;
 }
 
 
-/* MODAL */
+/* modal-res */
 
-.modal-overlay {
+.modal-res-overlay {
   position: fixed;
   inset: 0;
   z-index: 99999;
@@ -185,7 +191,7 @@
   background: rgba(5, 8, 20, 0.86);
 }
 
-.modal {
+.modal-res {
   position: relative;
   width: 100%;
   max-width: 420px;
@@ -206,7 +212,7 @@
 
 }
 
-.modal h3 {
+.modal-res h3 {
   margin-bottom: 14px;
   font-size: 30px;
   font-weight: 700;
@@ -216,7 +222,7 @@
   cursor: default;
 }
 
-.modal p span {
+.modal-res p span {
   margin-bottom: 12px;
   font-weight: 500;
   letter-spacing: 0.4px;
@@ -224,7 +230,7 @@
   color: #ffffff5f;
 }
 
-.modal p {
+.modal-res p {
   margin-bottom: 12px;
   font-weight: 700;
   letter-spacing: 0.8px;
@@ -234,14 +240,14 @@
   word-break: break-word;
 }
 
-.modal label {
+.modal-res label {
   display: block;
   margin-top: 12px;
   margin-bottom: 8px;
   font-size: 14px;
 }
 
-.modal input {
+.modal-res input {
   width: 100%;
   padding: 10px 12px;
   border-radius: 6px;
@@ -251,7 +257,7 @@
   box-sizing: border-box;
 }
 
-.modal-actions {
+.modal-res-actions {
   display: flex;
   justify-content: center;
   gap: 10px;
@@ -259,28 +265,40 @@
   flex-wrap: wrap;
 }
 
-.btn-cancelar {
+.btn-res-cancelar {
   background: #374151;
   color: #ffffffc2;
   border: none;
+  font-size: 20px;
   padding: 8px 14px;
   border-radius: 6px;
   cursor: pointer;
+  transition: 0.2s ease;
 }
 
-.btn-confirmar {
+.btn-res-confirmar {
   background: #22c55e;
   color: #000;
   border: none;
+  font-size: 20px;
   padding: 8px 14px;
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
+  transition: 0.2s ease;
 }
 
-.btn-confirmar:disabled {
+.btn-res-cancelar:hover,
+.btn-res-confirmar:hover {
+  transform: translateY(-3px);
+}
+
+
+.btn-res-confirmar:disabled:hover {
   opacity: 0.9;
   cursor: not-allowed;
+    transform: translateY(0px);
+
 }
 
 /* =========================
@@ -397,19 +415,19 @@
     font-weight: 500;
   }
 
-  .btn-processar {
+  .btn-res-processar {
     padding: 9px 12px;
     font-size: 16px;
     font-weight: 700;
   }
 
-  .modal-overlay {
+  .modal-res-overlay {
     padding: 10px;
     align-items: center;
     justify-content: center;
   }
 
-  .modal {
+  .modal-res {
     width: 95%;
     max-width: 100%;
     max-height: 65vh;
@@ -419,19 +437,19 @@
     margin-bottom: 30px;
   }
 
-  .modal h3 {
+  .modal-res h3 {
     font-size: 22px;
     margin-bottom: 12px;
     line-height: 1.15;
   }
 
-  .modal p {
+  .modal-res p {
     font-size: 16px;
     line-height: 1.4;
     margin-bottom: 10px;
   }
 
-  .modal p span {
+  .modal-res p span {
     font-size: 12px;
   }
 
@@ -453,27 +471,27 @@
     width: 100%;
   }
 
-  .modal label {
+  .modal-res label {
     font-size: 13px;
   }
 
-  .modal input {
+  .modal-res input {
     padding: 10px;
     font-size: 14px;
   }
 
-  .modal-actions {
+  .modal-res-actions {
     flex-direction: column;
     gap: 8px;
     margin-top: 14px;
   }
 
-  .btn-cancelar {
+  .btn-res-cancelar {
     font-weight: 500;
     margin: 5px 0px 0px 0px;
   }
 
-  .btn-confirmar {
+  .btn-res-confirmar {
     font-weight: 700;
     margin: 5px 0px 15px 0px;
   }

@@ -182,7 +182,7 @@ async function confirmar() {
                       <td>{formatarDataHora(r.criado_em)}</td>
                       <td>
                         <button
-                          className="btn-processar"
+                          className="btn-res-processar"
                           onClick={() => abrirProcessar(r)}
                         >
                           Processar
@@ -234,7 +234,7 @@ async function confirmar() {
 
                   <div className="admin-card-actions">
                     <button
-                      className="btn-processar"
+                      className="btn-res-processar"
                       onClick={() => abrirProcessar(r)}
                     >
                       Processar
@@ -248,8 +248,8 @@ async function confirmar() {
 
         {/* MODAL */}
         {resgateSelecionado && (
-          <div className="modal-overlay">
-            <div className="modal">
+          <div className="modal-res-overlay">
+            <div className="modal-res">
               <h3>Processar Resgate</h3>
 
               <p>
@@ -290,9 +290,9 @@ async function confirmar() {
                 placeholder="Digite o código"
               />
 
-              <div className="modal-actions">
+              <div className="modal-res-actions">
                 <button
-                  className="btn-cancelar"
+                  className="btn-res-cancelar"
                   onClick={() => {
                     setResgateSelecionado(null);
                     setPreview(null);
@@ -303,7 +303,7 @@ async function confirmar() {
                 </button>
 
               <button
-                className="btn-confirmar"
+                className="btn-res-confirmar"
                 onClick={confirmar}
                 disabled={!codigo || !preview || processing}
               >

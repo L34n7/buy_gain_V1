@@ -10,6 +10,9 @@ type ChamadoRow = {
   titulo: string | null;
   status: string;
   criado_em: string;
+  avaliacao_nota: number | null;
+  avaliacao_mensagem: string | null;
+  avaliado_em: string | null;
 };
 
 type MensagemRow = {
@@ -59,7 +62,9 @@ export async function GET(req: Request) {
 
     let chamadosQuery = admin
       .from("chamados_suporte")
-      .select("id, user_id, titulo, status, criado_em")
+      .select(
+        "id, user_id, titulo, status, criado_em, avaliacao_nota, avaliacao_mensagem, avaliado_em"
+      )
       .order("criado_em", { ascending: false });
 
     if (status && status !== "TODOS") {

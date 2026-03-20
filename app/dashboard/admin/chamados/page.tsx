@@ -20,6 +20,9 @@ type ChamadoAdmin = {
   titulo: string | null;
   status: string;
   criado_em: string;
+  avaliacao_nota?: number | null;
+  avaliacao_mensagem?: string | null;
+  avaliado_em?: string | null;
   ultima_interacao_em?: string | null;
   primeira_mensagem?: string;
   ultima_mensagem?: string;
@@ -77,6 +80,12 @@ function getStatusClass(status: string) {
       return "";
   }
 }
+
+function formatarAvaliacao(nota?: number | null) {
+  if (!nota) return "Não avaliado";
+  return `${nota}/5`;
+}
+
 
 export default function AdminChamadosPage() {
   const [chamados, setChamados] = useState<ChamadoAdmin[]>([]);
@@ -225,10 +234,10 @@ export default function AdminChamadosPage() {
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-card admin-chamados-page">
-        <div className="admin-chamados-header">
+      <div className="dashboard-card admin-av-chamados-page">
+        <div className="admin-av-chamados-header">
           <div>
-            <p className="admin-kicker">Painel administrativo</p>
+            <p className="admin-av-kicker">Painel administrativo</p>
             <h2>Chamados de suporte</h2>
             <span>
               Gerencie solicitações, altere status e responda usuários.
@@ -236,7 +245,7 @@ export default function AdminChamadosPage() {
           </div>
         </div>
 
-        <div className="admin-chamados-filtros">
+        <div className="admin-av-chamados-filtros">
           <div className="filtro-group">
             <label>Status</label>
             <select
@@ -269,27 +278,28 @@ export default function AdminChamadosPage() {
           </button>
         </div>
 
-        {loading && <p className="admin-empty">Carregando chamados...</p>}
+        {loading && <p className="admin-av-empty">Carregando chamados...</p>}
 
         {!loading && chamados.length === 0 && (
-          <p className="admin-empty">Nenhum chamado encontrado.</p>
+          <p className="admin-av-empty">Nenhum chamado encontrado.</p>
         )}
 
         {!loading && chamados.length > 0 && (
           <>
-            <div className="admin-table-wrap admin-desktop-only">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Protocolo</th>
-                    <th>Usuário</th>
-                    <th>Título</th>
-                    <th>Status</th>
-                    <th>Criação</th>
-                    <th>Última interação</th>
-                    <th>Ação</th>
-                  </tr>
-                </thead>
+            <div className="admin-av-table-wrap admin-av-desktop-only">
+              <table className="admin-av-table">
+              <thead>
+                <tr>
+                  <th>Protocolo</th>
+                  <th>Usuário</th>
+                  <th>Título</th>
+                  <th>Status</th>
+                  <th>Avaliação</th>
+                  <th>Criação</th>
+                  <th>Última interação</th>
+                  <th>Ação</th>
+                </tr>
+              </thead>
                 <tbody>
                   {chamados.map((c) => (
                     <tr key={c.id}>
@@ -300,16 +310,16 @@ export default function AdminChamadosPage() {
                           {c.user?.nickname || c.user?.name || "Usuário"}
                         </strong>
                         {c.user?.name && c.user?.nickname && (
-                          <div className="muted">{c.user.name}</div>
+                          <div className="muted-av">{c.user.name}</div>
                         )}
-                        <div className="muted">
+                        <div className="muted-av">
                           {c.user?.email || "Sem e-mail"}
                         </div>
                       </td>
 
                       <td>
                         <strong>{c.titulo || "Sem título"}</strong>
-                        <div className="muted clamp-1">
+                        <div className="muted-av clamp-1">
                           {c.primeira_mensagem || c.ultima_mensagem || "-"}
                         </div>
                       </td>
@@ -320,6 +330,19 @@ export default function AdminChamadosPage() {
                         >
                           {getStatusLabel(c.status)}
                         </span>
+                      </td>
+
+                      <td>
+                        {c.avaliacao_nota ? (
+                          <div className="admin-av-avaliacao-cell">
+                            <strong>{formatarAvaliacao(c.avaliacao_nota)}</strong>
+                            <div className="muted-av">
+                              {c.avaliado_em ? formatarDataHora(c.avaliado_em) : "Avaliado"}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="muted-av">Não avaliado</span>
+                        )}
                       </td>
 
                       <td>{formatarDataHora(c.criado_em)}</td>
@@ -339,12 +362,12 @@ export default function AdminChamadosPage() {
               </table>
             </div>
 
-            <div className="admin-cards admin-mobile-only">
+            <div className="admin-av-cards admin-av-mobile-only">
               {chamados.map((c) => (
-                <div className="admin-card-chamado" key={c.id}>
-                  <div className="admin-card-top">
+                <div className="admin-av-card-chamado" key={c.id}>
+                  <div className="admin-av-card-top">
                     <div>
-                      <div className="admin-protocolo">{c.id}</div>
+                      <div className="admin-av-protocolo">{c.id}</div>
                       <strong>{c.titulo || "Sem título"}</strong>
                     </div>
 
@@ -353,33 +376,40 @@ export default function AdminChamadosPage() {
                     </span>
                   </div>
 
-                  <div className="admin-card-user">
+                  <div className="admin-av-card-user">
                     <strong>
                       {c.user?.nickname || c.user?.name || "Usuário"}
                     </strong>
-                    <div className="muted">{c.user?.email || "Sem e-mail"}</div>
+                    <div className="muted-av">{c.user?.email || "Sem e-mail"}</div>
                   </div>
 
-                  <div className="admin-card-body">
-                    <div className="admin-info-row">
+                  <div className="admin-av-card-body">
+                    <div className="admin-av-info-row">
                       <span>Mensagem inicial</span>
                       <strong className="clamp-2">
                         {c.primeira_mensagem || c.ultima_mensagem || "-"}
                       </strong>
                     </div>
 
-                    <div className="admin-info-row">
+                    <div className="admin-av-info-row">
+                      <span>Avaliação</span>
+                      <strong>
+                        {c.avaliacao_nota ? formatarAvaliacao(c.avaliacao_nota) : "Não avaliado"}
+                      </strong>
+                    </div>
+
+                    <div className="admin-av-info-row">
                       <span>Criação</span>
                       <strong>{formatarDataHora(c.criado_em)}</strong>
                     </div>
 
-                    <div className="admin-info-row">
+                    <div className="admin-av-info-row">
                       <span>Última interação</span>
                       <strong>{formatarDataHora(c.ultima_interacao_em)}</strong>
                     </div>
                   </div>
 
-                  <div className="admin-card-actions">
+                  <div className="admin-av-card-actions">
                     <button
                       className="btn-gerenciar"
                       onClick={() => abrirChamado(c)}
@@ -397,26 +427,38 @@ export default function AdminChamadosPage() {
           <div className="modal-chamado-overlay">
             <div className="modal-chamado">
               <div className="modal-chamado-header">
-                <div>
-                  <p className="modal-chamado-kicker">Chamado</p>
-                  <h3>{chamadoSelecionado.titulo || "Sem título"}</h3>
-                  <span className="modal-chamado-protocolo">
-                    Protocolo: {chamadoSelecionado.id}
+                <div className="modal-chamado-header-main">
+                  <div>
+                    <p className="modal-chamado-kicker">Chamado</p>
+                    <h3>{chamadoSelecionado.titulo || "Sem título"}</h3>
+                    <span className="modal-chamado-protocolo">
+                      Protocolo: {chamadoSelecionado.id}
+                    </span>
+                  </div>
+
+                  <span
+                    className={`status-badge ${getStatusClass(
+                      chamadoSelecionado.status
+                    )}`}
+                  >
+                    {getStatusLabel(chamadoSelecionado.status)}
                   </span>
                 </div>
 
-                <span
-                  className={`status-badge ${getStatusClass(
-                    chamadoSelecionado.status
-                  )}`}
+                <button
+                  type="button"
+                  className="modal-close-btn"
+                  onClick={fecharModal}
+                  aria-label="Fechar modal"
+                  title="Fechar"
                 >
-                  {getStatusLabel(chamadoSelecionado.status)}
-                </span>
+                  ×
+                </button>
               </div>
 
               <div className="modal-chamado-section">
-                <div className="admin-info-grid">
-                  <div className="admin-info-box">
+                <div className="admin-av-info-grid">
+                  <div className="admin-av-info-box">
                     <span>Usuário</span>
                     <strong>
                       {chamadoSelecionado.user?.nickname ||
@@ -428,21 +470,21 @@ export default function AdminChamadosPage() {
                     </small>
                   </div>
 
-                  <div className="admin-info-box">
+                  <div className="admin-av-info-box">
                     <span>Criado em</span>
                     <strong>
                       {formatarDataHora(chamadoSelecionado.criado_em)}
                     </strong>
                   </div>
 
-                  <div className="admin-info-box">
+                  <div className="admin-av-info-box">
                     <span>Última interação</span>
                     <strong>
                       {formatarDataHora(chamadoSelecionado.ultima_interacao_em)}
                     </strong>
                   </div>
 
-                  <div className="admin-info-box">
+                  <div className="admin-av-info-box">
                     <span>Novo status</span>
                     <select
                       value={novoStatus}
@@ -456,10 +498,38 @@ export default function AdminChamadosPage() {
                 </div>
               </div>
 
+              {chamadoSelecionado.avaliacao_nota && (
+                <div className="modal-chamado-section">
+
+                  <div className="admin-av-avaliacao-box">
+
+                    <h3 className="admin-av-avaliacao-titulo">
+                      Feedback do usuário
+                    </h3>
+
+                    <div className="admin-av-avaliacao-topo">
+                      <strong>
+                        Nota: {formatarAvaliacao(chamadoSelecionado.avaliacao_nota)}
+                      </strong>
+
+                      {chamadoSelecionado.avaliado_em && (
+                        <span>{formatarDataHora(chamadoSelecionado.avaliado_em)}</span>
+                      )}
+                    </div>
+
+                    <div className="mensagem-box">
+                      {chamadoSelecionado.avaliacao_mensagem?.trim()
+                        ? chamadoSelecionado.avaliacao_mensagem
+                        : "Usuário não deixou comentário na avaliação."}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="modal-chamado-section">
                 <label>Conversa do chamado</label>
 
-                <div className="admin-conversa-lista">
+                <div className="admin-av-conversa-lista">
                   {chamadoSelecionado.mensagens.length === 0 && (
                     <div className="mensagem-box">Nenhuma mensagem encontrada.</div>
                   )}
@@ -467,13 +537,13 @@ export default function AdminChamadosPage() {
                   {chamadoSelecionado.mensagens.map((msg) => (
                     <div
                       key={msg.id}
-                      className={`admin-msg-item ${
+                      className={`admin-av-msg-item ${
                         msg.autor_tipo === "ADMIN"
-                          ? "admin-msg-suporte"
-                          : "admin-msg-usuario"
+                          ? "admin-av-msg-suporte"
+                          : "admin-av-msg-usuario"
                       }`}
                     >
-                      <div className="admin-msg-topo">
+                      <div className="admin-av-msg-topo">
                         <strong>
                           {msg.autor_tipo === "ADMIN" ? "Suporte" : <p>Usuário</p>}
                         </strong>
@@ -483,7 +553,7 @@ export default function AdminChamadosPage() {
                       <div className="mensagem-box">{msg.mensagem}</div>
 
                       {msg.imagem_url && (
-                        <div className="admin-msg-anexo">
+                        <div className="admin-av-msg-anexo">
                           <a
                             href={msg.imagem_url}
                             target="_blank"

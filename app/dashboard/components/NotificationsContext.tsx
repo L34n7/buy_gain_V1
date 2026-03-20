@@ -45,6 +45,14 @@ type NotificacaoChamado = {
   lida?: boolean;
 };
 
+type NotificacaoAvaliacao = {
+  id: string;
+  titulo: string;
+  descricao: string;
+  created_at: string;
+  lida?: boolean;
+};
+
 type NotificationContextType = {
   pendentes: number;
   eventosPendentes: EventoPendente[];
@@ -53,6 +61,7 @@ type NotificationContextType = {
   notificacoesConquista: NotificacaoConquista[]; 
   notificacoesRecompensa: NotificacaoRecompensa[];
   notificacoesChamado: NotificacaoChamado[];
+  notificacoesAvaliacao: NotificacaoAvaliacao[];
   marcarChamadoComoLida: (id: string) => Promise<void>;
   marcarCreditoComoLido: (id: string) => void;
   marcarLevelUpComoLido: (id: string) => Promise<void>;
@@ -71,6 +80,7 @@ const NotificationsContext = createContext<NotificationContextType>({
   notificacoesConquista: [],
   notificacoesRecompensa: [],
   notificacoesChamado: [],
+  notificacoesAvaliacao: [],
   marcarChamadoComoLida: async () => {},
   marcarCreditoComoLido: () => {},
   marcarLevelUpComoLido: async () => {},
@@ -93,6 +103,7 @@ export function NotificationsProvider({
   const [notificacoesConquista, setNotificacoesConquista] = useState<NotificacaoConquista[]>([]);
   const [notificacoesRecompensa, setNotificacoesRecompensa] = useState<NotificacaoRecompensa[]>([]);
   const [notificacoesChamado, setNotificacoesChamado] = useState<NotificacaoChamado[]>([]);
+  const [notificacoesAvaliacao, setNotificacoesAvaliacao] = useState<NotificacaoAvaliacao[]>([]);
 
   // =========================
   // MARCAR CRÉDITO COMO LIDO
@@ -381,6 +392,11 @@ async function marcarTodasComoLidas() {
         (n: any) => n.tipo === "CHAMADO_ATUALIZADO"
       );
 
+      const apenasAvaliacoes = lista.filter(
+        (n: any) => n.tipo === "AVALIACAO_PLATAFORMA"
+      );
+
+      setNotificacoesAvaliacao(apenasAvaliacoes);
       setNotificacoesLevelUp(apenasLevelUp);
       setNotificacoesConquista(apenasConquistas);
       setNotificacoesRecompensa(apenasRecompensas);
@@ -408,13 +424,15 @@ async function marcarTodasComoLidas() {
           notificacoesLevelUp.length +
           notificacoesConquista.filter((n) => !n.lida).length +
           notificacoesRecompensa.length +
-          notificacoesChamado.length,
+          notificacoesChamado.length +
+          notificacoesAvaliacao.length,
         eventosPendentes,
         creditosNovos,
         notificacoesLevelUp,
         notificacoesConquista,
         notificacoesRecompensa,
         notificacoesChamado,
+        notificacoesAvaliacao,
         marcarCreditoComoLido,
         marcarLevelUpComoLido,
         marcarConquistaComoLida,

@@ -4,6 +4,8 @@ import {
   createAdminSupabase,
 } from "@/lib/supabaseServer";
 import { triggerConquistas } from "@/lib/conquistas";
+import { criarNotificacaoAvaliacaoSePrimeiraCompra } from "@/lib/notificacoes/criarNotificacaoAvaliacao";
+import { enviarEmailAvaliacaoSeNecessario } from "@/lib/email/enviar-email-avaliacao";
 
 function mapStatusShopee(status?: string) {
   switch (status) {
@@ -66,6 +68,21 @@ export async function POST(req: Request) {
     }
 
     const user_id = legacyUser.id;
+
+    // Verifica se deve criar a notificação de avaliação da plataforma
+    const resultadoAvaliacao = await criarNotificacaoAvaliacaoSePrimeiraCompra({
+      supabaseAdmin: admin,
+      appUserId: user_id,
+      authUserId: user.id,
+    });
+
+    if (resultadoAvaliacao?.criada) {
+      await enviarEmailAvaliacaoSeNecessario({
+        supabaseAdmin: admin,
+        appUserId: user_id,
+      });
+      
+    }
 
     // 4) Buscar eventos Mercado Livre
     const { data: mlEventos, error: mlError } = await admin

@@ -10,6 +10,7 @@ import { usePathname } from "next/navigation";
 import DailyXpLoader from "./components/DailyXpLoader";
 import GlobalXpInterceptor from "./components/GlobalXpInterceptor";
 import GlobalXpSystem from "./components/GlobalXpSystem";
+import GlobalAvaliacaoPopup from "./components/GlobalAvaliacaoPopup";
 
 export default function DashboardLayout({
   children,
@@ -75,6 +76,7 @@ return (
       <DailyXpLoader />
       <GlobalXpInterceptor />
       <GlobalXpSystem />
+      <GlobalAvaliacaoPopup />
 
       <Header
         userName={userName}

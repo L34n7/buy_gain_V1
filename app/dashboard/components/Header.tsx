@@ -27,6 +27,7 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     notificacoesConquista,
     notificacoesRecompensa,
     notificacoesChamado,
+    notificacoesAvaliacao,
     marcarCreditoComoLido,
     marcarLevelUpComoLido,
     marcarConquistaComoLida,
@@ -460,6 +461,26 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
                 </div>
               ))}
 
+              {notificacoesAvaliacao.map((n) => (
+                <div
+                  key={n.id}
+                  className="bell-item avaliacao"
+                  onClick={() => {
+                    setBellOpen(false);
+                    window.dispatchEvent(
+                      new Event("abrir-modal-avaliacao-plataforma")
+                    );
+                  }}
+                >
+                  <div className="bell-item-title">
+                    ⭐ {n.titulo}
+                  </div>
+                  <div className="bell-item-sub">
+                    {n.descricao}
+                  </div>
+                </div>
+              ))}
+
             </div>
           )}
         </div>
@@ -541,6 +562,7 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
           </div>
         </div>
       </div>
+
       {logoutModal && (
         <div className="logout-modal-overlay">
           <div className="logout-modal">
