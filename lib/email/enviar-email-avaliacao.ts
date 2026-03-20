@@ -57,7 +57,7 @@ export async function enviarEmailAvaliacaoSeNecessario({
 
     const html = getAvaliacaoPlataformaEmailTemplate({
       userName: nome,
-      avaliacaoUrl: `${process.env.SITE_URL}/dashboard/compras`,
+      avaliacaoUrl: `${process.env.SITE_URL}/dashboard/compras?avaliar=1`,
       comprasUrl: `${process.env.SITE_URL}/dashboard/compras`,
       siteUrl: `${process.env.SITE_URL}`,
       suporteUrl: `${process.env.SITE_URL}/dashboard/ajuda`,

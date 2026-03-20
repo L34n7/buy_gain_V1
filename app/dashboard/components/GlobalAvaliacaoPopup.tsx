@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useNotifications } from "./NotificationsContext";
 import "./global-avaliacao-popup.css";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function GlobalAvaliacaoPopup() {
   const { notificacoesAvaliacao, recarregar } = useNotifications();
@@ -13,7 +15,9 @@ export default function GlobalAvaliacaoPopup() {
   const [comentario, setComentario] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  
   useEffect(() => {
     if (notificacoesAvaliacao.length > 0) {
       setMostrarPopup(true);
@@ -39,6 +43,23 @@ export default function GlobalAvaliacaoPopup() {
       );
     };
   }, []);
+
+
+  useEffect(() => {
+    const avaliar = searchParams.get("avaliar");
+
+    if (avaliar === "1") {
+      setTimeout(() => {
+        window.dispatchEvent(
+          new Event("abrir-modal-avaliacao-plataforma")
+        );
+
+        // limpa a URL
+        router.replace("/dashboard/compras");
+      }, 300);
+    }
+  }, [searchParams, router]);
+
 
   function abrirModal() {
     setErro(null);
