@@ -2,8 +2,8 @@
   --bg: #0f1221;
   --panel: rgba(255,255,255,0.03);
   --glass: rgba(255,255,255,0.04);
-  --accent-a: #00ff77; /* coral */
-  --accent-b: #dcdcdc; /* azul */
+  --accent-a: #00ff77;
+  --accent-b: #dcdcdc;
   --muted: rgba(255,255,255,0.6);
   --text: #f6f7fb;
   --success: #2bd48a;
@@ -13,31 +13,35 @@
   --shadow-soft: 0 12px 40px rgba(3,6,20,0.6);
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+
 .missoes-root .dashboard-content {
   padding: 0;
 }
 
-/* ROOT */
 .missoes-root{
   min-height: 100vh;
   width: 100%;
   background: linear-gradient(180deg, rgba(9, 10, 20, 0.518), rgba(12, 14, 26, 0.502));
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  color: var(--text);  cursor: default;
+  color: var(--text);
+  cursor: default;
 }
 
-/* Main card */
 .missoes-card{
-  width: 90%;               
-  max-width: 1800px;          
-  margin: -35px auto;          
+  width: 90%;
+  max-width: 1800px;
+  margin: -35px auto;
   border-radius: 18px;
   position: relative;
   animation: fadeIn .8s ease;
-
 }
 
-/* subtle decorative shape */
 .dashboard-glow{
   position: absolute;
   left: -80px;
@@ -51,23 +55,21 @@
   pointer-events: none;
 }
 
-/* content area */
 .missoes-content{
   position: relative;
   z-index: 2;
-  display: flex;          /* 🔥 muda de grid para flex */
-  flex-direction: column; /* 🔥 empilha tudo vertical */
+  display: flex;
+  flex-direction: column;
   gap: 0px;
 }
 
-/* Header (spans both columns) */
 .missoes-header{
   grid-column: 1 / -1;
   display:flex;
   flex-direction: column;
-  align-items: center;   /* 🔥 centraliza horizontal */
+  align-items: center;
   justify-content: center;
-  text-align: center;    /* 🔥 centraliza texto */
+  text-align: center;
 }
 
 .missoes-title{
@@ -77,13 +79,13 @@
   letter-spacing: -0.4px;
   color: #ffffffe0;
 }
+
 .missoes-subtitle{
   margin: -20px 0px 40px 0px;
   color: #ffffffbb;
   font-size: 16px;
 }
 
-/* LEFT: missions list container */
 .missoes-grid{
   display: flex;
   flex-direction: column;
@@ -91,26 +93,21 @@
   padding-right: 6px;
 }
 
-/* CARD — a nova aparência
-   - left accent strip
-   - content badge area
-*/
 .missao-card{
   display: flex;
-  gap: 16px;
+  gap: 18px;
   align-items: center;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.193), rgba(255,255,255,0.005));
   border-radius: 12px;
-  padding: 16px 18px 16px 30px;
+  padding: 18px 20px 18px 30px;
   margin: 0px 40px;
   border: 1px solid rgba(255, 255, 255, 0.098);
   position: relative;
   overflow: hidden;
   transition: transform 220ms cubic-bezier(.2,.9,.3,1), box-shadow 220ms ease;
-  min-height: 96px;
+  min-height: 118px;
 }
 
-/* accent stripe */
 .missao-card::before{
   content: "";
   width: 8px;
@@ -122,10 +119,12 @@
   display: inline-block;
 }
 
-/* rearrange children */
 .missao-info{
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .missao-info h3{
@@ -133,9 +132,7 @@
   font-size: 20px;
   font-weight: 800;
   color: var(--text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.2;
 }
 
 .missao-info p{
@@ -143,17 +140,15 @@
   color: #00adf1;
   font-size: 14px;
   font-weight: 500;
-  line-height: 1.3;
+  line-height: 1.35;
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-/* rewards block: compact pill group */
 .missao-recompensa{
   display:flex;
+  flex-wrap: wrap;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 10px;
   align-items:center;
 }
 
@@ -167,70 +162,91 @@
 }
 
 .xp-m { color: #00ffff; }
-.pontos-m { color: rgb(1, 255, 128) }
+.pontos-m { color: rgb(1, 255, 128); }
 
-/* action area (right) - vertical stack */
 .missao-acoes{
-  display:flex;
+  display: flex;
   flex-direction: column;
-  gap: 10px;
-  align-items: flex-end;
+  gap: 8px;
+  align-items: center;
   justify-content: center;
-  min-width: 150px;
+  min-width: 220px;
+  max-width: 340px;
+  width: 100%;
+  flex: 0 0 320px;
 }
 
-/* primary CTA: ghost style */
 .missao-acoes a.btn,
 .missao-acoes .btn-primary{
   background: linear-gradient(90deg, #8a5cf6da, #22d3eeba);
   color: var(--text);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0);
   padding: 10px 14px;
-  margin: 0px 100px;
-  border-radius: 10px;
+  margin: 0;
+  border-radius: 13px;
   font-weight: 800;
   text-decoration: none;
-  transition: transform 120ms ease, background 120ms ease;
-}
-.missao-acoes a.btn:hover,
-.missao-acoes .btn-primary:hover{
-  transform: translateY(-3px);
-  background: linear-gradient(90deg, #8b5cf6, #22d3ee);
-}
-
-/* concluded badge — pill with subtle glow */
-.missao-concluida{
-  display:inline-flex;
-  gap:8px;
-  align-items:center;
-  background: linear-gradient(90deg, rgba(43,212,138,0.06), rgba(91,140,255,0.02));
-  color: var(--success);
-  padding: 10px 12px;
-  margin: 0px 100px;
-  border-radius: 10px;
-  font-weight: 900;
-  border: 1px solid rgba(43,212,138,0.08);
-  font-size: 16px;
-}
-
-/* small line under for date */
-.missao-data{
-  font-size: 12px;
-  color: rgba(255,255,255,0.66);
-  margin-top: 6px;
+  transition: transform 320ms ease, background 120ms ease;
   text-align: center;
 }
 
-/* hover lift */
-.missao-card:hover{
-  transform: translateY(-px) scale(1.01);
-  box-shadow: 0 30px 70px rgba(2,6,24,0.6);
+.instagram-missao-box a.btn {
+  background: linear-gradient(90deg, #fe494f, #cc12ff);
+  border: 1px transparent;
 }
 
-/* =================================================
-   BLOCKED (EM_BREVE) — style diferente do anterior:
-   - card opaco com diagonal ribbon "EM BREVE"
-   ================================================= */
+
+.missao-acoes a.btn:hover,
+.missao-acoes .btn-primary:hover{
+  transform: translateY(-2px);
+  background: linear-gradient(90deg, #8b5cf6, #22d3ee);
+}
+
+.instagram-missao-box a.btn:hover{
+  background: linear-gradient(90deg, #fa4f55, #d65bf8);
+  border: 1px transparent;
+}
+
+
+.missao-acoes .btn-primary:disabled{
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.missao-concluida{
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, rgba(43,212,138,0.06), rgba(91,140,255,0.02));
+  color: var(--success);
+  padding: 10px 12px;
+  margin: 0;
+  border-radius: 10px;
+  font-weight: 900;
+  border: 1px solid rgba(43, 212, 139, 0.146);
+  font-size: 16px;
+  min-width: 180px;
+}
+
+.missao-data{
+  font-size: 14px;
+  color: rgba(255,255,255,0.66);
+  margin-top: 6px;
+  text-align: center;
+  width: 100%;
+}
+
+.missao-status-box{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+
 .missao-bloqueada{
   opacity: 0.64;
   filter: grayscale(40%);
@@ -238,7 +254,6 @@
   position: relative;
 }
 
-/* ribbon diagonal */
 .missao-bloqueada::after{
   content: "EM BREVE";
   position: absolute;
@@ -256,7 +271,6 @@
   letter-spacing: 1.2px;
 }
 
-/* alternative overlay (keeps subtle info) */
 .missao-overlay{
   position: absolute;
   inset: 0;
@@ -273,7 +287,6 @@
   backdrop-filter: blur(3px);
 }
 
-/* small badge top-left (optional) */
 .missao-badge{
   position: absolute;
   left: 12px;
@@ -288,7 +301,6 @@
   z-index: 30;
 }
 
-/* RIGHT column — info / novidades / progresso */
 .missoes-sidebar{
   background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
   border-radius: 12px;
@@ -300,7 +312,6 @@
   gap: 12px;
 }
 
-/* novidades-card (right) */
 .novidades-card{
   margin-top: 20px;
   border-radius: 12px;
@@ -324,98 +335,270 @@
   opacity: 0.4;
 }
 
+/* ===== BLOCO DO INSTAGRAM ===== */
+.instagram-missao-box{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.instagram-codigo-row{
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+}
+
+.instagram-codigo-input{
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: #fff;
+  padding: 0 14px;
+  outline: none;
+  font-size: 14px;
+  transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
+.instagram-codigo-input::placeholder{
+  color: rgba(255,255,255,0.42);
+}
+
+.instagram-codigo-input:focus{
+  border-color: rgba(34, 211, 238, 0.55);
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.08);
+  background: rgba(255,255,255,0.06);
+}
+
+.instagram-codigo-row .btn-primary{
+  height: 44px;
+  padding: 0 16px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.instagram-codigo-erro{
+  color: #ff8f8f;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-top: -2px;
+}
+
 /* =========================================
    MOBILE REAL (até 768px)
 ========================================= */
+
 @media (max-width: 768px){
 
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
   .missoes-root{
-    padding: 20px;
+    width: 100%;
+    padding: 10px 8px;
+    overflow-x: hidden;
   }
 
   .missoes-card{
     width: 100%;
-    margin: -10px auto;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .missoes-content{
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .missoes-header{
+    padding: 0 6px;
   }
 
   .missoes-title{
-    font-size: 24px;
-    margin: -5;
+    font-size: 28px;
+    margin: 0;
   }
 
   .missoes-subtitle{
-    margin: 4px 0 26px 0;
+    margin: 6px 0 20px 0;
     font-size: 14px;
+    line-height: 1.4;
   }
 
   .missoes-grid{
+    width: 100%;
     gap: 14px;
-    padding-right: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .missao-card{
-    flex-direction: column;       /* 🔥 empilha */
-    align-items: flex-start;
+    width: min(100%, 320px);
+    max-width: 320px;
+    min-width: 0;
+    margin: 0 auto;
+    padding: 14px 14px 16px 14px;
+    min-height: 90px;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
     gap: 12px;
-    margin: 0;                    /* 🔥 remove margem lateral */
-    padding: 16px;
+    overflow: hidden;
   }
 
   .missao-card::before{
-    display: none;                /* remove faixa lateral */
+    display: none;
+  }
+
+  .missao-info{
+    width: 100%;
+    min-width: 0;
   }
 
   .missao-info h3{
-    font-size: 16px;
-    white-space: normal;          /* 🔥 permite quebrar linha */
+    font-size: 20px;
+    line-height: 1.25;
+    margin-bottom: 10px;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    text-align: center;
   }
 
   .missao-info p{
-    font-size: 13px;
+    font-size: 14px;
+    line-height: 1.45;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    text-align: center;
   }
 
   .missao-recompensa{
-    flex-wrap: wrap;
+    width: 100%;
     gap: 6px;
+    flex-wrap: wrap;
   }
 
-  .xp, .pontos{
-    font-size: 12px;
+  .xp-m,
+  .pontos-m{
+    font-size: 14px;
     padding: 5px 8px;
+    margin-bottom: 5px;
   }
 
   .missao-acoes{
     width: 100%;
-    align-items: stretch;         /* botão ocupa largura total */
-    min-width: auto;
+    min-width: 0;
+    max-width: 100%;
+    flex: none;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 8px;
   }
 
   .missao-acoes a.btn,
   .missao-acoes .btn-primary{
     width: 100%;
-    margin: 0;                    /* 🔥 remove margem 100px */
+    max-width: 100%;
+    margin: 0;
+    padding: 10px 12px;
     text-align: center;
+    font-size: 14px;
+  }
+
+  .missao-status-box{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
   }
 
   .missao-concluida{
     width: 100%;
+    min-width: 0;
     margin: 0;
     justify-content: center;
-    font-size: 14px;
+    font-size: 16px;
+    padding: 10px 12px;
   }
 
   .missao-data{
+    width: 100%;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .instagram-missao-box{
+    width: 100%;
+    gap: 8px;
+  }
+
+  .instagram-codigo-row{
+    width: 100%;
+    height: 100%;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    bottom: 20px;
+  }
+
+  .instagram-codigo-input{
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    font-size: 13px;
+    padding: 0 12px;  
+    margin: 5px 0px 5px 0px;
+
+  }
+
+  .instagram-codigo-row .btn-primary{
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    font-size: 16px;
+  }
+
+  .instagram-codigo-erro{
+    width: 100%;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .missao-overlay{
+    font-size: 13px;
+    padding: 10px;
     text-align: center;
   }
 
+  .missao-bloqueada::after{
+    right: -34px;
+    top: 12px;
+    font-size: 10px;
+    padding: 7px 42px;
+  }
+
   .novidades-card{
-    margin: 20px 0;
-    font-size: 14px;
+    width: min(100%, 320px);
+    max-width: 320px;
+    margin: 18px auto 0 auto;
     padding: 14px;
+    font-size: 14px;
+    box-sizing: border-box;
   }
 
   .dashboard-glow{
     display: none;
   }
-
 }

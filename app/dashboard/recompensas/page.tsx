@@ -36,7 +36,12 @@ export default function RecompensasPage() {
   const [descricaoExpandida, setDescricaoExpandida] = useState(false);
   const [modalReward, setModalReward] = useState(false);
   const router = useRouter();
-
+  const [mostrarSugestao, setMostrarSugestao] = useState(false);
+  const [giftcardDesejado, setGiftcardDesejado] = useState("");
+  const [observacaoSugestao, setObservacaoSugestao] = useState("");
+  const [enviandoSugestao, setEnviandoSugestao] = useState(false);
+  const [mensagemSugestao, setMensagemSugestao] = useState<string | null>(null);
+  const [erroSugestao, setErroSugestao] = useState<string | null>(null);
 
   function dispararConfetti() {
   const duration = 2000;
@@ -171,6 +176,52 @@ export default function RecompensasPage() {
     }
   }
 
+  async function enviarSugestaoGiftcard() {
+    setErroSugestao(null);
+    setMensagemSugestao(null);
+
+    const nomeLimpo = giftcardDesejado.trim();
+    const observacaoLimpa = observacaoSugestao.trim();
+
+    if (!nomeLimpo) {
+      setErroSugestao("Digite o nome do giftcard desejado.");
+      return;
+    }
+
+    setEnviandoSugestao(true);
+
+    try {
+      const res = await fetch("/api/recompensas/sugerir-giftcard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          giftcard_desejado: nomeLimpo,
+          observacao: observacaoLimpa,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErroSugestao(data.error || "Erro ao enviar sugestão.");
+        return;
+      }
+
+      setMensagemSugestao("Sugestão enviada com sucesso. Obrigado!");
+      setGiftcardDesejado("");
+      setObservacaoSugestao("");
+      setMostrarSugestao(false);
+    } catch (err) {
+      console.error("Erro ao enviar sugestão:", err);
+      setErroSugestao("Erro inesperado ao enviar sugestão.");
+    } finally {
+      setEnviandoSugestao(false);
+    }
+  }
+
   return (
     <div className="recompensas-page">
       <h1 className="recompensas-title"></h1>
@@ -234,6 +285,78 @@ export default function RecompensasPage() {
       {giftcardsFiltrados.length === 0 && (
         <div className="no-results">Nenhum giftcard encontrado.</div>
         )}  
+
+
+      <div className="sugestao-giftcard-box">
+        <button
+          type="button"
+          className="sugestao-toggle-btn"
+          onClick={() => {
+            const proximoEstado = !mostrarSugestao;
+            setMostrarSugestao(proximoEstado);
+            setErroSugestao(null);
+            setMensagemSugestao(null);
+
+            if (proximoEstado && !giftcardDesejado.trim() && busca.trim()) {
+              setGiftcardDesejado(busca.trim());
+            }
+          }}
+        >
+          {mostrarSugestao
+            ? "Fechar sugestão"
+            : "Não encontrou o giftcard que queria?"}
+        </button>
+
+
+        <div
+          className={`sugestao-expandida ${
+              mostrarSugestao ? "open" : ""
+            }`}
+          >
+            <h3>Qual giftcard você gostaria de encontrar aqui?</h3>
+
+            <p className="sugestao-texto">
+              Digite o nome do giftcard desejado. Vamos analisar as sugestões para
+              disponibilizar novas opções futuramente.
+            </p>
+
+            <input
+              type="text"
+              className="sugestao-input"
+              placeholder="Ex: Steam, iFood, Nintendo, Uber..."
+              value={giftcardDesejado}
+              onChange={(e) => setGiftcardDesejado(e.target.value)}
+              maxLength={100}
+            />
+
+            <textarea
+              className="sugestao-textarea"
+              placeholder="Observação opcional. Ex: valor que você gostaria, loja específica, etc."
+              value={observacaoSugestao}
+              onChange={(e) => setObservacaoSugestao(e.target.value)}
+              maxLength={250}
+              rows={4}
+            />
+
+            {erroSugestao && (
+              <div className="sugestao-erro">{erroSugestao}</div>
+            )}
+
+            {mensagemSugestao && (
+              <div className="sugestao-sucesso">{mensagemSugestao}</div>
+            )}
+
+            <button
+              type="button"
+              className="sugestao-enviar-btn"
+              onClick={enviarSugestaoGiftcard}
+              disabled={enviandoSugestao}
+            >
+              {enviandoSugestao ? "Enviando..." : "Enviar sugestão"}
+            </button>
+          </div>
+      </div>
+
 
       {/* MODAL */}
       {giftcardSelecionado && (

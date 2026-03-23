@@ -86,17 +86,17 @@ export default function Compras() {
     let prefixo = "Prazo";
 
     if (tipo === "PROVA") {
-      diasLimite = 13;
+      diasLimite = 14;
       prefixo = "Prazo para envio";
     }
 
     if (tipo === "CONFIRMACAO") {
-      diasLimite = 13;
+      diasLimite = 14;
       prefixo = "Prazo para confirmar";
     }
 
     if (tipo === "CANCELAMENTO") {
-      diasLimite = 6; // 🔥 regra nova
+      diasLimite = 7; // 🔥 regra nova
       prefixo = "Prazo para responder";
     }
 

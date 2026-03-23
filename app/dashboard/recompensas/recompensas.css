@@ -9,7 +9,7 @@
 
 .recompensas-title {
   font-size: 24px;
-  margin-bottom: 24px;
+  margin-bottom: 44px;
 }
 
 /* ===== BUSCA - estilo premium + animação suave ===== */
@@ -724,6 +724,173 @@
   background:rgba(255,255,255,0.14);
 }
 
+
+
+.sugestao-giftcard-box {
+  margin: 40px auto 10px;
+  max-width: 760px;
+  width: 100%;
+  padding: 0 12px;
+}
+
+.sugestao-toggle-btn {
+  width: 100%;
+  border: 1px solid rgba(138, 92, 255, 0.172);
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(73, 0, 100, 0.071));
+  color: #eeeeeed5;
+  border-radius: 18px;
+  padding: 16px 18px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.sugestao-toggle-btn:hover {
+  border: 1px solid rgba(138, 92, 255, 0.172);
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+  color: #fff;
+  transform: translateY(-1px);
+  border-color: rgba(138, 92, 255, 0.5);
+  box-shadow: 0 10px 30px rgba(138, 92, 255, 0.12);
+}
+
+.sugestao-expandida {
+  margin-top: 14px;
+  border-radius: 20px;
+
+  /* VISUAL */
+  background: linear-gradient(180deg, #ffffff0e, #1d002e6a, #1b002afe);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+
+  /* ANIMAÇÃO BASE */
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+
+  transform: translateY(-8px) scale(0.98);
+
+  transition:
+    max-height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.3s ease,
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    padding 0.3s ease;
+
+  padding: 0 20px;
+}
+
+.sugestao-expandida.open {
+  max-height: 500px; /* pode ajustar */
+  opacity: 1;
+
+  transform: translateY(0) scale(1);
+
+  padding: 20px;
+}
+
+.sugestao-expandida h3 {
+  margin: 0 0 10px;
+  color: #fff;
+  font-size: 20px;
+}
+
+.sugestao-texto {
+  margin: 0 0 16px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.sugestao-input,
+.sugestao-textarea {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  padding: 14px 16px;
+  outline: none;
+  transition: all 0.2s ease;
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+
+.sugestao-input::placeholder,
+.sugestao-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.sugestao-input:focus,
+.sugestao-textarea:focus {
+  border: 1px solid #6c32fdd1;
+  box-shadow: 0 0 30 2px #6c32fd38;
+}
+
+.sugestao-textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+.sugestao-enviar-btn {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #fff;
+  background: linear-gradient(90deg, #6c32fdd1, #00a0c4);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.sugestao-enviar-btn:hover {
+  transform: translateY(-2px);
+}
+
+.sugestao-enviar-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.sugestao-erro {
+  margin-bottom: 18px;
+  color: #ff8f8f;
+  font-size: 16px;
+}
+
+.sugestao-sucesso {
+  margin-bottom: 12px;
+  color: #8dffb1;
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .sugestao-giftcard-box {
+    margin-top: 28px;
+    padding: 0 8px;
+  }
+
+  .sugestao-expandida {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .sugestao-expandida.open {
+    max-height: 500px;
+    padding: 16px;
+  }
+
+
+
+  .sugestao-toggle-btn,
+  .sugestao-enviar-btn {
+    font-size: 14px;
+    padding: 14px 16px;
+  }
+}
 
 
 @media (max-width: 860px){

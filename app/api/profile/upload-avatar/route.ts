@@ -145,18 +145,18 @@ export async function POST(req: Request) {
       );
     }
 
-    const { data } = admin.storage
+    const { data, error: signedError } = await admin.storage
       .from("avatars")
-      .getPublicUrl(fileName);
+      .createSignedUrl(fileName, 60 * 60); // 1 hora
 
-    if (!data?.publicUrl) {
+    if (signedError || !data?.signedUrl) {
       return NextResponse.json(
         { error: "Erro ao gerar URL do avatar" },
         { status: 500 }
       );
     }
 
-    const cacheBustedUrl = `${data.publicUrl}?v=${Date.now()}`;
+    const cacheBustedUrl = `${data.signedUrl}&v=${Date.now()}`;
 
     return NextResponse.json({
       publicUrl: cacheBustedUrl,

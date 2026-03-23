@@ -47,6 +47,20 @@ export async function GET() {
       .eq("auth_user_id", user.id)
       .single();
 
+    let avatarSignedUrl = null;
+
+    if (profile?.avatar_url) {
+      const fileName = profile.avatar_url.split("/avatars/")[1]?.split("?")[0];
+
+      if (fileName) {
+        const { data: signedData } = await admin.storage
+          .from("avatars")
+          .createSignedUrl(fileName, 60 * 60);
+
+        avatarSignedUrl = signedData?.signedUrl ?? null;
+      }
+    }
+
     // 4️⃣ Buscar progresso (XP / Level)
     const { data: progress, error: progressErr } = await admin
       .from("user_progress")
@@ -144,6 +158,7 @@ export async function GET() {
       ...(conquistasData || {}),
       profile: {
         ...profile,
+        avatar_url: avatarSignedUrl,
         profile_completed: !!profile.profile_completed,
       },
 
