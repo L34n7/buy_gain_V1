@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -9,11 +8,11 @@ import AuthFooter from "../AuthFooter";
 import { Turnstile } from "@marsidev/react-turnstile";
 
 export default function Cadastro() {
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [codigoIndicacao, setCodigoIndicacao] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -28,13 +27,13 @@ export default function Cadastro() {
   const [captchaError, setCaptchaError] = useState(false);
 
   const [registeredEmail, setRegisteredEmail] = useState("");
+  const turnstileRef = useRef<any>(null);
+
   // =========================
   // Regras de senha
   // =========================
-
   const hasMinLength = password.length >= 6;
   const hasSpecial = /[!@#$%^&*]/.test(password);
-
   const hasUpper = /[A-Z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
 
@@ -45,12 +44,9 @@ export default function Cadastro() {
   const passwordValid =
     hasMinLength && hasSpecial && passwordsMatch;
 
-  const turnstileRef = useRef<any>(null);
-
   /* =========================
     FORÇA DA SENHA
   ========================= */
-
   let strength = 0;
 
   if (password.length >= 6) strength += 1;
@@ -66,7 +62,6 @@ export default function Cadastro() {
   else if (strength === 2 || strength === 3) strengthLabel = "Média";
   else strengthLabel = "Forte";
 
-
   useEffect(() => {
     if (success) {
       setShowConfetti(true);
@@ -76,14 +71,15 @@ export default function Cadastro() {
   }, [success]);
 
   async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
 
     if (!captchaToken) {
-  setCaptchaError(true);
-  return;
-}
+      setCaptchaError(true);
+      return;
+    }
 
-    e.preventDefault();
     if (loading) return;
+
     if (!passwordValid) {
       setError("A senha não atende aos requisitos");
       return;
@@ -97,14 +93,19 @@ export default function Cadastro() {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, captchaToken }),
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          captchaToken,
+          codigoIndicacao,
+        }),
       });
 
       const data = await res.json();
 
       /* ERRO DA API */
       if (!res.ok) {
-
         if (data?.error?.includes("timeout-or-duplicate")) {
           setError("O captcha expirou. Confirme novamente que você não é um robô");
         } else {
@@ -113,22 +114,22 @@ export default function Cadastro() {
 
         turnstileRef.current?.reset();
         setCaptchaToken(null);
-
-        return; 
+        return;
       }
 
       /* SUCESSO */
       setError(null);
       setRegisteredEmail(email);
       setSuccess(true);
+
       setName("");
       setEmail("");
       setPassword("");
       setConfirmPassword("");
+      setCodigoIndicacao("");
 
       turnstileRef.current?.reset();
       setCaptchaToken(null);
-
     } catch {
       setError("Erro de conexão com o servidor");
     } finally {
@@ -156,14 +157,12 @@ export default function Cadastro() {
       )}
 
       <div className="auth-page">
-
         <div className="cadastro-wrapper">
           <div className="cadastro-card">
-
             <h1 className="cadastro-title">Crie sua conta grátis</h1>
 
             <p className="cadastro-sub">
-              🔒 Seus dados são protegidos e nunca compartilhados..
+              🔒 Seus dados são protegidos e nunca compartilhados.
             </p>
 
             <div className="cadastro-beneficios">
@@ -172,10 +171,17 @@ export default function Cadastro() {
               <p>• 100% gratuito — sempre</p>
             </div>
 
-            <form className="cadastro-form" onSubmit={handleSubmit}autoComplete="off">
-
-            <input type="text" name="fakeusernameremembered" style={{ display: "none" }} />
-            <input type="password" name="fakepasswordremembered" style={{ display: "none" }} />
+            <form className="cadastro-form" onSubmit={handleSubmit} autoComplete="off">
+              <input
+                type="text"
+                name="fakeusernameremembered"
+                style={{ display: "none" }}
+              />
+              <input
+                type="password"
+                name="fakepasswordremembered"
+                style={{ display: "none" }}
+              />
 
               {/* Nome */}
               <div>
@@ -205,6 +211,31 @@ export default function Cadastro() {
                     setError(null);
                   }}
                   required
+                />
+              </div>
+
+              {/* Código de indicação */}
+              <div>
+                <label className="cadastro-label">
+                  Código de indicação <span style={{ opacity: 0.7 }}>(opcional)</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ex: LEANDR4821"
+                  className="cadastro-input"
+                  autoComplete="off"
+                  value={codigoIndicacao}
+                  onChange={(e) => {
+                    const valor = e.target.value
+                      .normalize("NFD")
+                      .replace(/[\u0300-\u036f]/g, "")
+                      .replace(/[^a-zA-Z0-9]/g, "")
+                      .toUpperCase();
+
+                    setCodigoIndicacao(valor);
+                    setError(null);
+                  }}
+                  maxLength={20}
                 />
               </div>
 
@@ -258,8 +289,6 @@ export default function Cadastro() {
                     {showConfirm ? "🙈" : "👁"}
                   </button>
                 </div>
-
-
               </div>
 
               {/* Regras */}
@@ -270,7 +299,6 @@ export default function Cadastro() {
                 <Rule valid={hasUpper} text="Letra maiúscula (senha mais forte)" />
                 <Rule valid={passwordsMatch} text="As senhas conferem" />
               </div>
-
 
               {/* BARRA DE FORÇA */}
               {password.length > 0 && (
@@ -325,49 +353,44 @@ export default function Cadastro() {
               </p>
             </form>
 
-              <p className="cadastro-termos">
-                Ao criar sua conta, você concorda com nossos
-                <a href="/termos-de-uso"> Termos de Uso </a>
-                e
-                <a href="/politica-de-privacidade"> Política de Privacidade</a>.
-              </p>
-
+            <p className="cadastro-termos">
+              Ao criar sua conta, você concorda com nossos
+              <a href="/termos-de-uso"> Termos de Uso </a>
+              e
+              <a href="/politica-de-privacidade"> Política de Privacidade</a>.
+            </p>
           </div>
 
           {success && (
-              <div className="success-modal-overlay">
-
-                <div className="success-modal">
-
-                  <h2>Conta criada com sucesso!
+            <div className="success-modal-overlay">
+              <div className="success-modal">
+                <h2>
+                  Conta criada com sucesso!
                   <span className="success-emoji">🎉</span>
-                  </h2> 
+                </h2>
 
-                  <a>
-                    Enviamos um link de confirmação para: 
-                    <p className="success-email">{registeredEmail} </p>
-                  </a>
+                <a>
+                  Enviamos um link de confirmação para:
+                  <p className="success-email">{registeredEmail}</p>
+                </a>
 
-                  <a>
-                    Abra sua caixa de entrada e clique no link para ativar sua conta.
-                  </a>
+                <a>
+                  Abra sua caixa de entrada e clique no link para ativar sua conta.
+                </a>
 
-                  <h3>
-                    Se não encontrar o e-mail, verifique a pasta de spam.
-                  </h3>
+                <h3>
+                  Se não encontrar o e-mail, verifique a pasta de spam.
+                </h3>
 
-                  <button
-                    className="success-btn"
-                    onClick={() => window.location.href = "/auth/login"}
-                  >
-                    Entendi, vou verificar meu e-mail
-                  </button>
-
-                </div>
-
+                <button
+                  className="success-btn"
+                  onClick={() => (window.location.href = "/auth/login")}
+                >
+                  Entendi, vou verificar meu e-mail
+                </button>
               </div>
-            )}
-            
+            </div>
+          )}
         </div>
 
         <AuthFooter />
