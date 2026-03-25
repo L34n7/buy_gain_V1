@@ -57,9 +57,7 @@ async function extractOpenGraph(url: string) {
       null;
 
     return {
-      produto_imagem: ogImage?.startsWith("//")
-        ? "https:" + ogImage
-        : ogImage,
+      produto_imagem: ogImage?.startsWith("//") ? "https:" + ogImage : ogImage,
       produto_nome: ogTitle,
       produto_descricao: ogDescription,
     };
@@ -126,7 +124,7 @@ export async function POST(req: Request) {
     ----------------------------------------------------- */
     const { data: userInterno, error: userInternoError } = await supabaseAdmin
       .from("users")
-      .select("id")
+      .select("id, level_bonus_percent, level_bonus_expires_at")
       .eq("auth_user_id", authUserId)
       .maybeSingle();
 
@@ -148,6 +146,21 @@ export async function POST(req: Request) {
     internalUserId = userInterno.id;
 
     /* -----------------------------------------------
+       BÔNUS DE LEVEL (lido do banco)
+    ----------------------------------------------- */
+    const agora = new Date();
+
+    const bonusAtivo =
+      !!userInterno.level_bonus_expires_at &&
+      new Date(userInterno.level_bonus_expires_at).getTime() > agora.getTime();
+
+    const bonusPercent = bonusAtivo
+      ? Number(userInterno.level_bonus_percent || 0)
+      : 0;
+
+    const bonusSource = bonusAtivo ? "LEVEL_UP_3_DIAS" : null;
+
+    /* -----------------------------------------------
        1️⃣ VERIFICA CACHE (3 HORAS)
        Busca EXATAMENTE pelo link colado
     ----------------------------------------------- */
@@ -155,7 +168,7 @@ export async function POST(req: Request) {
       Date.now() - 3 * 60 * 60 * 1000
     ).toISOString();
 
-    const { data: cache, error: cacheError } = await supabaseAdmin
+    const { data: cache } = await supabaseAdmin
       .from("generate_link")
       .select("*")
       .eq("user_id", internalUserId)
@@ -231,12 +244,10 @@ export async function POST(req: Request) {
     /* -----------------------------------------------
        4️⃣ Fallback final
     ----------------------------------------------- */
-    const imagemFinal =
-      data.produto_imagem ?? ogData.produto_imagem ?? null;
+    const imagemFinal = data.produto_imagem ?? ogData.produto_imagem ?? null;
+    const nomeFinal = data.produto_nome ?? ogData.produto_nome ?? null;
 
-    const nomeFinal =
-      data.produto_nome ?? ogData.produto_nome ?? null;
-
+    
     /* -----------------------------------------------
        5️⃣ SALVA CACHE
        Usa client ADMIN para não bater em RLS
@@ -253,8 +264,8 @@ export async function POST(req: Request) {
         pontos: data.pontos ?? null,
         perfil_aut: data.perfil_aut ?? null,
         produto_imagem: imagemFinal,
-        bonus_percent: data.bonus_percent ?? null,
-        bonus_source: data.bonus_source ?? null,
+        bonus_percent: bonusPercent,
+        bonus_source: bonusSource,
         plataforma: "mercadolivre",
         marketplace_id: data.marketplace_id ?? null,
       };
@@ -280,6 +291,8 @@ export async function POST(req: Request) {
       produto_imagem: imagemFinal,
       produto_nome: nomeFinal,
       produto_descricao: ogData.produto_descricao ?? null,
+      bonus_percent: bonusPercent,
+      bonus_source: bonusSource,
     });
   } catch (err: any) {
     console.error("Erro /api/gerar-link:", err);

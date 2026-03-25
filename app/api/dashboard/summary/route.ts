@@ -28,7 +28,13 @@ export async function POST() {
     // 3️⃣ Buscar usuário legado (tabela users)
     const { data: legacyUser, error: legacyError } = await admin
       .from("users")
-      .select("id, name")
+      .select(`
+        id,
+        name,
+        level_bonus_percent,
+        level_bonus_started_at,
+        level_bonus_expires_at
+      `)
       .eq("auth_user_id", user.id)
       .single();
 
@@ -58,12 +64,29 @@ export async function POST() {
     const totalPoints =
       cliques?.reduce((sum, item) => sum + (item.pontos ?? 0), 0) ?? 0;
 
-    // 5️⃣ Retorno final
+    // 5️⃣ Calcular se o bônus está ativo
+    const bonusPercent = legacyUser.level_bonus_percent ?? 0;
+    const bonusStartedAt = legacyUser.level_bonus_started_at ?? null;
+    const bonusExpiresAt = legacyUser.level_bonus_expires_at ?? null;
+
+    const now = new Date();
+
+    const bonusActive =
+      bonusPercent > 0 &&
+      !!bonusStartedAt &&
+      !!bonusExpiresAt &&
+      new Date(bonusExpiresAt).getTime() > now.getTime();
+
+    // 6️⃣ Retorno final
     return NextResponse.json({
       user_name: legacyUser.name ?? "Minha Conta",
       total_points: totalPoints,
-    });
 
+      level_bonus_percent: bonusPercent,
+      level_bonus_started_at: bonusStartedAt,
+      level_bonus_expires_at: bonusExpiresAt,
+      level_bonus_active: bonusActive,
+    });
   } catch (err) {
     console.error("Erro API dashboard summary:", err);
     return NextResponse.json(

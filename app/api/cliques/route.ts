@@ -40,7 +40,7 @@ export async function POST(req: Request) {
 
     const user_id = legacyUser.id;
 
-    // 4️⃣ Dados vindos do frontend (SEM user_id)
+    // 4️⃣ Dados vindos do frontend
     const {
       produto_nome,
       produto_url,
@@ -50,55 +50,46 @@ export async function POST(req: Request) {
       perfil_aut,
       categoria_niveis = [],
       marca,
-      produto_imagem,
     } = await req.json();
 
     // 5️⃣ Validação mínima
-    if (
-      !produto_nome ||
-      !link_rastreado ||
-      valor === null ||
-      ganhos === null
-    ) {
+    if (!produto_nome || !link_rastreado || valor === null || ganhos === null) {
       return NextResponse.json(
         { error: "Dados incompletos" },
         { status: 400 }
       );
     }
 
-    // 6️⃣ Cálculos
-    const ganho_estimado = valor * (ganhos / 100);
-    const pontos = Math.round(ganho_estimado * 0.3 * 100);
+    // 6️⃣ Buscar o registro já criado em /api/gerar-link
+    const tresMinutosAtras = new Date(Date.now() - 3 * 60 * 1000).toISOString();
 
-    // 7️⃣ Inserção generate_link
-    const { data, error } = await admin
+    const { data: existingLink, error: existingError } = await admin
       .from("generate_link")
-      .insert([
-        {
-          user_id,
-          produto_nome,
-          produto_url,
-          link_rastreado,
-          valor,
-          ganhos,
-          ganho_estimado,
-          pontos,
-          perfil_aut,
-          produto_imagem,
-        },
-      ])
-      .select()
-      .single();
+      .select("id, produto_nome, pontos, link_rastreado")
+      .eq("user_id", user_id)
+      .eq("produto_url", produto_url)
+      .eq("link_rastreado", link_rastreado)
+      .gte("data_criacao", tresMinutosAtras)
+      .order("data_criacao", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    if (error) {
-      console.error("Erro insert generate_link:", error);
+    if (existingError) {
+      console.error("Erro ao buscar generate_link existente:", existingError);
       return NextResponse.json(
-        { error: "Erro ao registrar clique" },
+        { error: "Erro ao localizar link gerado" },
         { status: 500 }
       );
     }
 
-    // 8️⃣ Inserção categorias
+    if (!existingLink) {
+      return NextResponse.json(
+        { error: "Link gerado não encontrado para registrar categorias" },
+        { status: 404 }
+      );
+    }
+
+    // 7️⃣ Inserção categorias
     let categoriasInseridas: any[] = [];
 
     if (Array.isArray(categoria_niveis)) {
@@ -141,13 +132,6 @@ export async function POST(req: Request) {
 
       if (catErr) {
         console.error("Erro categoria_ml:", catErr);
-
-        // rollback
-        await admin
-          .from("generate_link")
-          .delete()
-          .eq("id", data.id);
-
         return NextResponse.json(
           { error: "Erro ao inserir categorias" },
           { status: 500 }
@@ -157,18 +141,17 @@ export async function POST(req: Request) {
       categoriasInseridas = catData || [];
     }
 
-    // 9️⃣ Retorno final
+    // 8️⃣ Retorno final
     return NextResponse.json({
       success: true,
       generate_link: {
-        id: data.id,
-        produto_nome: data.produto_nome,
-        pontos: data.pontos,
+        id: existingLink.id,
+        produto_nome: existingLink.produto_nome,
+        pontos: existingLink.pontos,
       },
       categoria_ml: categoriasInseridas,
       categoria: marca,
     });
-
   } catch (err: any) {
     console.error("API cliques erro:", err);
     return NextResponse.json(

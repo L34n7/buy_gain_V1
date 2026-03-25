@@ -35,7 +35,6 @@ export async function POST(req: Request) {
       // se não vier body, usa padrão
     }
 
-    // 1) Supabase do usuário (Auth)
     const supabaseUser = await createUserSupabase();
 
     const {
@@ -50,10 +49,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // 2) Supabase admin (Service Role)
     const admin = await createAdminSupabase();
 
-    // 3) Mapeia usuário antigo
     const { data: legacyUser, error: legacyError } = await admin
       .from("users")
       .select("id")
@@ -69,7 +66,6 @@ export async function POST(req: Request) {
 
     const user_id = legacyUser.id;
 
-    // Verifica se deve criar a notificação de avaliação da plataforma
     const resultadoAvaliacao = await criarNotificacaoAvaliacaoSePrimeiraCompra({
       supabaseAdmin: admin,
       appUserId: user_id,
@@ -81,10 +77,8 @@ export async function POST(req: Request) {
         supabaseAdmin: admin,
         appUserId: user_id,
       });
-      
     }
 
-    // 4) Buscar eventos Mercado Livre
     const { data: mlEventos, error: mlError } = await admin
       .from("ml_eventos")
       .select(`
@@ -109,7 +103,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 5) Buscar eventos Shopee
     const { data: shopeeEventos, error: shopeeError } = await admin
       .from("shopee_eventos")
       .select(`
@@ -121,8 +114,12 @@ export async function POST(req: Request) {
         produto_imagem,
         produto_vendas,
         ganho_pontos,
+        generate_link_id,
         generate_link:generate_link_id (
-          link_rastreado
+          id,
+          link_rastreado,
+          bonus_percent,
+          bonus_source
         )
       `)
       .eq("user_id", user_id);
@@ -135,31 +132,73 @@ export async function POST(req: Request) {
       );
     }
 
-    // 6) Mapear Shopee para mesmo formato
-    const shopeeFormatado = (shopeeEventos ?? []).map((item: any) => ({
-      id: item.id,
-      status: mapStatusShopee(item.status),
-      data_evento: item.data_evento,
-      data_update: item.data_update,
-      produto_nome: item.produto_nome,
-      produto_imagem: item.produto_imagem,
-      produto_vendas: item.produto_vendas,
-      ganho_pontos: item.ganho_pontos,
-      link_rastreado: item.generate_link?.link_rastreado ?? null,
-      marketplace: "SHOPEE" as const,
-    }));
+    const linksMl = (mlEventos ?? [])
+      .map((item: any) => item.link_rastreado)
+      .filter(Boolean);
 
-    // 7) Mapear ML
-    const mlFormatado = (mlEventos || []).map((item: any) => ({
-      ...item,
-      status: item.status,
-      marketplace: "MERCADO_LIVRE" as const,
-    }));
+    let bonusMap = new Map<string, { bonus_percent: number; bonus_source: string | null }>();
 
-    // 8) Unir tudo
+    if (linksMl.length > 0) {
+      const { data: linksBonus, error: bonusError } = await admin
+        .from("generate_link")
+        .select("link_rastreado, bonus_percent, bonus_source")
+        .in("link_rastreado", linksMl);
+
+      if (bonusError) {
+        console.error("Erro ao buscar bônus ML em generate_link:", bonusError);
+      } else {
+        bonusMap = new Map(
+          (linksBonus ?? []).map((row: any) => [
+            row.link_rastreado,
+            {
+              bonus_percent: Number(row.bonus_percent ?? 0),
+              bonus_source: row.bonus_source ?? null,
+            },
+          ])
+        );
+      }
+    }
+
+    const shopeeFormatado = (shopeeEventos ?? []).map((item: any) => {
+      const bonusPercent = Number(item.generate_link?.bonus_percent ?? 0);
+      const bonusSource = item.generate_link?.bonus_source ?? null;
+      const temBonus = bonusPercent > 0 && !!bonusSource;
+
+      return {
+        id: item.id,
+        status: mapStatusShopee(item.status),
+        data_evento: item.data_evento,
+        data_update: item.data_update,
+        produto_nome: item.produto_nome,
+        produto_imagem: item.produto_imagem,
+        produto_vendas: item.produto_vendas,
+        ganho_pontos: item.ganho_pontos,
+        link_rastreado: item.generate_link?.link_rastreado ?? null,
+        bonus_percent: bonusPercent,
+        bonus_source: bonusSource,
+        tem_bonus: temBonus,
+        marketplace: "SHOPEE" as const,
+      };
+    });
+
+    const mlFormatado = (mlEventos || []).map((item: any) => {
+      const bonusInfo = bonusMap.get(item.link_rastreado ?? "");
+      const bonusPercent = Number(bonusInfo?.bonus_percent ?? 0);
+      const bonusSource = bonusInfo?.bonus_source ?? null;
+      const temBonus = bonusPercent > 0 && !!bonusSource;
+
+      return {
+        ...item,
+        status: item.status,
+        bonus_percent: bonusPercent,
+        bonus_source: bonusSource,
+        tem_bonus: temBonus,
+        marketplace: "MERCADO_LIVRE" as const,
+      };
+    });
+
     const todosEventos = [...mlFormatado, ...shopeeFormatado];
 
-    // 9) Ordenar por data_evento desc
     todosEventos.sort((a, b) => {
       return (
         new Date(b.data_evento || 0).getTime() -
@@ -167,7 +206,6 @@ export async function POST(req: Request) {
       );
     });
 
-    // 10) Paginar após unir e ordenar
     const count = todosEventos.length;
     const totalPages = Math.max(1, Math.ceil(count / limit));
     const start = (page - 1) * limit;

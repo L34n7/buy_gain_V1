@@ -53,7 +53,6 @@ async function expandirSeForLinkCurto(url: string) {
     });
 
     return response.url;
-
   } catch (err) {
     console.error("Erro ao expandir link curto:", err);
     return url;
@@ -124,11 +123,9 @@ function hexToUUID(hex: string) {
 }
 
 export async function POST(req: NextRequest) {
-
   let originUrl = "";
 
   try {
-
     const supabaseUser = await createUserSupabase();
     const supabaseAdmin = await createAdminSupabase();
 
@@ -138,18 +135,36 @@ export async function POST(req: NextRequest) {
     } = await supabaseUser.auth.getUser();
 
     if (!user || authError) {
-      return NextResponse.json({ error: "Usuário não autenticado" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Usuário não autenticado" },
+        { status: 401 }
+      );
     }
 
     const { data: appUser, error: appErr } = await supabaseAdmin
       .from("users")
-      .select("id")
+      .select("id, level_bonus_percent, level_bonus_expires_at")
       .eq("auth_user_id", user.id)
       .single();
 
     if (appErr || !appUser) {
-      return NextResponse.json({ error: "Usuário não encontrado na tabela users" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Usuário não encontrado na tabela users" },
+        { status: 404 }
+      );
     }
+
+    const agora = new Date();
+
+    const bonusAtivo =
+      !!appUser.level_bonus_expires_at &&
+      new Date(appUser.level_bonus_expires_at).getTime() > agora.getTime();
+
+    const bonusPercent = bonusAtivo
+      ? Number(appUser.level_bonus_percent || 0)
+      : 0;
+
+    const bonusSource = bonusAtivo ? "LEVEL_UP_3_DIAS" : null;
 
     const body = await req.json();
     originUrl = body.originUrl || body.originalUrl;
@@ -180,7 +195,6 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
 
     if (cache?.link_rastreado) {
-
       const pontos = Number(cache.pontos ?? 0) || 0;
       const pointsMin = Math.floor(pontos * 0.05);
 
@@ -197,9 +211,10 @@ export async function POST(req: NextRequest) {
         produto_url: cache.produto_url,
         plataforma: cache.plataforma ?? "Shopee",
         generate_link_id: cache.id,
+        bonus_percent: cache.bonus_percent,
+        bonus_source: cache.bonus_source,
         cached: true,
       });
-
     }
 
     /* =========================
@@ -212,7 +227,6 @@ export async function POST(req: NextRequest) {
     const extracted = extractProductData(urlLimpa);
 
     if (!extracted) {
-
       await registrarErroLink(
         supabaseAdmin,
         appUser.id,
@@ -225,7 +239,6 @@ export async function POST(req: NextRequest) {
         { error: "URL da Shopee inválida" },
         { status: 400 }
       );
-
     }
 
     const { shopId, itemId } = extracted;
@@ -273,7 +286,6 @@ export async function POST(req: NextRequest) {
     const produto = productData?.data?.productOfferV2?.nodes?.[0];
 
     if (!produto) {
-
       await registrarErroLink(
         supabaseAdmin,
         appUser.id,
@@ -286,7 +298,6 @@ export async function POST(req: NextRequest) {
         { error: "Produto não encontrado na Shopee Affiliate" },
         { status: 404 }
       );
-
     }
 
     /* =========================
@@ -339,7 +350,10 @@ export async function POST(req: NextRequest) {
 
     if (!shortLink) {
       console.error("SHORT LINK ERROR:", shortData);
-      return NextResponse.json({ error: "Erro ao gerar short link" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Erro ao gerar short link" },
+        { status: 500 }
+      );
     }
 
     /* =========================
@@ -369,7 +383,10 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (!marketplace) {
-      return NextResponse.json({ error: "Marketplace não encontrado" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Marketplace não encontrado" },
+        { status: 500 }
+      );
     }
 
     /* =========================
@@ -391,13 +408,18 @@ export async function POST(req: NextRequest) {
         produto_imagem: produto.imageUrl,
         marketplace_id: marketplace.id,
         plataforma: "Shopee",
+        bonus_percent: bonusPercent,
+        bonus_source: bonusSource,
         data_criacao: new Date().toISOString(),
       })
       .select("id")
       .single();
 
     if (insertError || !insertedLink) {
-      return NextResponse.json({ error: insertError?.message || "Erro ao salvar link" }, { status: 500 });
+      return NextResponse.json(
+        { error: insertError?.message || "Erro ao salvar link" },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
@@ -411,14 +433,13 @@ export async function POST(req: NextRequest) {
       produto_url: originUrl,
       plataforma: "Shopee",
       generate_link_id: insertedLink.id,
+      bonus_percent: bonusPercent,
+      bonus_source: bonusSource,
     });
-
   } catch (error: any) {
-
     console.error("Erro API Shopee:", error);
 
     try {
-
       const supabaseAdmin = await createAdminSupabase();
 
       await supabaseAdmin.from("links_erro").insert({
@@ -427,13 +448,11 @@ export async function POST(req: NextRequest) {
         plataforma: "shopee",
         data: new Date().toISOString(),
       });
-
     } catch {}
 
     return NextResponse.json(
       { error: "Erro interno ao gerar link Shopee" },
       { status: 500 }
     );
-
   }
 }

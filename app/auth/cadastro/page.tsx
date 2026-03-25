@@ -6,6 +6,7 @@ import { useWindowSize } from "react-use";
 import "./cadastro.css";
 import AuthFooter from "../AuthFooter";
 import { Turnstile } from "@marsidev/react-turnstile";
+import { useSearchParams } from "next/navigation";
 
 export default function Cadastro() {
   const [name, setName] = useState("");
@@ -28,6 +29,7 @@ export default function Cadastro() {
 
   const [registeredEmail, setRegisteredEmail] = useState("");
   const turnstileRef = useRef<any>(null);
+  const searchParams = useSearchParams();
 
   // =========================
   // Regras de senha
@@ -69,6 +71,22 @@ export default function Cadastro() {
       return () => clearTimeout(timer);
     }
   }, [success]);
+
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+
+    if (!ref) return;
+
+    const valor = ref
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .toUpperCase()
+      .slice(0, 20);
+
+    setCodigoIndicacao(valor);
+  }, [searchParams]);
+
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -221,7 +239,7 @@ export default function Cadastro() {
                 </label>
                 <input
                   type="text"
-                  placeholder="Ex: LEANDR4821"
+                  placeholder="Ex: BUYGAIN1997"
                   className="cadastro-input"
                   autoComplete="off"
                   value={codigoIndicacao}

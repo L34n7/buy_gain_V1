@@ -19,7 +19,6 @@
   box-sizing: border-box;
 }
 
-
 .missoes-root .dashboard-content {
   padding: 0;
 }
@@ -84,6 +83,13 @@
   margin: -20px 0px 40px 0px;
   color: #ffffffbb;
   font-size: 16px;
+}
+
+.loading-text{
+  text-align: center;
+  color: #ffffffbf;
+  margin-top: 8px;
+  margin-bottom: 18px;
 }
 
 .missoes-grid{
@@ -188,13 +194,8 @@
   text-decoration: none;
   transition: transform 320ms ease, background 120ms ease;
   text-align: center;
+  cursor: pointer;
 }
-
-.instagram-missao-box a.btn {
-  background: linear-gradient(90deg, #fe494f, #cc12ff);
-  border: 1px transparent;
-}
-
 
 .missao-acoes a.btn:hover,
 .missao-acoes .btn-primary:hover{
@@ -202,11 +203,15 @@
   background: linear-gradient(90deg, #8b5cf6, #22d3ee);
 }
 
+.instagram-missao-box a.btn {
+  background: linear-gradient(90deg, #ff4a50dc, #bc12ff);
+  border: 1px transparent;
+}
+
 .instagram-missao-box a.btn:hover{
   background: linear-gradient(90deg, #fa4f55, #d65bf8);
   border: 1px transparent;
 }
-
 
 .missao-acoes .btn-primary:disabled{
   opacity: 0.7;
@@ -228,6 +233,7 @@
   border: 1px solid rgba(43, 212, 139, 0.146);
   font-size: 16px;
   min-width: 180px;
+  text-align: center;
 }
 
 .missao-data{
@@ -245,7 +251,6 @@
   justify-content: center;
   width: 100%;
 }
-
 
 .missao-bloqueada{
   opacity: 0.64;
@@ -388,10 +393,249 @@
   margin-top: -2px;
 }
 
+/* ===== BLOCO DA INDICAÇÃO ===== */
+.missao-card-indicacao{
+  align-items: stretch;
+  min-height: unset;
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+.missao-card-indicacao::before{
+  background: linear-gradient(180deg, #00f0ff, #8a5cf6, #00ff85);
+}
+
+.indicacao-info{
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.indicacao-topo{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.indicacao-topo-texto{
+  flex: 1;
+  min-width: 0;
+}
+
+.indicacao-topo-texto p{
+  max-width: 760px;
+}
+
+.indicacao-recompensa{
+  margin-top: 0;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+}
+
+.indicacao-grid{
+  display: grid;
+  grid-template-columns: minmax(320px, 1.2fr) minmax(280px, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.indicacao-painel{
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+  padding: 16px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.indicacao-painel-codigo{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+
+.indicacao-codigo-label{
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.72);
+}
+
+.indicacao-codigo-row{
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+}
+
+.indicacao-codigo{
+  flex: 1;
+  min-width: 0;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.045);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+  cursor: text;
+}
+
+.indicacao-painel-codigo .btn-primary{
+  min-width: 150px;
+  width: 50%;
+  background: linear-gradient(90deg, #8a5cf6da, #22d3eeba);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0);
+  border-radius: 13px;
+  font-weight: 800;
+  padding: 10px 14px;
+}
+
+.indicacao-painel-codigo .btn-primary:hover{
+  transform: translateY(-2px);
+  background: linear-gradient(90deg, #8b5cf6, #22d3ee);
+}
+
+.btn-whatsapp {
+  width: 50%;
+  min-height: 44px;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 800;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(90deg, #25d365, #16a34a);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-whatsapp:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(90deg, #4de986, #16a34a);
+}
+
+.btn-whatsapp:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+.indicacao-painel-stats{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.indicacao-stat-card{
+  min-height: 108px;
+  border-radius: 14px;
+  padding: 14px 12px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: linear-gradient(180deg, rgba(0,0,0,0.16), rgba(255,255,255,0.02));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.indicacao-stat-label{
+  font-size: 12px;
+  line-height: 1.35;
+  color: rgba(255,255,255,0.68);
+  margin-bottom: 8px;
+}
+
+.indicacao-stat-valor{
+  font-size: 24px;
+  line-height: 1;
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.indicacao-ajuda{
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.76);
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, rgba(138, 92, 246, 0.08), rgba(34, 211, 238, 0.06));
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.indicacao-ajuda strong{
+  color: #ffffff;
+}
+
+.indicacao-acoes{
+  flex: 0 0 270px;
+  min-width: 250px;
+  max-width: 270px;
+  align-items: stretch;
+}
+
+.indicacao-status-pendente{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 60px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: rgba(255,255,255,0.84);
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+
+
+
+/* =========================================
+   TABLET / AJUSTE INTERMEDIÁRIO
+========================================= */
+@media (max-width: 1180px){
+  .missao-card-indicacao{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .indicacao-topo{
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .indicacao-recompensa{
+    justify-content: flex-start;
+  }
+
+  .indicacao-grid{
+    grid-template-columns: 1fr;
+  }
+
+  .indicacao-acoes{
+    max-width: 100%;
+    min-width: 0;
+    width: 100%;
+    flex: none;
+  }
+}
+
 /* =========================================
    MOBILE REAL (até 768px)
 ========================================= */
-
 @media (max-width: 768px){
 
   html,
@@ -433,7 +677,7 @@
 
   .missoes-grid{
     width: 100%;
-    gap: 14px;
+    gap: 24px;
     padding: 0;
     display: flex;
     flex-direction: column;
@@ -486,6 +730,7 @@
     width: 100%;
     gap: 6px;
     flex-wrap: wrap;
+    justify-content: center;
   }
 
   .xp-m,
@@ -546,11 +791,9 @@
 
   .instagram-codigo-row{
     width: 100%;
-    height: 100%;
     min-height: 110px;
     display: flex;
     flex-direction: column;
-    bottom: 20px;
   }
 
   .instagram-codigo-input{
@@ -558,9 +801,8 @@
     max-width: 100%;
     min-width: 0;
     font-size: 13px;
-    padding: 0 12px;  
+    padding: 0 12px;
     margin: 5px 0px 5px 0px;
-
   }
 
   .instagram-codigo-row .btn-primary{
@@ -574,6 +816,87 @@
     width: 100%;
     font-size: 14px;
     line-height: 1.4;
+  }
+
+  .missao-card-indicacao{
+    width: min(100%, 320px);
+    max-width: 320px;
+    padding: 14px;
+  }
+
+  .indicacao-info{
+    gap: 12px;
+  }
+
+  .indicacao-topo{
+    gap: 10px;
+  }
+
+  .indicacao-topo-texto h3,
+  .indicacao-topo-texto p{
+    text-align: center;
+  }
+
+  .indicacao-recompensa{
+    justify-content: center;
+  }
+
+  .indicacao-grid{
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .indicacao-painel{
+    padding: 12px;
+  }
+
+  .indicacao-codigo-label{
+    text-align: center;
+  }
+
+  .indicacao-codigo-row{
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .indicacao-codigo{
+    width: 100%;
+    min-height: 44px;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    padding: 0 10px;
+  }
+
+  .indicacao-painel-codigo .btn-primary{
+    width: 100%;
+    min-width: 0;
+  }
+
+  .btn-whatsapp {
+    width: 100%;
+  }
+
+  .indicacao-painel-stats{
+    grid-template-columns: 1fr;
+  }
+
+  .indicacao-stat-card{
+    min-height: 84px;
+  }
+
+  .indicacao-stat-valor{
+    font-size: 21px;
+  }
+
+  .indicacao-ajuda{
+    font-size: 13px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .indicacao-status-pendente{
+    width: 100%;
+    font-size: 13px;
   }
 
   .missao-overlay{

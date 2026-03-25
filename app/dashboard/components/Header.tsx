@@ -11,6 +11,13 @@ interface HeaderProps {
   avatarUrl?: string | null;
 }
 
+type LevelBonusData = {
+  level_bonus_percent: number;
+  level_bonus_started_at: string | null;
+  level_bonus_expires_at: string | null;
+  level_bonus_active: boolean;
+};
+
 export default function Header({ userName, avatarUrl }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -35,26 +42,33 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     marcarTodasComoLidas,
     marcarChamadoComoLida,
   } = useNotifications();
-  
 
   const [points, setPoints] = useState<number>(0);
   const [displayPoints, setDisplayPoints] = useState(0);
   const [pointsDirection, setPointsDirection] = useState<"up" | "down" | null>(null);
 
-  // controle separado: counting (true enquanto conta) e pulse (efeito maior)
   const [isCounting, setIsCounting] = useState(false);
   const [isPulsing, setIsPulsing] = useState(false);
 
-  // evita animar no primeiro render
   const displayRef = useRef(displayPoints);
-  useEffect(() => { displayRef.current = displayPoints; }, [displayPoints]);
-  const initialPointsLoaded = useRef(false); // <<-- flag para o primeiro fetch
+  useEffect(() => {
+    displayRef.current = displayPoints;
+  }, [displayPoints]);
+
+  const initialPointsLoaded = useRef(false);
 
   const [level, setLevel] = useState<number>(1);
 
-  /* NOVO: estado interno para avatar (inicializado a partir da prop) */
+  const [levelBonus, setLevelBonus] = useState<LevelBonusData>({
+    level_bonus_percent: 0,
+    level_bonus_started_at: null,
+    level_bonus_expires_at: null,
+    level_bonus_active: false,
+  });
+
+  const [bonusNow, setBonusNow] = useState<number>(Date.now());
+
   const [avatarState, setAvatarState] = useState<string | null>(() => {
-    // inicializa com cache-busted prop (se existir)
     if (!avatarUrl) return null;
     try {
       const u = new URL(avatarUrl);
@@ -66,7 +80,6 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     }
   });
 
-  // Função utilitária para forçar cache-bust em qualquer URL
   function cacheBust(url?: string | null) {
     if (!url) return null;
     try {
@@ -79,7 +92,48 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     }
   }
 
-  /* Sempre que a prop avatarUrl mudar (pai atualizou), atualiza avatarState também */
+  function isLevelBonusActive(bonus: LevelBonusData) {
+    if (!bonus) return false;
+    if (!bonus.level_bonus_active) return false;
+    if (!bonus.level_bonus_percent || bonus.level_bonus_percent <= 0) return false;
+    if (!bonus.level_bonus_started_at) return false;
+    if (!bonus.level_bonus_expires_at) return false;
+
+    return new Date(bonus.level_bonus_expires_at).getTime() > bonusNow;
+  }
+
+  function formatBonusRemaining(expiresAt?: string | null) {
+    if (!expiresAt) return "";
+
+    const diff = new Date(expiresAt).getTime() - bonusNow;
+
+    if (diff <= 0) return "expirado";
+
+    const totalMinutes = Math.floor(diff / 1000 / 60);
+    const days = Math.floor(totalMinutes / (60 * 24));
+    const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+    const minutes = totalMinutes % 60;
+
+    if (days > 0) return `${days}d ${hours}h restantes`;
+    if (hours > 0) return `${hours}h ${minutes}min restantes`;
+    return `${minutes}min restantes`;
+  }
+
+  function formatBonusDaysLeft(expiresAt?: string | null) {
+    if (!expiresAt) return "";
+
+    const diff = new Date(expiresAt).getTime() - bonusNow;
+
+    if (diff <= 0) return "0 dias";
+
+    const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+    if (daysLeft === 1) return "1 dia";
+    return `${daysLeft} dias`;
+  }
+
+  const bonusAtivo = isLevelBonusActive(levelBonus);
+
   useEffect(() => {
     if (!avatarUrl) {
       setAvatarState(null);
@@ -88,7 +142,6 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     setAvatarState(cacheBust(avatarUrl));
   }, [avatarUrl]);
 
-  /* Escuta eventos globais "profile:updated" para atualizar avatar quando outra tela (perfil-config) fizer upload */
   useEffect(() => {
     function onProfileUpdated(e: Event) {
       try {
@@ -107,21 +160,17 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     };
   }, []);
 
-  /* BUSCAR SALDO DO EXTRATO */
   useEffect(() => {
     let timer: any;
-
     let loadingSaldo = false;
 
-      async function fetchSaldo() {
+    async function fetchSaldo() {
+      if (loadingSaldo) return;
+      loadingSaldo = true;
 
-        if (loadingSaldo) return;
-        loadingSaldo = true;
-
-        try {
+      try {
         const res = await fetch("/api/saldo", { credentials: "include" });
 
-        // se não estiver autenticado, para tudo
         if (res.status === 401) {
           clearInterval(timer);
           return;
@@ -142,12 +191,11 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
         } else {
           setPoints(newPoints);
         }
-
-        } catch (err) {
-          console.error("Erro ao buscar saldo:", err);
-        } finally {
-          loadingSaldo = false;
-        }
+      } catch (err) {
+        console.error("Erro ao buscar saldo:", err);
+      } finally {
+        loadingSaldo = false;
+      }
     }
 
     function start() {
@@ -175,7 +223,6 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     };
   }, []);
 
-  /* Efeito PONTOS */
   useEffect(() => {
     if (!initialPointsLoaded.current) return;
     if (points === displayRef.current) return;
@@ -185,11 +232,9 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     const direction = endValue > startValue ? "up" : "down";
     setPointsDirection(direction);
 
-    // DURATIONS (ajuste se quiser)
-    const durationCount = 700;   // tempo da contagem (ms) — curta
-    const durationPulse = 2000;  // tempo total do pulso (ms) — maior
+    const durationCount = 700;
+    const durationPulse = 2000;
 
-    // garantimos que o pulso comece junto com a contagem
     setIsCounting(true);
     setIsPulsing(true);
 
@@ -205,15 +250,11 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
       if (progress < 1) {
         rafId = requestAnimationFrame(step);
       } else {
-        // FIM da contagem: corrige o valor final
         setDisplayPoints(endValue);
         displayRef.current = endValue;
         setIsCounting(false);
 
-        // mantém o pulso rodando até durationPulse completo; 
-        // se durationPulse > durationCount, o pico do pulso acontece depois
         const remainingPulse = Math.max(durationPulse - durationCount, 0);
-        // after remainingPulse, turn off pulsing
         const toId = window.setTimeout(() => {
           setIsPulsing(false);
           setPointsDirection(null);
@@ -226,20 +267,17 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
 
     return () => {
       cancelAnimationFrame(rafId);
-      // garante que qualquer pulso pendente seja desligado
       setIsCounting(false);
       setIsPulsing(false);
       setPointsDirection(null);
     };
   }, [points]);
 
-  /* animação do logo */
   useEffect(() => {
     const timer = setTimeout(() => setLogoFaded(true), 2200);
     return () => clearTimeout(timer);
   }, []);
 
-  /* fechar menu profile ao clicar fora */
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       const target = e.target as HTMLElement;
@@ -257,7 +295,6 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     };
   }, [menuOpen]);
 
-  /* fechar sino ao clicar fora */
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       const target = e.target as HTMLElement;
@@ -274,6 +311,66 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
       document.removeEventListener("click", handleClick);
     };
   }, [bellOpen]);
+
+  // lê o bônus salvo pelo dashboard
+  useEffect(() => {
+    function loadBonusFromStorage() {
+      try {
+        const raw = localStorage.getItem("dashboard_level_bonus");
+        if (!raw) return;
+
+        const parsed = JSON.parse(raw);
+
+        setLevelBonus({
+          level_bonus_percent: parsed?.level_bonus_percent ?? 0,
+          level_bonus_started_at: parsed?.level_bonus_started_at ?? null,
+          level_bonus_expires_at: parsed?.level_bonus_expires_at ?? null,
+          level_bonus_active: parsed?.level_bonus_active ?? false,
+        });
+      } catch (err) {
+        console.error("Erro ao ler bônus do localStorage:", err);
+      }
+    }
+
+    function onBonusUpdated(e: Event) {
+      try {
+        const ev = e as CustomEvent<LevelBonusData>;
+        if (!ev.detail) return;
+
+        setLevelBonus({
+          level_bonus_percent: ev.detail.level_bonus_percent ?? 0,
+          level_bonus_started_at: ev.detail.level_bonus_started_at ?? null,
+          level_bonus_expires_at: ev.detail.level_bonus_expires_at ?? null,
+          level_bonus_active: ev.detail.level_bonus_active ?? false,
+        });
+      } catch (err) {
+        console.error("Erro ao atualizar bônus via evento:", err);
+      }
+    }
+
+    loadBonusFromStorage();
+
+    window.addEventListener(
+      "dashboard:level-bonus-updated",
+      onBonusUpdated as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "dashboard:level-bonus-updated",
+        onBonusUpdated as EventListener
+      );
+    };
+  }, []);
+
+  // atualiza o relógio interno a cada minuto para o bônus sumir sozinho ao expirar
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setBonusNow(Date.now());
+    }, 60000);
+
+    return () => window.clearInterval(interval);
+  }, []);
 
   function getPageTitle() {
     if (pathname === "/dashboard") return "Dashboard";
@@ -292,6 +389,7 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     });
 
     localStorage.removeItem("auth_user_id");
+    localStorage.removeItem("dashboard_level_bonus");
 
     router.replace("/auth/login");
   }
@@ -313,25 +411,31 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
       </div>
 
       <div className="topbar-right">
-        {/* 🔔 NOTIFICAÇÕES */}
+        {bonusAtivo && (
+          <div
+            className="level-bonus-badge"
+            title={`Bônus ativo: +${levelBonus.level_bonus_percent}% nas compras • ${formatBonusRemaining(levelBonus.level_bonus_expires_at)}`}
+          >
+            <span className="level-bonus-icon">🔥</span>
+            <span className="level-bonus-text">
+              Bonus Ativo +{levelBonus.level_bonus_percent}% 
+            </span>
+          </div>
+        )}
+        
         <div className="bell-wrapper">
           <button
             className={`bell ${pendentes > 0 ? "has-notifications" : "no-notifications"}`}
             onClick={() => setBellOpen((v) => !v)}
           >
             <p>🔔</p>
-            {pendentes > 0 && (
-              <span className="bell-badge">{pendentes}</span>
-            )}
+            {pendentes > 0 && <span className="bell-badge">{pendentes}</span>}
           </button>
 
           {bellOpen && (
             <div className="bell-dropdown">
               <div className="bell-dropdown-head">
-
-                <div className="bell-dropdown-title">
-                  Notificações
-                </div>
+                <div className="bell-dropdown-title">Notificações</div>
 
                 <button
                   className="bell-mark-all"
@@ -344,12 +448,10 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
                 >
                   Marcar todas Lidas
                 </button>
-
               </div>
+
               {pendentes === 0 && (
-                <div className="bell-empty">
-                  Nenhuma notificação pendente
-                </div>
+                <div className="bell-empty">Nenhuma notificação pendente</div>
               )}
 
               {creditosNovos.map((c) => (
@@ -358,9 +460,7 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
                   className="bell-item credito"
                   onClick={() => marcarCreditoComoLido(c.id)}
                 >
-                  <div className="bell-item-title">
-                    ✨ Pontos creditados
-                  </div>
+                  <div className="bell-item-title">✨ Pontos creditados</div>
                   <div className="bell-item-sub">
                     +{c.pontos.toLocaleString()} pontos
                   </div>
@@ -373,12 +473,8 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
                   className="bell-item levelup"
                   onClick={() => marcarLevelUpComoLido(n.id)}
                 >
-                  <div className="bell-item-title">
-                    🚀 Novo nível alcançado!
-                  </div>
-                  <div className="bell-item-sub">
-                    {n.descricao}
-                  </div>
+                  <div className="bell-item-title">🚀 Novo nível alcançado!</div>
+                  <div className="bell-item-sub">{n.descricao}</div>
                 </div>
               ))}
 
@@ -392,12 +488,8 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
                     router.push("/dashboard/perfil");
                   }}
                 >
-                  <div className="bell-item-title">
-                    🏆 Nova conquista desbloqueada!
-                  </div>
-                  <div className="bell-item-sub">
-                    {n.descricao}
-                  </div>
+                  <div className="bell-item-title">🏆 Nova conquista desbloqueada!</div>
+                  <div className="bell-item-sub">{n.descricao}</div>
                 </div>
               ))}
 
@@ -411,15 +503,10 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
                     router.push("/dashboard/inventario");
                   }}
                 >
-                  <div className="bell-item-title">
-                    🎁 Recompensa processada
-                  </div>
-                  <div className="bell-item-sub">
-                    {n.descricao}
-                  </div>
+                  <div className="bell-item-title">🎁 Recompensa processada</div>
+                  <div className="bell-item-sub">{n.descricao}</div>
                 </div>
               ))}
-
 
               {notificacoesChamado.map((n) => (
                 <div
@@ -431,12 +518,8 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
                     router.push("/dashboard/ajuda/meus-chamados");
                   }}
                 >
-                  <div className="bell-item-title">
-                     {n.titulo}
-                  </div>
-                  <div className="bell-item-sub">
-                    {n.descricao}
-                  </div>
+                  <div className="bell-item-title">{n.titulo}</div>
+                  <div className="bell-item-sub">{n.descricao}</div>
                 </div>
               ))}
 
@@ -455,9 +538,7 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
                     {ev.status === "SOLICITAR_PROVA" && "Enviar comprovante"}
                   </div>
 
-                  <div className="bell-item-sub">
-                    {ev.produto_nome ?? "Produto"}
-                  </div>
+                  <div className="bell-item-sub">{ev.produto_nome ?? "Produto"}</div>
                 </div>
               ))}
 
@@ -467,25 +548,17 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
                   className="bell-item avaliacao"
                   onClick={() => {
                     setBellOpen(false);
-                    window.dispatchEvent(
-                      new Event("abrir-modal-avaliacao-plataforma")
-                    );
+                    window.dispatchEvent(new Event("abrir-modal-avaliacao-plataforma"));
                   }}
                 >
-                  <div className="bell-item-title">
-                    ⭐ {n.titulo}
-                  </div>
-                  <div className="bell-item-sub">
-                    {n.descricao}
-                  </div>
+                  <div className="bell-item-title">⭐ {n.titulo}</div>
+                  <div className="bell-item-sub">{n.descricao}</div>
                 </div>
               ))}
-
             </div>
           )}
         </div>
 
-        {/* 👤 PROFILE */}
         <div className="profile" onClick={() => setMenuOpen((v) => !v)}>
           {menuOpen && (
             <div className="profile-menu">
@@ -534,16 +607,14 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
               </span>
             )}
           </div>
+
           {level !== null && (
-            <div className="profile-level-under-avatar">
-              {level}
-            </div>
+            <div className="profile-level-under-avatar">{level}</div>
           )}
 
           <div className="profile-info">
-            <div className="profile-name-header">
-              {userName}
-            </div>
+            <div className="profile-name-header">{userName}</div>
+
             <div
               className={`profile-points
                 ${isPulsing ? "points-pulse" : ""}
@@ -566,10 +637,7 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
       {logoutModal && (
         <div className="logout-modal-overlay">
           <div className="logout-modal">
-
-            <div className="logout-title">
-               Sair da conta
-            </div>
+            <div className="logout-title">Sair da conta</div>
 
             <div className="logout-text">
               Deseja realmente sair da sua conta?
@@ -590,7 +658,6 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
                 Sim, sair
               </button>
             </div>
-
           </div>
         </div>
       )}

@@ -25,7 +25,7 @@ export async function GET() {
 
     const { data: legacyUser, error: legacyError } = await admin
       .from("users")
-      .select("id, profile_completed, profile_completed_at")
+      .select("id, auth_user_id, profile_completed, profile_completed_at, codigo_indicacao")
       .eq("auth_user_id", user.id)
       .single();
 
@@ -52,6 +52,27 @@ export async function GET() {
       );
     }
 
+    const {
+      data: indicacoes,
+      error: indicacoesError,
+    } = await admin
+      .from("indicacoes_recompensas")
+      .select("id, criada_em, liberada_em, status")
+      .eq("indicador_user_id", legacyUser.id)
+      .eq("status", "LIBERADA")
+      .order("liberada_em", { ascending: true });
+
+    if (indicacoesError) {
+      console.error("Erro ao consultar indicações:", indicacoesError);
+      return NextResponse.json(
+        { error: "Erro ao consultar missão de indicação" },
+        { status: 500 }
+      );
+    }
+
+    const totalConfirmadas = indicacoes?.length ?? 0;
+    const primeiraIndicacao = indicacoes?.[0] ?? null;
+
     return NextResponse.json({
       perfil_completo: {
         concluida: !!legacyUser.profile_completed,
@@ -60,6 +81,17 @@ export async function GET() {
       seguir_instagram: {
         concluida: !!instagram,
         data_conclusao: instagram?.criado_em ?? null,
+      },
+      indicacao: {
+        codigo_indicacao: legacyUser.codigo_indicacao ?? null,
+        total_confirmadas: totalConfirmadas,
+        concluida: totalConfirmadas >= 1,
+        data_conclusao:
+          primeiraIndicacao?.liberada_em ??
+          primeiraIndicacao?.criada_em ??
+          null,
+        pontos_por_indicacao: 250,
+        pontos_indicado: 250,
       },
     });
   } catch (err) {

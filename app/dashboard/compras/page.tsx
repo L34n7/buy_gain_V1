@@ -20,6 +20,8 @@ type CompraRow = {
   ganho_pontos?: number;
   marketplace?: "SHOPEE" | "MERCADO_LIVRE";
   data_previsao_conclusao?: string;
+  bonus_percent?: number;
+  tem_bonus?: boolean;
 };
 
 function normalizarStatus(status?: string) {
@@ -576,7 +578,21 @@ function calcularPrevisaoConclusao(
                   return (
                     <tr key={item.id} className="compras-row">
                       <td className="product-cell">
-                        <div className="product-title">{item.produto_nome ?? "Produto não identificado"}</div>
+                        <div className="product-title-row">
+
+                          <div className="product-title">
+                            {item.tem_bonus && (
+                              <div className="bonus-wrapper">
+                                <span className="bonus-pill">Bônus</span>
+
+                                <div className="bonus-tooltip">
+                                  Essa compra recebeu <strong>+{item.bonus_percent}%</strong> de pontos por bônus de nível.
+                                </div>
+                              </div>
+                            )}
+                            {item.produto_nome ?? "Produto não identificado"}
+                          </div>
+                        </div>
                         <div className="product-sub">{item.link_rastreado}</div>
                       </td>
 
