@@ -6,7 +6,6 @@ import { useWindowSize } from "react-use";
 import "./cadastro.css";
 import AuthFooter from "../AuthFooter";
 import { Turnstile } from "@marsidev/react-turnstile";
-import { useSearchParams } from "next/navigation";
 
 export default function Cadastro() {
   const [name, setName] = useState("");
@@ -29,7 +28,6 @@ export default function Cadastro() {
 
   const [registeredEmail, setRegisteredEmail] = useState("");
   const turnstileRef = useRef<any>(null);
-  const searchParams = useSearchParams();
 
   // =========================
   // Regras de senha
@@ -73,7 +71,10 @@ export default function Cadastro() {
   }, [success]);
 
   useEffect(() => {
-    const ref = searchParams.get("ref");
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
 
     if (!ref) return;
 
@@ -85,8 +86,7 @@ export default function Cadastro() {
       .slice(0, 20);
 
     setCodigoIndicacao(valor);
-  }, [searchParams]);
-
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -402,7 +402,9 @@ export default function Cadastro() {
 
                 <button
                   className="success-btn"
-                  onClick={() => (window.location.href = "/auth/login")}
+                  onClick={() => {
+                    window.location.href = "/auth/login";
+                  }}
                 >
                   Entendi, vou verificar meu e-mail
                 </button>
