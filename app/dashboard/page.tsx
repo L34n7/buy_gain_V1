@@ -721,7 +721,7 @@ useEffect(() => {
 
                         <div className="coupon-footer">
                           <span className="footer-conf">
-                            Confiabilidade: {c.score_confiabilidade}
+                            Confiabilidade: {c.score_confiabilidade}%
                           </span>
 
                           <span className="footer-click">

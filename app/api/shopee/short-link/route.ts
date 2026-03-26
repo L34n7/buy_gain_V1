@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { createUserSupabase, createAdminSupabase } from "@/lib/supabaseServer";
+import { sendTelegramMessage } from "@/lib/telegram/sendTelegramMessage";
+import { TELEGRAM_GENERATE_LINK } from "@/lib/telegram/config";
 
 async function registrarErroLink(
   supabase: any,
@@ -25,6 +27,27 @@ async function registrarErroLink(
 const APP_ID = process.env.SHOPEE_APP_ID!;
 const SECRET = process.env.SHOPEE_SECRET!;
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql";
+
+
+ /* Funções auxiliares mensagem TELEGRAM */
+function formatMoney(value: number | null | undefined) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) {
+    return "-";
+  }
+
+  return Number(value).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
+
+function formatText(value: unknown) {
+  if (value === null || value === undefined || value === "") {
+    return "-";
+  }
+
+  return String(value);
+}
 
 /* =========================
    Expandir link curto
@@ -419,7 +442,7 @@ export async function POST(req: NextRequest) {
         bonus_source: isGuest ? null : bonusSource,
         data_criacao: new Date().toISOString(),
       })
-      .select("id")
+      .select("id, user_id, produto_nome, produto_url, link_rastreado, valor, ganhos, ganho_estimado, pontos, bonus_percent, bonus_source, plataforma, data_criacao")
       .single();
 
     if (insertError || !insertedLink) {
@@ -428,6 +451,54 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
+
+    let nomeUsuario = "Visitante";
+
+    if (insertedLink.user_id) {
+      const { data: userData, error: userError } = await supabaseAdmin
+        .from("users")
+        .select("name")
+        .eq("id", insertedLink.user_id)
+        .maybeSingle();
+
+      if (userError) {
+        console.error("Erro ao buscar nome do usuário:", userError);
+      }
+
+      nomeUsuario = userData?.name?.trim() || "Usuário sem nome";
+    }
+
+    const telegramMessage = `
+    🔔 <b>Novo link gerado (Shopee)</b>
+
+    👤 <b>Usuário:</b> ${formatText(nomeUsuario)}
+    🆔 <b>User ID:</b> <code>${formatText(insertedLink.user_id)}</code>
+    🏪 <b>Plataforma:</b> ${formatText(insertedLink.plataforma)}
+
+    📦 <b>Produto:</b> ${formatText(insertedLink.produto_nome)}
+    🌐 <b>URL do produto:</b>
+    ${formatText(insertedLink.produto_url)}
+
+    🔗 <b>Link rastreado:</b>
+    ${formatText(insertedLink.link_rastreado)}
+
+    💰 <b>Valor:</b> ${formatMoney(insertedLink.valor)}
+    📈 <b>Ganhos (%):</b> ${formatText(insertedLink.ganhos)}
+    💵 <b>Ganho estimado:</b> ${formatMoney(insertedLink.ganho_estimado)}
+    🎯 <b>Pontos:</b> ${formatText(insertedLink.pontos)}
+
+    🎁 <b>Bônus:</b> ${formatText(insertedLink.bonus_percent)}%
+    📌 <b>Origem bônus:</b> ${formatText(insertedLink.bonus_source)}
+
+    🕒 <b>Data:</b> ${new Date().toLocaleString("pt-BR")}
+    `;
+
+    const telegramResult = await sendTelegramMessage(
+      telegramMessage,
+      TELEGRAM_GENERATE_LINK
+    );
+
+    console.log("Resultado Telegram generate_link Shopee:", telegramResult);
 
     return NextResponse.json({
       success: true,

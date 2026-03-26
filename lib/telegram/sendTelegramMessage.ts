@@ -1,10 +1,20 @@
-export async function sendTelegramMessage(text: string) {
-  const botToken = process.env.TELEGRAM_CHAMADOS_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAMADOS_CHAT_ID;
+type TelegramConfig = {
+  botToken: string;
+  chatId: string;
+};
+
+export async function sendTelegramMessage(
+  text: string,
+  config: TelegramConfig
+) {
+  const { botToken, chatId } = config;
 
   if (!botToken || !chatId) {
-    console.warn("Telegram de chamados não configurado no .env.local");
-    return { ok: false, error: "Variáveis do Telegram não configuradas." };
+    console.warn("⚠️ Telegram não configurado corretamente.");
+    return {
+      ok: false,
+      error: "Variáveis do Telegram não configuradas.",
+    };
   }
 
   try {
@@ -27,13 +37,13 @@ export async function sendTelegramMessage(text: string) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("Erro ao enviar mensagem para o Telegram:", data);
+      console.error("❌ Erro ao enviar mensagem para o Telegram:", data);
       return { ok: false, error: data };
     }
 
     return { ok: true, data };
   } catch (error) {
-    console.error("Erro interno ao enviar Telegram:", error);
+    console.error("❌ Erro interno ao enviar Telegram:", error);
     return { ok: false, error };
   }
 }
