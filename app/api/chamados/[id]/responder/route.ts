@@ -4,6 +4,7 @@ import {
   createAdminSupabase,
 } from "@/lib/supabaseServer";
 import { sendTelegramMessage } from "@/lib/telegram/sendTelegramMessage";
+import { TELEGRAM_CHAMADOS } from "@/lib/telegram/config";
 
 type RouteContext = {
   params: Promise<{
@@ -255,7 +256,7 @@ export async function POST(req: Request, context: RouteContext) {
         .filter(Boolean)
         .join("\n");
 
-      await sendTelegramMessage(telegramMessage);
+      await sendTelegramMessage(telegramMessage, TELEGRAM_CHAMADOS);
     } catch (telegramError) {
       console.error(
         "Erro ao enviar notificação Telegram da resposta do chamado:",
