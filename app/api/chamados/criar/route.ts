@@ -6,6 +6,7 @@ import {
 import { sendEmail } from "@/lib/email/email";
 import { getChamadoAbertoEmailTemplate } from "@/lib/email/templates/chamado-aberto";
 import { sendTelegramMessage } from "@/lib/telegram/sendTelegramMessage";
+import { TELEGRAM_CHAMADOS } from "@/lib/telegram/config";
 
 function escapeHtml(value: string) {
   return value
@@ -247,7 +248,7 @@ export async function POST(req: Request) {
         .filter(Boolean)
         .join("\n");
 
-      await sendTelegramMessage(telegramMessage);
+      await sendTelegramMessage(telegramMessage, TELEGRAM_CHAMADOS);
     } catch (telegramError) {
       console.error(
         "Erro ao enviar notificação Telegram do chamado:",
