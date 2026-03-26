@@ -226,6 +226,22 @@
     0 30px 80px rgba(0, 0, 0, 0.7);
 }
 
+.inve-modal-card::-webkit-scrollbar {
+  width: 8px;
+  max-height: 10px;
+}
+
+
+.inve-modal-card::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    rgba(138, 60, 242, 0.9),
+    rgba(0, 255, 245, 0.8)
+  );
+  border-radius: 20px;
+  background-clip: padding-box;
+}
+
 /* IMAGEM FULL */
 
 .inve-modal-image-wrapper {
@@ -429,13 +445,24 @@
 
   .inve-modal-card {
     max-width: 92%;
+    max-height: 65vh;
     padding: 22px;
+
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    display: block;
   }
   
   .inve-modal-card {
     max-width: 95%;
     margin-bottom: 50px;
   }
+
+  .inve-modal-card::-webkit-scrollbar {
+    width: 5px;
+  }
+
 
   .inve-modal-image-wrapper {
     height: 200px;

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { useNotifications } from "./NotificationsContext";
@@ -9,6 +10,7 @@ interface HeaderProps {
   userName: string;
   points: number;
   avatarUrl?: string | null;
+  isGuest?: boolean;
 }
 
 type LevelBonusData = {
@@ -18,7 +20,11 @@ type LevelBonusData = {
   level_bonus_active: boolean;
 };
 
-export default function Header({ userName, avatarUrl }: HeaderProps) {
+export default function Header({
+  userName,
+  avatarUrl,
+  isGuest = false,
+}: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -45,7 +51,9 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
 
   const [points, setPoints] = useState<number>(0);
   const [displayPoints, setDisplayPoints] = useState(0);
-  const [pointsDirection, setPointsDirection] = useState<"up" | "down" | null>(null);
+  const [pointsDirection, setPointsDirection] = useState<"up" | "down" | null>(
+    null
+  );
 
   const [isCounting, setIsCounting] = useState(false);
   const [isPulsing, setIsPulsing] = useState(false);
@@ -86,7 +94,7 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
       const u = new URL(url);
       u.searchParams.set("v", Date.now().toString());
       return u.toString();
-    } catch (e) {
+    } catch {
       const sep = url.includes("?") ? "&" : "?";
       return `${url}${sep}v=${Date.now()}`;
     }
@@ -95,7 +103,8 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
   function isLevelBonusActive(bonus: LevelBonusData) {
     if (!bonus) return false;
     if (!bonus.level_bonus_active) return false;
-    if (!bonus.level_bonus_percent || bonus.level_bonus_percent <= 0) return false;
+    if (!bonus.level_bonus_percent || bonus.level_bonus_percent <= 0)
+      return false;
     if (!bonus.level_bonus_started_at) return false;
     if (!bonus.level_bonus_expires_at) return false;
 
@@ -119,20 +128,7 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     return `${minutes}min restantes`;
   }
 
-  function formatBonusDaysLeft(expiresAt?: string | null) {
-    if (!expiresAt) return "";
-
-    const diff = new Date(expiresAt).getTime() - bonusNow;
-
-    if (diff <= 0) return "0 dias";
-
-    const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
-
-    if (daysLeft === 1) return "1 dia";
-    return `${daysLeft} dias`;
-  }
-
-  const bonusAtivo = isLevelBonusActive(levelBonus);
+  const bonusAtivo = !isGuest && isLevelBonusActive(levelBonus);
 
   useEffect(() => {
     if (!avatarUrl) {
@@ -143,24 +139,39 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
   }, [avatarUrl]);
 
   useEffect(() => {
+    if (isGuest) return;
+
     function onProfileUpdated(e: Event) {
       try {
         const ev = e as CustomEvent;
         const newUrl = ev?.detail?.avatar_url ?? null;
         if (!newUrl) return;
         setAvatarState(cacheBust(newUrl));
-      } catch (err) {
+      } catch {
         // ignore
       }
     }
 
-    window.addEventListener("profile:updated", onProfileUpdated as EventListener);
+    window.addEventListener(
+      "profile:updated",
+      onProfileUpdated as EventListener
+    );
     return () => {
-      window.removeEventListener("profile:updated", onProfileUpdated as EventListener);
+      window.removeEventListener(
+        "profile:updated",
+        onProfileUpdated as EventListener
+      );
     };
-  }, []);
+  }, [isGuest]);
 
   useEffect(() => {
+    if (isGuest) {
+      setPoints(0);
+      setDisplayPoints(0);
+      setLevel(1);
+      return;
+    }
+
     let timer: any;
     let loadingSaldo = false;
 
@@ -221,9 +232,10 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
       stop();
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, []);
+  }, [isGuest]);
 
   useEffect(() => {
+    if (isGuest) return;
     if (!initialPointsLoaded.current) return;
     if (points === displayRef.current) return;
 
@@ -244,7 +256,9 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     function step(now: number) {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / durationCount, 1);
-      const value = Math.floor(startValue + (endValue - startValue) * progress);
+      const value = Math.floor(
+        startValue + (endValue - startValue) * progress
+      );
       setDisplayPoints(value);
 
       if (progress < 1) {
@@ -271,7 +285,7 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
       setIsPulsing(false);
       setPointsDirection(null);
     };
-  }, [points]);
+  }, [points, isGuest]);
 
   useEffect(() => {
     const timer = setTimeout(() => setLogoFaded(true), 2200);
@@ -279,6 +293,8 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
   }, []);
 
   useEffect(() => {
+    if (isGuest) return;
+
     function handleClick(e: MouseEvent) {
       const target = e.target as HTMLElement;
       if (!target.closest(".profile")) {
@@ -293,9 +309,11 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     return () => {
       document.removeEventListener("click", handleClick);
     };
-  }, [menuOpen]);
+  }, [menuOpen, isGuest]);
 
   useEffect(() => {
+    if (isGuest) return;
+
     function handleClick(e: MouseEvent) {
       const target = e.target as HTMLElement;
       if (!target.closest(".bell-wrapper")) {
@@ -310,10 +328,19 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     return () => {
       document.removeEventListener("click", handleClick);
     };
-  }, [bellOpen]);
+  }, [bellOpen, isGuest]);
 
-  // lê o bônus salvo pelo dashboard
   useEffect(() => {
+    if (isGuest) {
+      setLevelBonus({
+        level_bonus_percent: 0,
+        level_bonus_started_at: null,
+        level_bonus_expires_at: null,
+        level_bonus_active: false,
+      });
+      return;
+    }
+
     function loadBonusFromStorage() {
       try {
         const raw = localStorage.getItem("dashboard_level_bonus");
@@ -361,16 +388,17 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
         onBonusUpdated as EventListener
       );
     };
-  }, []);
+  }, [isGuest]);
 
-  // atualiza o relógio interno a cada minuto para o bônus sumir sozinho ao expirar
   useEffect(() => {
+    if (isGuest) return;
+
     const interval = window.setInterval(() => {
       setBonusNow(Date.now());
     }, 60000);
 
     return () => window.clearInterval(interval);
-  }, []);
+  }, [isGuest]);
 
   function getPageTitle() {
     if (pathname === "/dashboard") return "Dashboard";
@@ -396,8 +424,19 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
 
   return (
     <header className="dashboard-topbar">
-      <div className="topbar-left">
-        <div className="topbar-path">{getPageTitle()}</div>
+      <div className={`topbar-left ${isGuest ? "topbar-left-hidden" : ""}`}>
+        
+        {/* 🔥 BOTÃO LANDING - SOMENTE VISITANTE */}
+        {isGuest && (
+          <Link href="/public" className="landing-btn">
+            <span className="landing-icon">🚀</span>
+            <span className="landing-text">Como ganhar pontos? venha conhecer</span>
+          </Link>
+        )}
+
+        {!isGuest && (
+          <div className="topbar-path">{getPageTitle()}</div>
+        )}
       </div>
 
       <div className="brand-logo-wrapper">
@@ -411,230 +450,266 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
       </div>
 
       <div className="topbar-right">
-        {bonusAtivo && (
+        {!isGuest && bonusAtivo && (
           <div
             className="level-bonus-badge"
-            title={`Bônus ativo: +${levelBonus.level_bonus_percent}% nas compras • ${formatBonusRemaining(levelBonus.level_bonus_expires_at)}`}
+            title={`Bônus ativo: +${levelBonus.level_bonus_percent}% nas compras • ${formatBonusRemaining(
+              levelBonus.level_bonus_expires_at
+            )}`}
           >
             <span className="level-bonus-icon">🔥</span>
             <span className="level-bonus-text">
-              Bonus Ativo +{levelBonus.level_bonus_percent}% 
+              Bonus Ativo +{levelBonus.level_bonus_percent}%
             </span>
           </div>
         )}
-        
-        <div className="bell-wrapper">
-          <button
-            className={`bell ${pendentes > 0 ? "has-notifications" : "no-notifications"}`}
-            onClick={() => setBellOpen((v) => !v)}
-          >
-            <p>🔔</p>
-            {pendentes > 0 && <span className="bell-badge">{pendentes}</span>}
-          </button>
 
-          {bellOpen && (
-            <div className="bell-dropdown">
-              <div className="bell-dropdown-head">
-                <div className="bell-dropdown-title">Notificações</div>
+        {isGuest ? (
+          <div className="guest-auth-actions">
+            <Link href="/auth/login" className="guest-auth-btn guest-login-btn">
+              Entrar
+            </Link>
 
-                <button
-                  className="bell-mark-all"
-                  disabled={pendentes === 0}
-                  onClick={async (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    await marcarTodasComoLidas();
-                  }}
-                >
-                  Marcar todas Lidas
-                </button>
+            <Link
+              href="/auth/cadastro"
+              className="guest-auth-btn guest-signup-btn"
+            >
+              Cadastrar
+            </Link>
+          </div>
+        ) : (
+          <>
+            <div className="bell-wrapper">
+              <button
+                className={`bell ${
+                  pendentes > 0 ? "has-notifications" : "no-notifications"
+                }`}
+                onClick={() => setBellOpen((v) => !v)}
+              >
+                <p>🔔</p>
+                {pendentes > 0 && <span className="bell-badge">{pendentes}</span>}
+              </button>
+
+              {bellOpen && (
+                <div className="bell-dropdown">
+                  <div className="bell-dropdown-head">
+                    <div className="bell-dropdown-title">Notificações</div>
+
+                    <button
+                      className="bell-mark-all"
+                      disabled={pendentes === 0}
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        await marcarTodasComoLidas();
+                      }}
+                    >
+                      Marcar todas Lidas
+                    </button>
+                  </div>
+
+                  {pendentes === 0 && (
+                    <div className="bell-empty">
+                      Nenhuma notificação pendente
+                    </div>
+                  )}
+
+                  {creditosNovos.map((c) => (
+                    <div
+                      key={c.id}
+                      className="bell-item credito"
+                      onClick={() => marcarCreditoComoLido(c.id)}
+                    >
+                      <div className="bell-item-title">✨ Pontos creditados</div>
+                      <div className="bell-item-sub">
+                        +{c.pontos.toLocaleString()} pontos
+                      </div>
+                    </div>
+                  ))}
+
+                  {notificacoesLevelUp.map((n) => (
+                    <div
+                      key={n.id}
+                      className="bell-item levelup"
+                      onClick={() => marcarLevelUpComoLido(n.id)}
+                    >
+                      <div className="bell-item-title">
+                        🚀 Novo nível alcançado!
+                      </div>
+                      <div className="bell-item-sub">{n.descricao}</div>
+                    </div>
+                  ))}
+
+                  {notificacoesConquista.map((n) => (
+                    <div
+                      key={n.id}
+                      className={`bell-item conquista ${n.lida ? "lida" : ""}`}
+                      onClick={async () => {
+                        await marcarConquistaComoLida(n.id);
+                        setBellOpen(false);
+                        router.push("/dashboard/perfil");
+                      }}
+                    >
+                      <div className="bell-item-title">
+                        🏆 Nova conquista desbloqueada!
+                      </div>
+                      <div className="bell-item-sub">{n.descricao}</div>
+                    </div>
+                  ))}
+
+                  {notificacoesRecompensa.map((n) => (
+                    <div
+                      key={n.id}
+                      className="bell-item recompensa"
+                      onClick={async () => {
+                        await marcarRecompensaComoLida(n.id);
+                        setBellOpen(false);
+                        router.push("/dashboard/inventario");
+                      }}
+                    >
+                      <div className="bell-item-title">
+                        🎁 Recompensa processada
+                      </div>
+                      <div className="bell-item-sub">{n.descricao}</div>
+                    </div>
+                  ))}
+
+                  {notificacoesChamado.map((n) => (
+                    <div
+                      key={n.id}
+                      className="bell-item chamado"
+                      onClick={async () => {
+                        await marcarChamadoComoLida(n.id);
+                        setBellOpen(false);
+                        router.push("/dashboard/ajuda/meus-chamados");
+                      }}
+                    >
+                      <div className="bell-item-title">{n.titulo}</div>
+                      <div className="bell-item-sub">{n.descricao}</div>
+                    </div>
+                  ))}
+
+                  {eventosPendentes.map((ev) => (
+                    <div
+                      key={ev.id}
+                      className="bell-item"
+                      onClick={() => {
+                        setBellOpen(false);
+                        router.push("/dashboard/compras");
+                      }}
+                    >
+                      <div className="bell-item-title">
+                        {ev.status === "AGUARDANDO_CONFIRMACAO" &&
+                          "Confirmação de compra"}
+                        {ev.status === "AGUARDANDO_RESPOSTA_CANCELADO" &&
+                          "Cancelamento detectado"}
+                        {ev.status === "SOLICITAR_PROVA" &&
+                          "Enviar comprovante"}
+                      </div>
+
+                      <div className="bell-item-sub">
+                        {ev.produto_nome ?? "Produto"}
+                      </div>
+                    </div>
+                  ))}
+
+                  {notificacoesAvaliacao.map((n) => (
+                    <div
+                      key={n.id}
+                      className="bell-item avaliacao"
+                      onClick={() => {
+                        setBellOpen(false);
+                        window.dispatchEvent(
+                          new Event("abrir-modal-avaliacao-plataforma")
+                        );
+                      }}
+                    >
+                      <div className="bell-item-title">⭐ {n.titulo}</div>
+                      <div className="bell-item-sub">{n.descricao}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="profile" onClick={() => setMenuOpen((v) => !v)}>
+              {menuOpen && (
+                <div className="profile-menu">
+                  <button
+                    className="profile-menu-item"
+                    onClick={() => router.push("/dashboard/perfil")}
+                  >
+                    👤 Perfil
+                  </button>
+
+                  <button
+                    className="profile-menu-item"
+                    onClick={() => router.push("/dashboard/perfil-config")}
+                  >
+                    ⚙️ Configurações
+                  </button>
+
+                  <button
+                    className="profile-menu-item"
+                    onClick={() => router.push("/dashboard/ajuda")}
+                  >
+                    ❓ Ajuda
+                  </button>
+
+                  <div className="profile-menu-divider" />
+
+                  <button
+                    className="profile-menu-item logout"
+                    onClick={() => setLogoutModal(true)}
+                  >
+                    🚪 Sair
+                  </button>
+                </div>
+              )}
+
+              <div className="profile-avatar-header">
+                {avatarState ? (
+                  <img
+                    src={avatarState}
+                    alt="Avatar"
+                    className="profile-avatar-img-header"
+                  />
+                ) : (
+                  <span className="profile-avatar-header-fallback">
+                    {userName.charAt(0).toUpperCase()}
+                  </span>
+                )}
               </div>
 
-              {pendentes === 0 && (
-                <div className="bell-empty">Nenhuma notificação pendente</div>
+              {level !== null && (
+                <div className="profile-level-under-avatar">{level}</div>
               )}
 
-              {creditosNovos.map((c) => (
-                <div
-                  key={c.id}
-                  className="bell-item credito"
-                  onClick={() => marcarCreditoComoLido(c.id)}
-                >
-                  <div className="bell-item-title">✨ Pontos creditados</div>
-                  <div className="bell-item-sub">
-                    +{c.pontos.toLocaleString()} pontos
-                  </div>
-                </div>
-              ))}
+              <div className="profile-info">
+                <div className="profile-name-header">{userName}</div>
 
-              {notificacoesLevelUp.map((n) => (
                 <div
-                  key={n.id}
-                  className="bell-item levelup"
-                  onClick={() => marcarLevelUpComoLido(n.id)}
+                  className={`profile-points
+                    ${isPulsing ? "points-pulse" : ""}
+                    ${pointsDirection === "up" ? "points-up" : ""}
+                    ${pointsDirection === "down" ? "points-down" : ""}
+                  `}
                 >
-                  <div className="bell-item-title">🚀 Novo nível alcançado!</div>
-                  <div className="bell-item-sub">{n.descricao}</div>
+                  💎
+                  {displayPoints}
+                  {isPulsing && pointsDirection && (
+                    <span className="points-sign">
+                      {pointsDirection === "up" ? "+" : "-"}
+                    </span>
+                  )}
                 </div>
-              ))}
-
-              {notificacoesConquista.map((n) => (
-                <div
-                  key={n.id}
-                  className={`bell-item conquista ${n.lida ? "lida" : ""}`}
-                  onClick={async () => {
-                    await marcarConquistaComoLida(n.id);
-                    setBellOpen(false);
-                    router.push("/dashboard/perfil");
-                  }}
-                >
-                  <div className="bell-item-title">🏆 Nova conquista desbloqueada!</div>
-                  <div className="bell-item-sub">{n.descricao}</div>
-                </div>
-              ))}
-
-              {notificacoesRecompensa.map((n) => (
-                <div
-                  key={n.id}
-                  className="bell-item recompensa"
-                  onClick={async () => {
-                    await marcarRecompensaComoLida(n.id);
-                    setBellOpen(false);
-                    router.push("/dashboard/inventario");
-                  }}
-                >
-                  <div className="bell-item-title">🎁 Recompensa processada</div>
-                  <div className="bell-item-sub">{n.descricao}</div>
-                </div>
-              ))}
-
-              {notificacoesChamado.map((n) => (
-                <div
-                  key={n.id}
-                  className="bell-item chamado"
-                  onClick={async () => {
-                    await marcarChamadoComoLida(n.id);
-                    setBellOpen(false);
-                    router.push("/dashboard/ajuda/meus-chamados");
-                  }}
-                >
-                  <div className="bell-item-title">{n.titulo}</div>
-                  <div className="bell-item-sub">{n.descricao}</div>
-                </div>
-              ))}
-
-              {eventosPendentes.map((ev) => (
-                <div
-                  key={ev.id}
-                  className="bell-item"
-                  onClick={() => {
-                    setBellOpen(false);
-                    router.push("/dashboard/compras");
-                  }}
-                >
-                  <div className="bell-item-title">
-                    {ev.status === "AGUARDANDO_CONFIRMACAO" && "Confirmação de compra"}
-                    {ev.status === "AGUARDANDO_RESPOSTA_CANCELADO" && "Cancelamento detectado"}
-                    {ev.status === "SOLICITAR_PROVA" && "Enviar comprovante"}
-                  </div>
-
-                  <div className="bell-item-sub">{ev.produto_nome ?? "Produto"}</div>
-                </div>
-              ))}
-
-              {notificacoesAvaliacao.map((n) => (
-                <div
-                  key={n.id}
-                  className="bell-item avaliacao"
-                  onClick={() => {
-                    setBellOpen(false);
-                    window.dispatchEvent(new Event("abrir-modal-avaliacao-plataforma"));
-                  }}
-                >
-                  <div className="bell-item-title">⭐ {n.titulo}</div>
-                  <div className="bell-item-sub">{n.descricao}</div>
-                </div>
-              ))}
+              </div>
             </div>
-          )}
-        </div>
-
-        <div className="profile" onClick={() => setMenuOpen((v) => !v)}>
-          {menuOpen && (
-            <div className="profile-menu">
-              <button
-                className="profile-menu-item"
-                onClick={() => router.push("/dashboard/perfil")}
-              >
-                👤 Perfil
-              </button>
-
-              <button
-                className="profile-menu-item"
-                onClick={() => router.push("/dashboard/perfil-config")}
-              >
-                ⚙️ Configurações
-              </button>
-
-              <button
-                className="profile-menu-item"
-                onClick={() => router.push("/dashboard/ajuda")}
-              >
-                ❓ Ajuda
-              </button>
-
-              <div className="profile-menu-divider" />
-
-              <button
-                className="profile-menu-item logout"
-                onClick={() => setLogoutModal(true)}
-              >
-                🚪 Sair
-              </button>
-            </div>
-          )}
-
-          <div className="profile-avatar-header">
-            {avatarState ? (
-              <img
-                src={avatarState}
-                alt="Avatar"
-                className="profile-avatar-img-header"
-              />
-            ) : (
-              <span className="profile-avatar-header-fallback">
-                {userName.charAt(0).toUpperCase()}
-              </span>
-            )}
-          </div>
-
-          {level !== null && (
-            <div className="profile-level-under-avatar">{level}</div>
-          )}
-
-          <div className="profile-info">
-            <div className="profile-name-header">{userName}</div>
-
-            <div
-              className={`profile-points
-                ${isPulsing ? "points-pulse" : ""}
-                ${pointsDirection === "up" ? "points-up" : ""}
-                ${pointsDirection === "down" ? "points-down" : ""}
-              `}
-            >
-              💎
-              {displayPoints}
-              {isPulsing && pointsDirection && (
-                <span className="points-sign">
-                  {pointsDirection === "up" ? "+" : "-"}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
 
-      {logoutModal && (
+      {!isGuest && logoutModal && (
         <div className="logout-modal-overlay">
           <div className="logout-modal">
             <div className="logout-title">Sair da conta</div>
@@ -651,10 +726,7 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
                 Cancelar
               </button>
 
-              <button
-                className="logout-confirm"
-                onClick={confirmLogout}
-              >
+              <button className="logout-confirm" onClick={confirmLogout}>
                 Sim, sair
               </button>
             </div>

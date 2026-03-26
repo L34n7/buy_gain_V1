@@ -585,6 +585,7 @@
   position: relative;
   width: 180px;  /* antes 60px */
   height: 180px;
+  font-size: 100px;
   display: block;
   margin: 0 auto 20px auto;
   transform-origin: center center; /* IMPORTANTÍSSIMO */

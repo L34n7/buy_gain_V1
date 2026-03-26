@@ -54,10 +54,12 @@
     margin-top: 3px;
   }
 
-  .mobile-item.active {
+  .mobile-item.active,
+  .mobile-menu a.active {
     color: #00fff5;
   }
 
+  
   /* MENU EXPANDIDO */
   .mobile-menu-overlay {
     position: fixed;

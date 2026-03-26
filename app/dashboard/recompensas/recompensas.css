@@ -499,6 +499,24 @@
   padding-right: 6px; /* espaço para scrollbar */
 }
 
+
+.modal::-webkit-scrollbar {
+  width: 8px;
+  max-height: 10px;
+}
+
+
+.modal::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    rgba(138, 60, 242, 0.9),
+    rgba(0, 255, 245, 0.8)
+  );
+  border-radius: 20px;
+  background-clip: padding-box;
+}
+
+
 /* estilo de cada opção (direito) */
 .opcao{
   text-align: left;
@@ -546,7 +564,7 @@
   border-radius: 12px;
   border: none;
   background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
-  color: rgba(4,12,26,0.98);
+  color: #040c1afa;
   font-weight: 800;
   font-size: 15px;
   cursor: pointer;
@@ -560,14 +578,22 @@
 /* ===== Opcional: estilização da scrollbar da coluna direita para ficar elegante ===== */
 .label-opcoes::-webkit-scrollbar { width: 12px; }
 .label-opcoes::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(138,92,255,0.18), rgba(0,240,255,0.18));
+    background: linear-gradient(
+    180deg,
+    rgba(138, 60, 242, 0.9),
+    rgba(0, 255, 245, 0.8)
+  );
   border-radius: 12px;
   border: 3px solid transparent;
   background-clip: padding-box;
 }
 .label-opcoes::-webkit-scrollbar-track {
-  background: rgba(255,255,255,0.01);
-  border-radius: 12px;
+  background: linear-gradient(
+    180deg,
+    rgba(138, 60, 242, 0.9),
+    rgba(0, 255, 245, 0.8)
+  );
+  border-radius: 20px;
 }
 
 
@@ -910,6 +936,11 @@
 
   display: block;
 }
+
+.modal::-webkit-scrollbar {
+  width: 5px;
+}
+
 
 /* título menor */
 .modal > h2{

@@ -31,6 +31,11 @@
   transform: translateX(120px);
 }
 
+.topbar-left-hidden {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .topbar-path { 
   font-weight: 600; 
   opacity: 0.95; 
@@ -738,6 +743,146 @@
 
 
 
+/* =====================================================
+   GUEST MODE (VISITANTE)
+===================================================== */
+
+.guest-auth-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* BOTÃO BASE */
+.guest-auth-btn {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+/* BOTÃO ENTRAR */
+.guest-login-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #fff;
+  backdrop-filter: blur(6px);
+}
+
+.guest-login-btn:hover {
+  background: rgba(255,255,255,0.10);
+  transform: translateY(-1px);
+}
+
+/* BOTÃO CADASTRAR */
+.guest-signup-btn {
+  background: linear-gradient(135deg, #8b3cf2, #00fff5);
+  border: none;
+  color: #000;
+  box-shadow:
+    0 6px 18px rgba(138,60,242,0.45),
+    0 0 12px rgba(0,255,245,0.25);
+}
+
+.guest-signup-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow:
+    0 10px 24px rgba(138,60,242,0.55),
+    0 0 18px rgba(0,255,245,0.35);
+}
+
+
+
+/* ===============================
+   BOTÃO LANDING PAGE
+=============================== */
+.landing-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: -40px;
+  padding: 8px 14px;
+  border-radius: 999px;
+
+  font-size: 16px;
+  font-weight: 600;
+
+  color: #fffffff4;
+  text-decoration: none;
+
+  background:
+    linear-gradient(80deg, rgba(74, 1, 123, 0.609), rgb(13, 38, 87));
+  border: 1px solid rgba(255, 255, 255, 0.074);
+  opacity: 0.95;
+
+  transition: all 0.25s ease;
+}
+
+.landing-btn:hover {
+  transform: translateY(-1px) scale(1.01);
+  box-shadow: 0 3px 20px rgba(0, 225, 255, 0.305);
+  color: #ffffff;
+  opacity: 1;
+}
+
+.landing-icon {
+  font-size: 14px;
+}
+
+.landing-text {
+  white-space: nowrap;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .landing-text {
+    display: none;
+  }
+
+  .landing-btn {
+    padding: 8px;
+  }
+}
+
+
+
+/* =====================================================
+   MOBILE - GUEST MODE
+===================================================== */
+
+@media (max-width: 900px) {
+
+  .guest-auth-actions {
+    gap: 8px;
+    margin-right: 4px;
+  }
+
+  .guest-auth-btn {
+    height: 34px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  /* reorganiza posição no mobile */
+  .guest-auth-actions {
+    order: 1;
+  }
+
+  /* logo continua no meio */
+  .brand-logo-wrapper {
+    order: 2;
+  }
+}
+
+
+
 /* =========================================
    HEADER MOBILE – ordem: sino | logo | profile
 ========================================= */
@@ -864,15 +1009,13 @@
     order: 4;
     position: absolute;
     top: 64px;
-
-    left:50%;
     transform: translateX(-50%);
 
     height: 34px;
-    padding: 0 14px;
+    padding: 0 10px;
     gap: 6px;
     font-size: 12px;
-    z-index: 20;
+    z-index: 0;
 
     box-shadow:
       0 10px 22px rgba(255, 122, 24, 0.24),

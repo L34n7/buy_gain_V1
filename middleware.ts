@@ -8,14 +8,13 @@ export function middleware(request: NextRequest) {
   const isAuthenticated = !!request.cookies.get("sb-access-token");
 
   /* ===============================
-     1️⃣ PROTEGE O DASHBOARD
+     1️⃣ PROTEGE APENAS AS SUBPÁGINAS DO DASHBOARD
+     /dashboard fica público
   =============================== */
-  if (pathname.startsWith("/dashboard")) {
-    if (!isAuthenticated) {
-      return NextResponse.redirect(
-        new URL("/auth/login", request.url)
-      );
-    }
+  const isDashboardInterno = pathname.startsWith("/dashboard/");
+
+  if (isDashboardInterno && !isAuthenticated) {
+    return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
   /* ===============================
@@ -23,9 +22,7 @@ export function middleware(request: NextRequest) {
   =============================== */
   if (pathname === "/auth/login" || pathname === "/auth/cadastro") {
     if (isAuthenticated) {
-      return NextResponse.redirect(
-        new URL("/dashboard", request.url)
-      );
+      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
 

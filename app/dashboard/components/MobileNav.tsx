@@ -15,6 +15,11 @@ export default function MobileNav() {
   const { eventosPendentes, notificacoesRecompensa } = useNotifications();
 
   function isActive(path: string) {
+    // 👉 Caso especial: início
+    if (path === "/dashboard") {
+      return pathname === "/dashboard";
+    }
+
     return pathname === path || pathname.startsWith(path + "/");
   }
 
@@ -44,6 +49,16 @@ export default function MobileNav() {
 
     checkAdmin();
   }, []);
+
+  function isMoreActive() {
+    return (
+      isActive("/dashboard/extrato") ||
+      isActive("/dashboard/historico") ||
+      isActive("/dashboard/inventario") ||
+      isActive("/dashboard/missoes") ||
+      isActive("/dashboard/admin")
+    );
+  }
 
   return (
     <>
@@ -126,22 +141,22 @@ export default function MobileNav() {
           <span>Início</span>
         </Link>
 
-      <Link
-        href="/dashboard/compras"
-        className={`mobile-item mobile-item-compras ${
-          isActive("/dashboard/compras") ? "active" : ""
-        }`}
-      >
-        🛒
+        <Link
+          href="/dashboard/compras"
+          className={`mobile-item mobile-item-compras ${
+            isActive("/dashboard/compras") ? "active" : ""
+          }`}
+        >
+          🛒
 
-        {eventosPendentes.length > 0 && (
-          <span className="mobile-badge">
-            {eventosPendentes.length}
-          </span>
-        )}
+          {eventosPendentes.length > 0 && (
+            <span className="mobile-badge">
+              {eventosPendentes.length}
+            </span>
+          )}
 
-        <span>Compras</span>
-      </Link>
+          <span>Compras</span>
+        </Link>
 
         <Link
           href="/dashboard/recompensas"
@@ -155,7 +170,9 @@ export default function MobileNav() {
 
         <button
           type="button"
-          className="mobile-item mobile-item-more"
+          className={`mobile-item mobile-item-more ${
+            isMoreActive() ? "active" : ""
+          }`}
           onClick={() => setMenuOpen((prev) => !prev)}
         >
           ☰

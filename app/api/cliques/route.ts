@@ -11,34 +11,27 @@ export async function POST(req: Request) {
 
     const {
       data: { user },
-      error: authError,
     } = await supabaseUser.auth.getUser();
-
-    if (!user || authError) {
-      return NextResponse.json(
-        { error: "Usuário não autenticado" },
-        { status: 401 }
-      );
-    }
 
     // 2️⃣ Supabase admin
     const admin = await createAdminSupabase();
 
-    // 3️⃣ Mapear usuário legado
-    const { data: legacyUser, error: legacyError } = await admin
-      .from("users")
-      .select("id")
-      .eq("auth_user_id", user.id)
-      .single();
+    // 3️⃣ Se estiver logado, tenta mapear usuário legado
+    let user_id: string | null = null;
+    let isGuest = true;
 
-    if (legacyError || !legacyUser) {
-      return NextResponse.json(
-        { error: "Usuário não vinculado ao Auth" },
-        { status: 403 }
-      );
+    if (user) {
+      const { data: legacyUser, error: legacyError } = await admin
+        .from("users")
+        .select("id")
+        .eq("auth_user_id", user.id)
+        .maybeSingle();
+
+      if (!legacyError && legacyUser?.id) {
+        user_id = legacyUser.id;
+        isGuest = false;
+      }
     }
-
-    const user_id = legacyUser.id;
 
     // 4️⃣ Dados vindos do frontend
     const {
@@ -53,7 +46,7 @@ export async function POST(req: Request) {
     } = await req.json();
 
     // 5️⃣ Validação mínima
-    if (!produto_nome || !link_rastreado || valor === null || ganhos === null) {
+    if (!produto_nome || !produto_url || !link_rastreado) {
       return NextResponse.json(
         { error: "Dados incompletos" },
         { status: 400 }
@@ -63,16 +56,23 @@ export async function POST(req: Request) {
     // 6️⃣ Buscar o registro já criado em /api/gerar-link
     const tresMinutosAtras = new Date(Date.now() - 3 * 60 * 1000).toISOString();
 
-    const { data: existingLink, error: existingError } = await admin
+    let existingQuery = admin
       .from("generate_link")
-      .select("id, produto_nome, pontos, link_rastreado")
-      .eq("user_id", user_id)
+      .select("id, produto_nome, pontos, link_rastreado, user_id")
       .eq("produto_url", produto_url)
       .eq("link_rastreado", link_rastreado)
       .gte("data_criacao", tresMinutosAtras)
       .order("data_criacao", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .limit(1);
+
+    if (!isGuest && user_id) {
+      existingQuery = existingQuery.eq("user_id", user_id);
+    } else {
+      existingQuery = existingQuery.is("user_id", null);
+    }
+
+    const { data: existingLink, error: existingError } =
+      await existingQuery.maybeSingle();
 
     if (existingError) {
       console.error("Erro ao buscar generate_link existente:", existingError);
@@ -144,13 +144,14 @@ export async function POST(req: Request) {
     // 8️⃣ Retorno final
     return NextResponse.json({
       success: true,
+      guest_mode: isGuest,
       generate_link: {
         id: existingLink.id,
         produto_nome: existingLink.produto_nome,
         pontos: existingLink.pontos,
       },
       categoria_ml: categoriasInseridas,
-      categoria: marca,
+      categoria: marca ?? null,
     });
   } catch (err: any) {
     console.error("API cliques erro:", err);

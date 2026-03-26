@@ -3,9 +3,7 @@
 import React, { useState, useEffect } from "react";
 import "./dashboard.css";
 
-import {
-  statusExigeResposta,
-} from "./utils/prazo";
+import { statusExigeResposta } from "./utils/prazo";
 
 import EventsModal from "../components/EventsModal";
 import HeroLinkForm from "./components/HeroLinkForm";
@@ -14,15 +12,10 @@ import Link from "next/link";
 import { emitirXpUpdate } from "@/lib/xpEmitter";
 
 /* =====================================================
-   page.tsx - Conteúdo da página Início (limpo)
-   - Sidebar / Header foram movidos para components/
-   - Mantive toda a lógica de geração de links e estados
-   - Removi logoFaded / Header / Sidebar do arquivo
+   page.tsx - Conteúdo da página Início
+   Ajustado para funcionar em modo logado e visitante
 ===================================================== */
 
-/* ======================================================
-   TIPAGEM DOS DADOS QUE VÊM DA API COMPRAS
-====================================================== */
 type EventoPendente = {
   id: string;
   status?: string;
@@ -45,7 +38,7 @@ type LevelBonusData = {
 
 export default function Home() {
   /* --------------------------
-     STATES (mantidos)
+     STATES PRINCIPAIS
   ---------------------------*/
   const [url, setUrl] = useState<string>("");
   const [trackedLink, setTrackedLink] = useState<string | null>(null);
@@ -70,8 +63,9 @@ export default function Home() {
     []
   );
   const [eventoModalId, setEventoModalId] = useState<string | null>(null);
-  const [modalAbertoAutomatico, setModalAbertoAutomatico] =
-    useState(false);
+  const [modalAbertoAutomatico, setModalAbertoAutomatico] = useState(false);
+
+  const [recompensasQtd, setRecompensasQtd] = useState(0);
 
   const [levelBonus, setLevelBonus] = useState<LevelBonusData>({
     level_bonus_percent: 0,
@@ -80,66 +74,187 @@ export default function Home() {
     level_bonus_active: false,
   });
 
+  // NOVO: controle de visitante/logado
+  const [isGuest, setIsGuest] = useState<boolean>(true);
+  const [authChecked, setAuthChecked] = useState<boolean>(false);
+
   // usados no modal de envio de prova
   const [relato, setRelato] = useState("");
   const [arquivo, setArquivo] = useState<File | null>(null);
 
   /* -----------------------------------------------------
-     cálculo de pontos estimado (mantido)
+     cálculo de pontos estimado
   ----------------------------------------------------- */
   const pointsMin = gain10 !== null ? Math.round(gain10 * 100) : null;
   const pointsMax = gain30 !== null ? Math.round(gain30 * 100) : null;
 
   /* -----------------------------------------------------
-    Buscar eventos assim que o Dashboard abrir
+     1) Descobrir se está logado
+     Se não estiver, entra em modo visitante sem quebrar
   ----------------------------------------------------- */
-  useEffect(() => {
-    async function carregarEventosPendentes() {
-      const res = await fetch("/api/compras", {
-        method: "POST",
-        credentials: "include", // 🔑 ESSENCIAL
-      });
+useEffect(() => {
+  async function verificarSessaoECarregarResumo() {
+    try {
+      const [resSummary, resSaldo] = await Promise.all([
+        fetch("/api/dashboard/summary", {
+          method: "POST",
+          credentials: "include",
+        }),
+        fetch("/api/saldo", {
+          credentials: "include",
+        }),
+      ]);
 
-      if (!res.ok) return;
+      const summary = resSummary.ok ? await resSummary.json() : null;
+      const saldo = resSaldo.ok ? await resSaldo.json() : null;
 
-      const json = await res.json();
-      emitirXpUpdate(json);
-      const eventos = json.data || [];
+      const visitante = !!summary?.is_guest || !resSaldo.ok;
 
-      setEventosPendentes(eventos);
+      if (visitante) {
+        setIsGuest(true);
+        setUserName("Visitante");
+        setTotalPoints(0);
 
-      const pendente = eventos.find((e: EventoPendente) =>
-        statusExigeResposta(e.status)
+        const bonusData: LevelBonusData = {
+          level_bonus_percent: 0,
+          level_bonus_started_at: null,
+          level_bonus_expires_at: null,
+          level_bonus_active: false,
+        };
+
+        setLevelBonus(bonusData);
+        localStorage.removeItem("dashboard_level_bonus");
+
+        window.dispatchEvent(
+          new CustomEvent("dashboard:level-bonus-updated", {
+            detail: bonusData,
+          })
+        );
+
+        return;
+      }
+
+      setIsGuest(false);
+
+      if (summary?.user_name) {
+        setUserName(summary.user_name);
+      }
+
+      setTotalPoints(saldo?.saldo ?? 0);
+
+      const bonusData: LevelBonusData = {
+        level_bonus_percent: summary?.level_bonus_percent ?? 0,
+        level_bonus_started_at: summary?.level_bonus_started_at ?? null,
+        level_bonus_expires_at: summary?.level_bonus_expires_at ?? null,
+        level_bonus_active: summary?.level_bonus_active ?? false,
+      };
+
+      setLevelBonus(bonusData);
+
+      localStorage.setItem(
+        "dashboard_level_bonus",
+        JSON.stringify(bonusData)
       );
 
-      if (pendente && !modalAbertoAutomatico) {
-        setEventoModalId(pendente.id);
-        setModalAbertoAutomatico(true);
+      window.dispatchEvent(
+        new CustomEvent("dashboard:level-bonus-updated", {
+          detail: bonusData,
+        })
+      );
+    } catch (err) {
+      console.error("Erro ao verificar sessão do dashboard:", err);
+
+      setIsGuest(true);
+      setUserName("Visitante");
+      setTotalPoints(0);
+
+      const bonusData: LevelBonusData = {
+        level_bonus_percent: 0,
+        level_bonus_started_at: null,
+        level_bonus_expires_at: null,
+        level_bonus_active: false,
+      };
+
+      setLevelBonus(bonusData);
+      localStorage.removeItem("dashboard_level_bonus");
+
+      window.dispatchEvent(
+        new CustomEvent("dashboard:level-bonus-updated", {
+          detail: bonusData,
+        })
+      );
+    } finally {
+      setAuthChecked(true);
+    }
+  }
+
+  verificarSessaoECarregarResumo();
+}, []);
+
+  /* -----------------------------------------------------
+    2) Buscar eventos pendentes
+    Só deve acontecer para usuário logado
+  ----------------------------------------------------- */
+  useEffect(() => {
+    if (!authChecked || isGuest) return;
+
+    async function carregarEventosPendentes() {
+      try {
+        const res = await fetch("/api/compras", {
+          method: "POST",
+          credentials: "include",
+        });
+
+        if (!res.ok) return;
+
+        const json = await res.json();
+        emitirXpUpdate(json);
+
+        const eventos = json.data || [];
+        setEventosPendentes(eventos);
+
+        const pendente = eventos.find((e: EventoPendente) =>
+          statusExigeResposta(e.status)
+        );
+
+        if (pendente && !modalAbertoAutomatico) {
+          setEventoModalId(pendente.id);
+          setModalAbertoAutomatico(true);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar eventos pendentes:", err);
       }
     }
 
     carregarEventosPendentes();
-  }, [modalAbertoAutomatico]);
+  }, [authChecked, isGuest, modalAbertoAutomatico]);
 
-  /* -----------------------------------------------------------------
-   CARD Recompensas Disponíveis - Buscar giftcads de acordo com saldo
-  ------------------------------------------------------------------- */
-  const [recompensasQtd, setRecompensasQtd] = useState(0);
-
+  /* -----------------------------------------------------
+    3) Buscar recompensas disponíveis
+    Só para usuário logado
+  ----------------------------------------------------- */
   useEffect(() => {
+    if (!authChecked || isGuest) return;
+
     fetch("/api/recdisponivel", {
       credentials: "include",
     })
-      .then((r) => r.json())
+      .then(async (r) => {
+        if (!r.ok) return null;
+        return r.json();
+      })
       .then((data) => {
-        setRecompensasQtd(data.total_disponiveis || 0);
+        setRecompensasQtd(data?.total_disponiveis || 0);
+      })
+      .catch((err) => {
+        console.error("Erro ao buscar recompensas disponíveis:", err);
+        setRecompensasQtd(0);
       });
-  }, []);
+  }, [authChecked, isGuest]);
 
   /* -----------------------------------------------------
-    Criar as funções de ação
+    Ações privadas do modal
   ----------------------------------------------------- */
-
   async function acaoConfirmar(eventoId: string) {
     const res = await fetch("/api/compras/confirmar", {
       method: "POST",
@@ -184,9 +299,6 @@ export default function Home() {
     window.location.reload();
   }
 
-  /* -----------------------------------------------------
-    Upload do comprovante (método adicionado ao Dashboard)
-  ----------------------------------------------------- */
   async function uploadComprovante() {
     if (!eventoModalId) return;
     if (!arquivo) {
@@ -209,63 +321,9 @@ export default function Home() {
       return;
     }
 
-    // fecha modal e atualiza lista
     setEventoModalId(null);
     window.location.reload();
   }
-
-  /* -----------------------------------------------------
-     carregar resumo do usuário
-     agora também salva os dados do bônus de level
-  ----------------------------------------------------- */
-  useEffect(() => {
-    async function carregarResumo() {
-      try {
-        const [resSummary, resSaldo] = await Promise.all([
-          fetch("/api/dashboard/summary", {
-            method: "POST",
-            credentials: "include",
-          }),
-          fetch("/api/saldo", { credentials: "include" }),
-        ]);
-
-        const summary = await resSummary.json();
-        const saldo = await resSaldo.json();
-
-        if (summary?.user_name) {
-          setUserName(summary.user_name);
-        }
-
-        setTotalPoints(saldo?.saldo ?? 0);
-
-        const bonusData: LevelBonusData = {
-          level_bonus_percent: summary?.level_bonus_percent ?? 0,
-          level_bonus_started_at: summary?.level_bonus_started_at ?? null,
-          level_bonus_expires_at: summary?.level_bonus_expires_at ?? null,
-          level_bonus_active: summary?.level_bonus_active ?? false,
-        };
-
-        setLevelBonus(bonusData);
-
-        // salva para o header conseguir ler depois
-        localStorage.setItem(
-          "dashboard_level_bonus",
-          JSON.stringify(bonusData)
-        );
-
-        // dispara evento global para outros componentes atualizarem
-        window.dispatchEvent(
-          new CustomEvent("dashboard:level-bonus-updated", {
-            detail: bonusData,
-          })
-        );
-      } catch (err) {
-        console.error("Erro ao carregar dashboard:", err);
-      }
-    }
-
-    carregarResumo();
-  }, []);
 
   function identificarLojaNaoSuportada(hostname: string): string | null {
     if (hostname.includes("amazon.")) return "Amazon";
@@ -275,7 +333,8 @@ export default function Home() {
     if (
       hostname.includes("magazineluiza.") ||
       hostname.includes("magalu.")
-    ) return "Magazine Luiza";
+    )
+      return "Magazine Luiza";
     if (hostname.includes("americanas.")) return "Americanas";
     if (hostname.includes("casasbahia.")) return "Casas Bahia";
     if (hostname.includes("carrefour.")) return "Carrefour";
@@ -283,13 +342,16 @@ export default function Home() {
     if (
       hostname.includes("pontofrio.") ||
       hostname.includes("ponto.")
-    ) return "Ponto";
+    )
+      return "Ponto";
 
     return null;
   }
 
   /* -----------------------------------------------------
    handleGenerate
+   Nesta etapa ainda mantém as mesmas APIs
+   Depois vamos adaptar backend para visitante
   ----------------------------------------------------- */
   async function handleGenerate(e: React.FormEvent) {
     e.preventDefault();
@@ -360,37 +422,33 @@ export default function Home() {
       console.log("URL:", originalUrl);
       console.log("Shopee detectado:", isShopee);
 
-      /* ==============================
-        🔥 SHOPEE
-      ============================== */
       if (isShopee) {
         console.log("Chamando API Shopee");
         const res = await fetch("/api/shopee/short-link", {
           credentials: "include",
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ originalUrl: originalUrl }),
+          body: JSON.stringify({ originalUrl }),
         });
 
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
-          throw new Error(err?.error || "Erro ao gerar link Shopee");
+          throw new Error(
+            err?.error ||
+              "Erro ao gerar link Shopee. Nas próximas etapas vamos liberar totalmente o modo visitante."
+          );
         }
 
         data = await res.json();
 
-        // 🔥 DISPARA EVENTO GLOBAL (XP + CONQUISTAS)
-        window.dispatchEvent(
-          new CustomEvent("xp:updated", {
-            detail: data,
-          })
-        );
-      }
-
-      /* ==============================
-        🔥 MERCADO LIVRE
-      ============================== */
-      else {
+        if (!isGuest) {
+          window.dispatchEvent(
+            new CustomEvent("xp:updated", {
+              detail: data,
+            })
+          );
+        }
+      } else {
         console.log("Chamando API Mercado Livre");
         const res = await fetch("/api/gerar-link", {
           credentials: "include",
@@ -404,19 +462,22 @@ export default function Home() {
 
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
-          throw new Error(err?.error || "Erro ao gerar link");
+          throw new Error(
+            err?.error ||
+              "Erro ao gerar link. Nas próximas etapas vamos liberar totalmente o modo visitante."
+          );
         }
 
         data = await res.json();
 
-        // 🔥 DISPARA EVENTO GLOBAL (XP + CONQUISTAS)
-        window.dispatchEvent(
-          new CustomEvent("xp:updated", {
-            detail: data,
-          })
-        );
+        if (!isGuest) {
+          window.dispatchEvent(
+            new CustomEvent("xp:updated", {
+              detail: data,
+            })
+          );
+        }
 
-        // mantém sua estrutura atual do ML
         await fetch("/api/cliques", {
           credentials: "include",
           method: "POST",
@@ -432,12 +493,10 @@ export default function Home() {
             marca: data.marca,
             produto_imagem: data.produto_imagem,
           }),
+        }).catch(() => {
+          // não quebra a experiência se esse registro falhar
         });
       }
-
-      /* ==============================
-         🔥 ATUALIZA ESTADOS
-      ============================== */
 
       setTrackedLink(data.link_rastreado);
       setGain10(data.ganho_min ?? null);
@@ -446,10 +505,6 @@ export default function Home() {
       setProdutoImagem(data.produto_imagem ?? null);
       setValor(data.valor ?? null);
       setPontos(data.pontos ?? null);
-
-      /* ==============================
-         🔥 BUSCAR CUPONS (DINÂMICO)
-      ============================== */
 
       setLoadingCupons(true);
 
@@ -483,9 +538,9 @@ export default function Home() {
     }
   }
 
-  // função de copiar (usa setCopyMessage para feedback)
   async function copyTrackedLink() {
     if (!trackedLink) return;
+
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(trackedLink);
@@ -500,14 +555,19 @@ export default function Home() {
         document.execCommand("copy");
         document.body.removeChild(textarea);
       }
+
       setCopyMessage(
-        "🎮 Link copiado! Complete a missão: Compre pelo link e ganhe pontos."
+        isGuest
+          ? "✅ Link copiado! Faça login para ganhar pontos nas compras."
+          : "🎮 Link copiado! Complete a missão: Compre pelo link e ganhe pontos."
       );
+
       const el = document.querySelector(".btn-copy");
       if (el) {
         el.classList.add("copied");
         setTimeout(() => el.classList.remove("copied"), 1600);
       }
+
       setTimeout(() => setCopyMessage(null), 16000);
     } catch (err) {
       setCopyMessage("❌ Erro ao copiar");
@@ -515,9 +575,6 @@ export default function Home() {
     }
   }
 
-  /* -----------------------------------------------------
-     abrir link rastreado (mantido)
-  ----------------------------------------------------- */
   async function handleOpenTrackedLink() {
     if (!trackedLink) {
       alert("Link rastreado indisponível.");
@@ -527,16 +584,12 @@ export default function Home() {
     window.open(trackedLink, "_blank");
   }
 
-  /* -----------------------------------------------------
-     wrapper simples para chamar handleGenerate a partir do botão
-  ----------------------------------------------------- */
   function submitFromButton() {
     handleGenerate({ preventDefault() {} } as unknown as React.FormEvent);
   }
 
   /* -----------------------------------------------------
-   Pontos em análise (ml_eventos)
-   Exclui status finais e descartados
+   Métricas privadas
   ----------------------------------------------------- */
   const pontosEmAnalise = eventosPendentes
     .filter(
@@ -549,9 +602,6 @@ export default function Home() {
 
   const pontosEmAnaliseTexto = pontosEmAnalise.toString();
 
-  /* -----------------------------------------------------
-   Compras em análise (quantidade de eventos válidos)
-  ----------------------------------------------------- */
   const comprasEmAnalise = eventosPendentes.filter(
     (e) =>
       e.status !== "DESCARTADO" &&
@@ -559,19 +609,13 @@ export default function Home() {
       e.status !== "CONFIRMADO_FINAL"
   ).length;
 
-  /* =====================================================
-     RENDER: conteúdo da página (agora só o corpo)
-     Layout, Header e Sidebar são providos pelo layout.tsx
-  ===================================================== */
   return (
     <>
-      {/* container central */}
       <div className="dashboard-container">
         <div className="dashboard-card">
           <div className="dashboard-glow" />
 
           <div className="dashboard-content">
-            {/* 🔔 POPUP / TOAST */}
             {copyMessage && <div className="toast-popup">{copyMessage}</div>}
 
             <HeroLinkForm
@@ -583,6 +627,7 @@ export default function Home() {
               error={error}
               setError={setError}
               onSubmit={submitFromButton}
+              isGuest={isGuest}
             />
 
             <ResultCard
@@ -594,11 +639,11 @@ export default function Home() {
               pointsMin={pointsMin}
               pointsMax={pointsMax}
               copyMessage={copyMessage}
+              isGuest={isGuest}
               onCopy={copyTrackedLink}
               onOpen={handleOpenTrackedLink}
             />
 
-            {/* CUPONS COMPATÍVEIS */}
             {trackedLink && (
               <div className="dashboard-coupons">
                 <div className="card-title">
@@ -619,7 +664,6 @@ export default function Home() {
                   <div className="coupon-list">
                     {cupons.map((c) => (
                       <div key={c.id_cupom} className="coupon-card premium">
-                        {/* TOPO */}
                         <div className="coupon-top">
                           <div className="coupon-top-left">
                             <span className="coupon-badge">{c.descricao}</span>
@@ -634,7 +678,6 @@ export default function Home() {
                           <span className="coupon-discount">{c.valor} OFF</span>
                         </div>
 
-                        {/* CÓDIGO */}
                         <div className="coupon-code-box">
                           <span className="coupon-code-label">Código</span>
                           <div className="coupon-code-value">{c.cupom}</div>
@@ -644,7 +687,9 @@ export default function Home() {
                             onClick={async () => {
                               navigator.clipboard.writeText(c.cupom);
 
-                              const el = document.getElementById(`copy-${c.id_cupom}`);
+                              const el = document.getElementById(
+                                `copy-${c.id_cupom}`
+                              );
                               if (el) {
                                 el.innerText = "código copiado!";
                                 setTimeout(() => {
@@ -655,9 +700,11 @@ export default function Home() {
                               fetch("/api/cupom/click", {
                                 credentials: "include",
                                 method: "POST",
-                                headers: { "Content-Type": "application/json" },
+                                headers: {
+                                  "Content-Type": "application/json",
+                                },
                                 body: JSON.stringify({ cupom_id: c.id_cupom }),
-                              });
+                              }).catch(() => {});
                             }}
                             id={`copy-${c.id_cupom}`}
                           >
@@ -665,7 +712,6 @@ export default function Home() {
                           </button>
                         </div>
 
-                        {/* REGRAS */}
                         {c.regras && (
                           <details className="coupon-rules">
                             <summary>Ver regras do cupom</summary>
@@ -673,7 +719,6 @@ export default function Home() {
                           </details>
                         )}
 
-                        {/* RODAPÉ */}
                         <div className="coupon-footer">
                           <span className="footer-conf">
                             Confiabilidade: {c.score_confiabilidade}
@@ -690,7 +735,8 @@ export default function Home() {
               </div>
             )}
 
-            {/* status cards */}
+            {/* CARDS PRIVADOS: só logado */}
+            {authChecked && !isGuest && (
             <div className="status-cards">
               <Link href="/dashboard/compras" className="status-card-link">
                 <div className="status-card">
@@ -745,24 +791,65 @@ export default function Home() {
                 </div>
               </Link>
             </div>
+          )}
+
+          {authChecked && isGuest && (
+            <div className="guest-about-section">
+              <div className="guest-about-header">
+                <h3>Como funciona a BuyGain</h3>
+                <p>
+                  Encontre o cupom certo para a sua compra de forma otimizada e acertiva, finalize a compra com o link rastreado e receba pontos para trocar por beneficios. — <b>100% GRATIS</b>.
+                </p>
+              </div>
+
+              <Link href="/public"className="guest-about-grid">
+                <div className="guest-about-card">
+                  <div className="guest-about-icon">🎟️</div>
+                  <div className="guest-about-title">Busca ótimizada de cupons</div>
+                  <div className="guest-about-text">
+                    Buscamos cupons compatíveis com o produto, valor e categoria da sua compra — evitando erros e aumentando suas chances de desconto real.
+                  </div>
+                </div>
+
+                <div className="guest-about-card">
+                  <div className="guest-about-icon">🔗</div>
+                  <div className="guest-about-title">Suas compras valem pontos</div>
+                  <div className="guest-about-text">
+                    Compre usando nosso link rastreado e receba pontos para trocar por recompensas que valem dinheiro — Cada 100 pontos é R$1,00.
+                  </div>
+                </div>
+
+                <div className="guest-about-card highlight">
+                  <div className="guest-about-icon">💎</div>
+                  <div className="guest-about-title">Pontos é benefícios reais</div>
+                  <div className="guest-about-text">
+                    Troque seus pontos por GIFT CARDS dos maiores jogos (Roblox, Free fire, Mobile legends, LOL, Valorant...), streaming (Netflix, spotify), restaurantes e serviços. Recompensas com valor real — sem complicação.
+                  </div>
+                </div>
+              </Link>
+            </div>
+          )}
           </div>
         </div>
       </div>
 
-      <EventsModal
-        eventoModalId={eventoModalId}
-        eventosPendentes={eventosPendentes}
-        onClose={() => setEventoModalId(null)}
-        onConfirmar={acaoConfirmar}
-        onDescartar={acaoDescartar}
-        onConfirmarCancelamento={acaoConfirmarCancelamento}
-        onNegarCancelamento={acaoNegarCancelamento}
-        relato={relato}
-        setRelato={setRelato}
-        arquivo={arquivo}
-        setArquivo={setArquivo}
-        onUploadProva={uploadComprovante}
-      />
+      {/* MODAL PRIVADO: só logado */}
+      {authChecked && !isGuest && (
+        <EventsModal
+          eventoModalId={eventoModalId}
+          eventosPendentes={eventosPendentes}
+          onClose={() => setEventoModalId(null)}
+          onConfirmar={acaoConfirmar}
+          onDescartar={acaoDescartar}
+          onConfirmarCancelamento={acaoConfirmarCancelamento}
+          onNegarCancelamento={acaoNegarCancelamento}
+          relato={relato}
+          setRelato={setRelato}
+          arquivo={arquivo}
+          setArquivo={setArquivo}
+          onUploadProva={uploadComprovante}
+        />
+      )}
     </>
   );
 }

@@ -74,6 +74,7 @@ export async function POST(req: Request) {
   let productUrl: string | null = null;
   let authUserId: string | null = null;
   let internalUserId: string | null = null;
+  let isGuest = true;
 
   try {
     const body = await req.json();
@@ -96,87 +97,96 @@ export async function POST(req: Request) {
       );
     }
 
-    /* 🔐 Usuário autenticado */
+    /* 🔐 tenta obter usuário autenticado, mas não bloqueia visitante */
     const {
       data: { user },
     } = await supabaseUser.auth.getUser();
 
-    if (!user) {
-      await registrarErroLink(
-        supabaseAdmin,
-        null,
-        productUrl,
-        "Usuário não autenticado",
-        "mercadolivre"
-      );
+    if (user) {
+      authUserId = user.id;
+      isGuest = false;
 
-      return NextResponse.json(
-        { error: "Usuário não autenticado" },
-        { status: 401 }
-      );
+      /* -----------------------------------------------------
+         Resolve o ID real da tabela users
+         users.auth_user_id = auth.users.id
+      ----------------------------------------------------- */
+      const { data: userInterno, error: userInternoError } = await supabaseAdmin
+        .from("users")
+        .select("id, level_bonus_percent, level_bonus_expires_at")
+        .eq("auth_user_id", authUserId)
+        .maybeSingle();
+
+      if (userInternoError || !userInterno?.id) {
+        await registrarErroLink(
+          supabaseAdmin,
+          authUserId,
+          productUrl,
+          "Usuário interno não encontrado na tabela users",
+          "mercadolivre"
+        );
+
+        return NextResponse.json(
+          { error: "Usuário interno não encontrado" },
+          { status: 400 }
+        );
+      }
+
+      internalUserId = userInterno.id;
     }
-
-    authUserId = user.id;
-
-    /* -----------------------------------------------------
-       Resolve o ID real da tabela users
-       users.auth_user_id = auth.users.id
-    ----------------------------------------------------- */
-    const { data: userInterno, error: userInternoError } = await supabaseAdmin
-      .from("users")
-      .select("id, level_bonus_percent, level_bonus_expires_at")
-      .eq("auth_user_id", authUserId)
-      .maybeSingle();
-
-    if (userInternoError || !userInterno?.id) {
-      await registrarErroLink(
-        supabaseAdmin,
-        authUserId,
-        productUrl,
-        "Usuário interno não encontrado na tabela users",
-        "mercadolivre"
-      );
-
-      return NextResponse.json(
-        { error: "Usuário interno não encontrado" },
-        { status: 400 }
-      );
-    }
-
-    internalUserId = userInterno.id;
 
     /* -----------------------------------------------
-       BÔNUS DE LEVEL (lido do banco)
+       BÔNUS DE LEVEL
+       Só existe para logado
     ----------------------------------------------- */
-    const agora = new Date();
+    let bonusPercent = 0;
+    let bonusSource: string | null = null;
 
-    const bonusAtivo =
-      !!userInterno.level_bonus_expires_at &&
-      new Date(userInterno.level_bonus_expires_at).getTime() > agora.getTime();
+    if (!isGuest && internalUserId) {
+      const { data: userInternoBonus } = await supabaseAdmin
+        .from("users")
+        .select("level_bonus_percent, level_bonus_expires_at")
+        .eq("id", internalUserId)
+        .maybeSingle();
 
-    const bonusPercent = bonusAtivo
-      ? Number(userInterno.level_bonus_percent || 0)
-      : 0;
+      const agora = new Date();
 
-    const bonusSource = bonusAtivo ? "LEVEL_UP_3_DIAS" : null;
+      const bonusAtivo =
+        !!userInternoBonus?.level_bonus_expires_at &&
+        new Date(userInternoBonus.level_bonus_expires_at).getTime() >
+          agora.getTime();
+
+      bonusPercent = bonusAtivo
+        ? Number(userInternoBonus?.level_bonus_percent || 0)
+        : 0;
+
+      bonusSource = bonusAtivo ? "LEVEL_UP_3_DIAS" : null;
+    }
 
     /* -----------------------------------------------
        1️⃣ VERIFICA CACHE (3 HORAS)
-       Busca EXATAMENTE pelo link colado
     ----------------------------------------------- */
     const tresHorasAtras = new Date(
       Date.now() - 3 * 60 * 60 * 1000
     ).toISOString();
 
-    const { data: cache } = await supabaseAdmin
+    let cacheQuery = supabaseAdmin
       .from("generate_link")
       .select("*")
-      .eq("user_id", internalUserId)
       .eq("produto_url", productUrl)
+      .eq("plataforma", "mercadolivre")
       .gte("data_criacao", tresHorasAtras)
       .order("data_criacao", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .limit(1);
+
+    // logado: prioriza cache do próprio usuário
+    // visitante: usa cache geral por URL
+    if (!isGuest && internalUserId) {
+      cacheQuery = cacheQuery.eq("user_id", internalUserId);
+    } else {
+      cacheQuery = cacheQuery.is("user_id", null);
+    }
+
+    const { data: cache } = await cacheQuery.maybeSingle();
 
     if (cache?.link_rastreado) {
       console.log("⚡ Cache encontrado - retornando sem chamar automação");
@@ -190,12 +200,13 @@ export async function POST(req: Request) {
         ganho_estimado: cache.ganho_estimado,
         pontos: cache.pontos,
         perfil_aut: cache.perfil_aut,
-        bonus_percent: cache.bonus_percent,
-        bonus_source: cache.bonus_source,
+        bonus_percent: isGuest ? 0 : cache.bonus_percent,
+        bonus_source: isGuest ? null : cache.bonus_source,
         produto_url: cache.produto_url,
         plataforma: cache.plataforma,
         marketplace_id: cache.marketplace_id,
         cached: true,
+        guest_mode: isGuest,
       });
     }
 
@@ -247,14 +258,12 @@ export async function POST(req: Request) {
     const imagemFinal = data.produto_imagem ?? ogData.produto_imagem ?? null;
     const nomeFinal = data.produto_nome ?? ogData.produto_nome ?? null;
 
-    
     /* -----------------------------------------------
        5️⃣ SALVA CACHE
-       Usa client ADMIN para não bater em RLS
     ----------------------------------------------- */
     try {
       const payloadInsert = {
-        user_id: internalUserId,
+        user_id: internalUserId ?? null,
         produto_nome: nomeFinal,
         produto_url: productUrl,
         link_rastreado: data.link_rastreado ?? null,
@@ -264,8 +273,8 @@ export async function POST(req: Request) {
         pontos: data.pontos ?? null,
         perfil_aut: data.perfil_aut ?? null,
         produto_imagem: imagemFinal,
-        bonus_percent: bonusPercent,
-        bonus_source: bonusSource,
+        bonus_percent: isGuest ? 0 : bonusPercent,
+        bonus_source: isGuest ? null : bonusSource,
         plataforma: "mercadolivre",
         marketplace_id: data.marketplace_id ?? null,
       };
@@ -291,8 +300,10 @@ export async function POST(req: Request) {
       produto_imagem: imagemFinal,
       produto_nome: nomeFinal,
       produto_descricao: ogData.produto_descricao ?? null,
-      bonus_percent: bonusPercent,
-      bonus_source: bonusSource,
+      pontos: data.pontos ?? null,
+      bonus_percent: isGuest ? 0 : bonusPercent,
+      bonus_source: isGuest ? null : bonusSource,
+      guest_mode: isGuest,
     });
   } catch (err: any) {
     console.error("Erro /api/gerar-link:", err);

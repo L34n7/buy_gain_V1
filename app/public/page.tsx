@@ -124,7 +124,7 @@ export default function Home() {
         <div className="benef-content">
           <div className="benef-left">
              <div className="card-fan1">
-              <Image src="/icons/pontos.png" width={2048} height={2048} alt="Pontos" className="ponto no-download" />
+              💎
             </div>
             <h3>PONTOS</h3>
             <p>Ganhe pontos automaticamente comprando com link do clube e troque por Vale Presente e recompensas.</p>
