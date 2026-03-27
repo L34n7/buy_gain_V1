@@ -4,8 +4,25 @@ import {
   createAdminSupabase,
 } from "@/lib/supabaseServer";
 import { triggerConquistas } from "@/lib/conquistas";
-
 import { sendResgateEmail } from "@/lib/email/sendResgateEmail";
+import { sendTelegramMessage } from "@/lib/telegram/sendTelegramMessage";
+import { TELEGRAM_RESGATES } from "@/lib/telegram/config";
+
+function formatInt(value: number | null | undefined) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) {
+    return "0";
+  }
+
+  return Math.round(Number(value)).toLocaleString("pt-BR");
+}
+
+function formatText(value: unknown) {
+  if (value === null || value === undefined || value === "") {
+    return "-";
+  }
+
+  return String(value);
+}
 
 export async function POST(req: Request) {
   try {
@@ -50,30 +67,27 @@ export async function POST(req: Request) {
 
     const user_id = legacyUser.id;
 
-    // 4️⃣ Buscar opção do giftcard (JÁ EM PONTOS REAIS)
+    // 4️⃣ Buscar opção do giftcard
     const { data: opcao } = await admin
       .from("giftcard_opcoes")
       .select("id, giftcard_id, pontos, descricao")
       .eq("id", giftcard_opcao_id)
       .single();
 
-        if (!opcao) {
-          return NextResponse.json(
-            { error: "Opção não encontrada" },
-            { status: 404 }
-          );
-        }
+    if (!opcao) {
+      return NextResponse.json(
+        { error: "Opção não encontrada" },
+        { status: 404 }
+      );
+    }
 
-        
     const { data: giftcard } = await admin
       .from("giftcards")
       .select("id, nome, descricao")
       .eq("id", opcao.giftcard_id)
       .single();
 
-
-
-    // 5️⃣ Saldo atual (EM PONTOS REAIS)
+    // 5️⃣ Saldo atual
     const { data: ultimoExtrato } = await admin
       .from("extrato_pontos")
       .select("saldo_apos")
@@ -98,7 +112,7 @@ export async function POST(req: Request) {
         user_id,
         giftcard_id: opcao.giftcard_id,
         giftcard_opcao_id: opcao.id,
-        pontos_usados: opcao.pontos, // 🔥 pontos reais
+        pontos_usados: opcao.pontos,
         status: "PENDENTE",
       })
       .select()
@@ -112,7 +126,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // 7️⃣ Débito no extrato (🔥 SEM CONVERSÃO)
+    // 7️⃣ Débito no extrato
     const novoSaldo = saldoAtual - opcao.pontos;
 
     const { error: erroDebito } = await admin
@@ -122,8 +136,8 @@ export async function POST(req: Request) {
         tipo: "DEBITO",
         origem: "RESGATE_RECOMPENSA",
         referencia_id: String(resgate.id),
-        pontos: opcao.pontos,       // 🔥 320000
-        saldo_apos: novoSaldo,      // 🔥 pontos reais
+        pontos: opcao.pontos,
+        saldo_apos: novoSaldo,
       });
 
     if (erroDebito) {
@@ -140,18 +154,17 @@ export async function POST(req: Request) {
       );
     }
 
-    // 8️⃣ Histórico (espelho)
+    // 8️⃣ Histórico
     await admin.from("recompensas_historico").insert({
       usuario_id: user_id,
       giftcard_id: opcao.giftcard_id,
       giftcard_opcao_id: opcao.id,
-      pontos_gastos: opcao.pontos, // pontos reais
+      pontos_gastos: opcao.pontos,
       status: "PENDENTE",
     });
 
     const conquistasData = await triggerConquistas(admin, user.id);
 
-    // 🔥 Se existir array de conquistas, vamos extrair XP e level
     let xpTotal = 0;
     let leveledUp = false;
     let newLevel: number | null = null;
@@ -169,16 +182,19 @@ export async function POST(req: Request) {
       });
     }
 
+    let userData: { name?: string | null; email?: string | null } | null = null;
+    let emailDestino = user.email || null;
+    const prazoEntrega = "Em até 2 dias úteis";
 
     try {
-      const { data: userData } = await admin
+      const { data } = await admin
         .from("users")
         .select("name, email")
         .eq("id", user_id)
         .single();
 
-      const emailDestino = userData?.email || user.email;
-      const prazoEntrega = "Em até 2 dias úteis";
+      userData = data;
+      emailDestino = data?.email || user.email;
 
       if (emailDestino) {
         await sendResgateEmail({
@@ -208,26 +224,54 @@ export async function POST(req: Request) {
         .from("recompensa_resgates")
         .update({
           email_resgate_enviado: false,
-          email_resgate_erro: emailError?.message || "Erro desconhecido ao enviar email",
+          email_resgate_erro:
+            emailError?.message || "Erro desconhecido ao enviar email",
         })
         .eq("id", resgate.id);
     }
 
+    try {
+      const telegramMessage = `
+🎁 <b>NOVO RESGATE DE RECOMPENSA</b>
+━━━━━━━━━━━━━━━━━━━━━━
 
+👤 <b>Usuário:</b> ${formatText(userData?.name || "Cliente")}
+📧 <b>Email:</b> ${formatText(emailDestino)}
+🆔 <b>User ID:</b> <code>${formatText(user_id)}</code>
+
+🏷️ <b>Gift Card:</b> ${formatText(giftcard?.nome || "Gift Card")}
+📦 <b>Opção:</b> ${formatText(opcao?.descricao || "Opção selecionada")}
+
+💰 <b>Saldo anterior:</b> ${formatInt(saldoAtual)}
+💎 <b>Pontos usados:</b> ${formatInt(opcao?.pontos)}
+💵 <b>Saldo restante:</b> ${formatInt(novoSaldo)}
+
+📄 <b>Resgate ID:</b> <code>${formatText(resgate.id)}</code>
+📌 <b>Status:</b> <b>PENDENTE</b>
+⏳ <b>Prazo:</b> ${formatText(prazoEntrega)}
+
+━━━━━━━━━━━━━━━━━━━━━━
+🕒 <i>${new Date().toLocaleString("pt-BR")}</i>
+`;
+
+      const telegramResult = await sendTelegramMessage(
+        telegramMessage,
+        TELEGRAM_RESGATES
+      );
+
+      console.log("Resultado Telegram resgate:", telegramResult);
+    } catch (telegramError) {
+      console.error("Erro ao enviar Telegram de resgate:", telegramError);
+    }
 
     return NextResponse.json({
       success: true,
       resgate_id: resgate.id,
-
-      // 🔥 padrão global
       xp_gained: xpTotal || undefined,
       leveled_up: leveledUp || undefined,
       new_level: newLevel || undefined,
-
-      // mantém conquistas também
       ...(conquistasData || {}),
     });
-
   } catch (err) {
     console.error("Erro resgatar recompensa:", err);
     return NextResponse.json(

@@ -12,3 +12,8 @@ export const TELEGRAM_RELATORIO = {
   botToken: process.env.TELEGRAM_RELATORIO_BOT_TOKEN!,
   chatId: process.env.TELEGRAM_RELATORIO_CHAT_ID!,
 };
+
+export const TELEGRAM_RESGATES = {
+  botToken: process.env.TELEGRAM_RESGATES_BOT_TOKEN!,
+  chatId: process.env.TELEGRAM_RESGATES_CHAT_ID!,
+};

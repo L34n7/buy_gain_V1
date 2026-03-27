@@ -3,8 +3,9 @@ import {
   createAdminSupabase,
   createUserSupabase,
 } from "@/lib/supabaseServer";
-import { sendEmail } from "@/lib/email/email";
+import { sendEmail } from "@/lib/email/sendEmail";
 import { getChamadoRespondidoEmailTemplate } from "@/lib/email/templates/chamado-respondido";
+import { getChamadoFinalizadoEmailTemplate } from "@/lib/email/templates/chamado-finalizado";
 
 type MensagemChamadoRow = {
   id: string;
@@ -178,11 +179,26 @@ export async function POST(req: Request) {
       const nomeAdmin =
         adminUser.nickname || adminUser.name || "Suporte BuyGain";
 
+      const tituloNotificacao =
+        statusFinal === "FINALIZADO"
+          ? "✅ Seu chamado foi concluído"
+          : "💬 Seu chamado foi atualizado";
+
+      const tipoNotificacao =
+        statusFinal === "FINALIZADO"
+          ? "CHAMADO_FINALIZADO"
+          : "CHAMADO_ATUALIZADO";
+
+      const descricaoNotificacao =
+        statusFinal === "FINALIZADO"
+          ? `Seu chamado "${chamado.titulo || "Sem título"}" foi concluído pela equipe ${nomeAdmin}. Avalie seu atendimento quando puder.`
+          : `Seu chamado "${chamado.titulo || "Sem título"}" recebeu uma resposta da equipe ${nomeAdmin}.`;
+
       await admin.from("notificacoes").insert({
         user_id: userData.auth_user_id,
-        titulo: "💬 Seu chamado foi atualizado",
-        tipo: "CHAMADO_ATUALIZADO",
-        descricao: `Seu chamado "${chamado.titulo || "Sem título"}" recebeu uma resposta da equipe ${nomeAdmin}.`,
+        titulo: tituloNotificacao,
+        tipo: tipoNotificacao,
+        descricao: descricaoNotificacao,
         lida: false,
       });
     }
@@ -202,6 +218,7 @@ export async function POST(req: Request) {
     const siteUrl = process.env.SITE_URL || "https://buygain.com.br";
     const meusChamadosUrl = `${siteUrl}/dashboard/ajuda/meus-chamados`;
     const suporteUrl = `${siteUrl}/dashboard/ajuda`;
+    const avaliarChamadoUrl = `${siteUrl}/dashboard/ajuda/meus-chamados?avaliar=${chamado.id}`;
 
     const userName =
       (userData?.nickname && userData.nickname.trim()) ||
@@ -213,25 +230,46 @@ export async function POST(req: Request) {
 
     if (userEmail) {
       try {
-        const html = getChamadoRespondidoEmailTemplate({
-          userName,
-          protocolo: chamado.id,
-          titulo: chamado.titulo || null,
-          mensagemOriginal: primeiraMensagemUsuario?.mensagem || "",
-          respostaSuporte: respostaLimpa,
-          meusChamadosUrl,
-          siteUrl,
-          suporteUrl,
-        });
+        let html = "";
+        let subject = "";
+
+        if (statusFinal === "FINALIZADO") {
+          html = getChamadoFinalizadoEmailTemplate({
+            userName,
+            protocolo: chamado.id,
+            titulo: chamado.titulo || null,
+            mensagemOriginal: primeiraMensagemUsuario?.mensagem || "",
+            respostaFinal: respostaLimpa,
+            meusChamadosUrl,
+            avaliarChamadoUrl,
+            siteUrl,
+            suporteUrl,
+          });
+
+          subject = `Seu chamado foi concluído • Protocolo ${chamado.id}`;
+        } else {
+          html = getChamadoRespondidoEmailTemplate({
+            userName,
+            protocolo: chamado.id,
+            titulo: chamado.titulo || null,
+            mensagemOriginal: primeiraMensagemUsuario?.mensagem || "",
+            respostaSuporte: respostaLimpa,
+            meusChamadosUrl,
+            siteUrl,
+            suporteUrl,
+          });
+
+          subject = `Seu chamado foi respondido • Protocolo ${chamado.id}`;
+        }
 
         await sendEmail({
           to: userEmail,
-          subject: `Seu chamado foi respondido • Protocolo ${chamado.id}`,
+          subject,
           html,
         });
       } catch (emailError) {
         console.error(
-          "Erro ao enviar email de resposta do chamado:",
+          "Erro ao enviar email de atualização/finalização do chamado:",
           emailError
         );
       }

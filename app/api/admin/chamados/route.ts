@@ -33,6 +33,18 @@ type UserRow = {
   email: string | null;
 };
 
+function normalizarPagina(valor: string | null, fallback = 1) {
+  const n = Number(valor);
+  if (!Number.isFinite(n) || n < 1) return fallback;
+  return Math.floor(n);
+}
+
+function normalizarLimite(valor: string | null, fallback = 5) {
+  const n = Number(valor);
+  if (!Number.isFinite(n) || n < 1) return fallback;
+  return Math.min(Math.floor(n), 5); // máximo 10 por página
+}
+
 export async function GET(req: Request) {
   try {
     const supabaseUser = await createUserSupabase();
@@ -57,21 +69,25 @@ export async function GET(req: Request) {
     }
 
     const { searchParams } = new URL(req.url);
+
     const status = searchParams.get("status");
     const busca = searchParams.get("busca")?.trim().toLowerCase() || "";
+    const page = normalizarPagina(searchParams.get("page"), 1);
+    const limit = normalizarLimite(searchParams.get("limit"), 5);
 
-    let chamadosQuery = admin
+    let chamadosBaseQuery = admin
       .from("chamados_suporte")
       .select(
-        "id, user_id, titulo, status, criado_em, avaliacao_nota, avaliacao_mensagem, avaliado_em"
+        "id, user_id, titulo, status, criado_em, avaliacao_nota, avaliacao_mensagem, avaliado_em",
+        { count: "exact" }
       )
       .order("criado_em", { ascending: false });
 
     if (status && status !== "TODOS") {
-      chamadosQuery = chamadosQuery.eq("status", status);
+      chamadosBaseQuery = chamadosBaseQuery.eq("status", status);
     }
 
-    const { data: chamados, error: chamadosError } = await chamadosQuery;
+    const { data: chamadosBrutos, error: chamadosError } = await chamadosBaseQuery;
 
     if (chamadosError) {
       console.error("Erro ao buscar chamados:", chamadosError);
@@ -81,13 +97,25 @@ export async function GET(req: Request) {
       );
     }
 
-    const chamadosLista = (chamados || []) as ChamadoRow[];
+    const chamadosLista = (chamadosBrutos || []) as ChamadoRow[];
 
     if (chamadosLista.length === 0) {
-      return NextResponse.json({ data: [] });
+      return NextResponse.json({
+        data: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      });
     }
 
-    const userIds = [...new Set(chamadosLista.map((c) => c.user_id).filter(Boolean))];
+    const userIds = [
+      ...new Set(chamadosLista.map((c) => c.user_id).filter(Boolean)),
+    ];
 
     const { data: usersData, error: usersError } = await admin
       .from("users")
@@ -196,7 +224,25 @@ export async function GET(req: Request) {
       });
     }
 
-    return NextResponse.json({ data: dataFinal });
+    const total = dataFinal.length;
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    const currentPage = Math.min(page, totalPages);
+    const start = (currentPage - 1) * limit;
+    const end = start + limit;
+
+    const dataPaginada = dataFinal.slice(start, end);
+
+    return NextResponse.json({
+      data: dataPaginada,
+      pagination: {
+        page: currentPage,
+        limit,
+        total,
+        totalPages,
+        hasNextPage: currentPage < totalPages,
+        hasPrevPage: currentPage > 1,
+      },
+    });
   } catch (err) {
     console.error("Erro admin/chamados:", err);
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });

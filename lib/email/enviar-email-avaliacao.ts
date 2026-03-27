@@ -1,4 +1,4 @@
-import { sendEmail } from "@/lib/email/email";
+import { sendEmail } from "@/lib/email/sendEmail";
 import { getAvaliacaoPlataformaEmailTemplate } from "@/lib/email/templates/avaliacao-plataforma";
 
 type UsuarioEmailAvaliacao = {

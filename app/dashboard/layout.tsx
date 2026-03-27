@@ -26,7 +26,7 @@ export default function DashboardLayout({
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   // NOVO: controle de autenticação
-  const [isGuest, setIsGuest] = useState(true);
+  const [isGuest, setIsGuest] = useState<boolean | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
 
   const pathname = usePathname();
@@ -81,24 +81,25 @@ export default function DashboardLayout({
     loadUserData();
   }, []);
 
+
   /* --------------------------
      RENDER
   ---------------------------*/
   return (
-    <main className={`dashboard-root ${isGuest ? "guest-layout" : ""}`}>
+    <main className={`dashboard-root ${isGuest === true ? "guest-layout" : ""}`}>
       <div className="dashboard-background" aria-hidden />
 
       {/* SIDEBAR: só aparece se estiver logado */}
-      {authChecked && !isGuest && (
+      {authChecked && isGuest === false && (
         <Sidebar
           open={sidebarOpen}
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         />
       )}
 
-      <div className={`dashboard-main ${isGuest ? "guest-main" : ""}`}>
+      <div className={`dashboard-main ${isGuest === true ? "guest-main" : ""}`}>
         {/* COMPONENTES GLOBAIS PRIVADOS: só logado */}
-        {authChecked && !isGuest && (
+        {authChecked && isGuest === false && (
           <>
             <DailyXpLoader />
             <GlobalXpInterceptor />
@@ -121,7 +122,7 @@ export default function DashboardLayout({
         <AuthFooter />
 
         {/* MENU MOBILE: só logado */}
-        {authChecked && !isGuest && <MobileNav />}
+        {authChecked && isGuest === false && <MobileNav />}
       </div>
     </main>
   );

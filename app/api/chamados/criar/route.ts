@@ -3,7 +3,7 @@ import {
   createUserSupabase,
   createAdminSupabase,
 } from "@/lib/supabaseServer";
-import { sendEmail } from "@/lib/email/email";
+import { sendEmail } from "@/lib/email/sendEmail";
 import { getChamadoAbertoEmailTemplate } from "@/lib/email/templates/chamado-aberto";
 import { sendTelegramMessage } from "@/lib/telegram/sendTelegramMessage";
 import { TELEGRAM_CHAMADOS } from "@/lib/telegram/config";

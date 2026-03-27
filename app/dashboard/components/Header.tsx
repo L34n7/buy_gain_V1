@@ -10,7 +10,7 @@ interface HeaderProps {
   userName: string;
   points: number;
   avatarUrl?: string | null;
-  isGuest?: boolean;
+  isGuest?: boolean | null;
 }
 
 type LevelBonusData = {
@@ -23,7 +23,7 @@ type LevelBonusData = {
 export default function Header({
   userName,
   avatarUrl,
-  isGuest = false,
+  isGuest = null,
 }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -128,7 +128,7 @@ export default function Header({
     return `${minutes}min restantes`;
   }
 
-  const bonusAtivo = !isGuest && isLevelBonusActive(levelBonus);
+  const bonusAtivo = isGuest === false && isLevelBonusActive(levelBonus);
 
   useEffect(() => {
     if (!avatarUrl) {
@@ -139,7 +139,7 @@ export default function Header({
   }, [avatarUrl]);
 
   useEffect(() => {
-    if (isGuest) return;
+    if (isGuest !== false) return;
 
     function onProfileUpdated(e: Event) {
       try {
@@ -165,7 +165,9 @@ export default function Header({
   }, [isGuest]);
 
   useEffect(() => {
-    if (isGuest) {
+    if (isGuest === null) return;
+
+    if (isGuest === true) {
       setPoints(0);
       setDisplayPoints(0);
       setLevel(1);
@@ -235,7 +237,7 @@ export default function Header({
   }, [isGuest]);
 
   useEffect(() => {
-    if (isGuest) return;
+    if (isGuest !== false) return;
     if (!initialPointsLoaded.current) return;
     if (points === displayRef.current) return;
 
@@ -293,7 +295,7 @@ export default function Header({
   }, []);
 
   useEffect(() => {
-    if (isGuest) return;
+    if (isGuest !== false) return;
 
     function handleClick(e: MouseEvent) {
       const target = e.target as HTMLElement;
@@ -312,7 +314,7 @@ export default function Header({
   }, [menuOpen, isGuest]);
 
   useEffect(() => {
-    if (isGuest) return;
+    if (isGuest !== false) return;
 
     function handleClick(e: MouseEvent) {
       const target = e.target as HTMLElement;
@@ -331,7 +333,9 @@ export default function Header({
   }, [bellOpen, isGuest]);
 
   useEffect(() => {
-    if (isGuest) {
+    if (isGuest === null) return;
+
+    if (isGuest === true) {
       setLevelBonus({
         level_bonus_percent: 0,
         level_bonus_started_at: null,
@@ -391,7 +395,7 @@ export default function Header({
   }, [isGuest]);
 
   useEffect(() => {
-    if (isGuest) return;
+    if (isGuest !== false) return;
 
     const interval = window.setInterval(() => {
       setBonusNow(Date.now());
@@ -422,19 +426,37 @@ export default function Header({
     router.replace("/auth/login");
   }
 
+  if (isGuest === null) {
   return (
     <header className="dashboard-topbar">
-      <div className={`topbar-left ${isGuest ? "topbar-left-hidden" : ""}`}>
+      <div className="topbar-left" />
+      <div className="brand-logo-wrapper">
+        <img
+          src="/logo.png"
+          alt="BuyGain"
+          className={`brand-logo ${logoFaded ? "faded" : ""}`}
+          draggable="false"
+          onContextMenu={(e) => e.preventDefault()}
+        />
+      </div>
+      <div className="topbar-right" />
+    </header>
+  );
+}
+
+  return (
+    <header className="dashboard-topbar">
+      <div className={`topbar-left ${isGuest === true ? "topbar-left-hidden" : ""}`}>
         
         {/* 🔥 BOTÃO LANDING - SOMENTE VISITANTE */}
-        {isGuest && (
+        {isGuest === true && (
           <Link href="/public" className="landing-btn">
             <span className="landing-icon">🚀</span>
             <span className="landing-text">Como ganhar pontos? venha conhecer</span>
           </Link>
         )}
 
-        {!isGuest && (
+        {isGuest === false && (
           <div className="topbar-path">{getPageTitle()}</div>
         )}
       </div>
@@ -464,7 +486,7 @@ export default function Header({
           </div>
         )}
 
-        {isGuest ? (
+        {isGuest === true ? (
           <div className="guest-auth-actions">
             <Link href="/auth/login" className="guest-auth-btn guest-login-btn">
               Entrar
@@ -709,7 +731,7 @@ export default function Header({
         )}
       </div>
 
-      {!isGuest && logoutModal && (
+      {isGuest === false && logoutModal && (
         <div className="logout-modal-overlay">
           <div className="logout-modal">
             <div className="logout-title">Sair da conta</div>

@@ -1,4 +1,4 @@
-import { sendEmail } from "@/lib/email/email";
+import { sendEmail } from "@/lib/email/sendEmail";
 import { getLevelUpEmailTemplate } from "@/lib/email/templates/LevelUp";
 
 export async function triggerConquistas(

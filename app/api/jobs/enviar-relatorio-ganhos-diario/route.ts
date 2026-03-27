@@ -215,10 +215,10 @@ export async function GET() {
 
     const mensagem = `
     📊 <b>RELATÓRIO DE GANHOS</b>
-    ━━━━━━━━━━━━━━━━━━━━━━
+    ━━━━━━━━━━━━━━━━━━
 
     🛒 <b>Mercado Livre</b>
-    ┣ 📦 Produtos: <b>${formatInt(mlResumo.totalProdutos)}</b>
+    ┣ 📦 Produtos: <b>${formatMoney(mlResumo.totalProdutos)}</b>
     ┣ 💰 Lucro: <b>${formatMoney(mlResumo.lucroTotal)}</b>
     ┣ 🎯 Usuário: <b>${formatMoney(mlResumo.totalUsuario)}</b>
     ┣ 📊 Margem: <b>${formatPercent(margemML)}</b>
@@ -226,23 +226,24 @@ export async function GET() {
     ${blocoStatusML}
 
     🧡 <b>Shopee</b>
-    ┣ 📦 Produtos: <b>${formatInt(shopeeResumo.totalProdutos)}</b>
+    ┣ 📦 Produtos: <b>${formatMoney(shopeeResumo.totalProdutos)}</b>
     ┣ 💰 Lucro: <b>${formatMoney(shopeeResumo.lucroTotal)}</b>
     ┣ 🎯 Usuário: <b>${formatMoney(shopeeResumo.totalUsuario)}</b>
     ┣ 📊 Margem: <b>${formatPercent(margemShopee)}</b>
     ┗ 🧾 Resultado: <b>${formatMoney(shopeeResumo.totalFinal)}</b>
     ${blocoStatusShopee}
 
-    ━━━━━━━━━━━━━━━━━━━━━━
+    ━━━━━━━━━━━━━━━━━━
     💰 <b>RESULTADO GERAL</b>
 
-    ┣ 📦 Produtos: <b>${formatInt(totalGeral.totalProdutos)}</b>
+    ┣ 📦 Produtos: <b>${formatMoney(totalGeral.totalProdutos)}</b>
     ┣ 💰 Lucro total: <b>${formatMoney(totalGeral.lucroTotal)}</b>
     ┣ 🎯 Usuário total: <b>${formatMoney(totalGeral.totalUsuario)}</b>
-    ┣ 📊 Margem: <b>${formatPercent(margemGeral)}</b>
     ┗ 🧾 <b>Total final: ${formatMoney(totalGeral.totalFinal)}</b>
 
-    ━━━━━━━━━━━━━━━━━━━━━━
+      💹 Margem: <b>${formatPercent(margemGeral)}</b>
+
+    ━━━━━━━━━━━━━━━━━━
     🕒 <i>${new Date().toLocaleString("pt-BR")}</i>
     `;
 

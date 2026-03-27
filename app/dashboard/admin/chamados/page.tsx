@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./admin-chamados.css";
 
 type MensagemChamado = {
@@ -32,8 +32,19 @@ type ChamadoAdmin = {
     name?: string | null;
     nickname?: string | null;
     email?: string | null;
-  };
+  } | null;
 };
+
+type PaginationMeta = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+};
+
+const ITENS_POR_PAGINA = 10;
 
 function formatarDataHora(data?: string | null) {
   if (!data) return "-";
@@ -86,6 +97,90 @@ function formatarAvaliacao(nota?: number | null) {
   return `${nota}/5`;
 }
 
+type PagProps = {
+  paginaAtual: number;
+  totalPaginas: number;
+  onChange: (page: number) => void;
+};
+
+function montarPaginas(paginaAtual: number, totalPaginas: number) {
+  if (totalPaginas <= 7) {
+    return Array.from({ length: totalPaginas }, (_, i) => i + 1);
+  }
+
+  if (paginaAtual <= 4) {
+    return [1, 2, 3, 4, 5, "...", totalPaginas];
+  }
+
+  if (paginaAtual >= totalPaginas - 3) {
+    return [
+      1,
+      "...",
+      totalPaginas - 4,
+      totalPaginas - 3,
+      totalPaginas - 2,
+      totalPaginas - 1,
+      totalPaginas,
+    ];
+  }
+
+  return [
+    1,
+    "...",
+    paginaAtual - 1,
+    paginaAtual,
+    paginaAtual + 1,
+    "...",
+    totalPaginas,
+  ];
+}
+
+function Paginacao({ paginaAtual, totalPaginas, onChange }: PagProps) {
+  if (totalPaginas <= 1) return null;
+
+  const paginas = montarPaginas(paginaAtual, totalPaginas);
+
+  return (
+    <div className="admin-av-paginacao">
+      <button
+        type="button"
+        className="btn-page-nav"
+        onClick={() => onChange(paginaAtual - 1)}
+        disabled={paginaAtual === 1}
+      >
+        Anterior
+      </button>
+
+      <div className="admin-av-pages">
+        {paginas.map((item, index) =>
+          item === "..." ? (
+            <span key={`dots-${index}`} className="page-dots">
+              ...
+            </span>
+          ) : (
+            <button
+              key={item}
+              type="button"
+              className={`btn-page-number ${paginaAtual === item ? "active" : ""}`}
+              onClick={() => onChange(Number(item))}
+            >
+              {item}
+            </button>
+          )
+        )}
+      </div>
+
+      <button
+        type="button"
+        className="btn-page-nav"
+        onClick={() => onChange(paginaAtual + 1)}
+        disabled={paginaAtual === totalPaginas}
+      >
+        Próxima
+      </button>
+    </div>
+  );
+}
 
 export default function AdminChamadosPage() {
   const [chamados, setChamados] = useState<ChamadoAdmin[]>([]);
@@ -93,6 +188,16 @@ export default function AdminChamadosPage() {
 
   const [statusFiltro, setStatusFiltro] = useState("TODOS");
   const [busca, setBusca] = useState("");
+
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  const [pagination, setPagination] = useState<PaginationMeta>({
+    page: 1,
+    limit: ITENS_POR_PAGINA,
+    total: 0,
+    totalPages: 1,
+    hasNextPage: false,
+    hasPrevPage: false,
+  });
 
   const [chamadoSelecionado, setChamadoSelecionado] =
     useState<ChamadoAdmin | null>(null);
@@ -113,7 +218,7 @@ export default function AdminChamadosPage() {
     });
   }
 
-  async function carregar() {
+  async function carregar(page = paginaAtual) {
     try {
       setLoading(true);
 
@@ -127,22 +232,60 @@ export default function AdminChamadosPage() {
         params.set("busca", busca.trim());
       }
 
+      params.set("page", String(page));
+      params.set("limit", String(ITENS_POR_PAGINA));
+
       const res = await fetch(`/api/admin/chamados?${params.toString()}`, {
         credentials: "include",
+        cache: "no-store",
       });
 
       const json = await res.json();
-      setChamados(json.data || []);
+
+      if (!res.ok) {
+        setChamados([]);
+        setPagination({
+          page: 1,
+          limit: ITENS_POR_PAGINA,
+          total: 0,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+        });
+        return;
+      }
+
+      setChamados(Array.isArray(json.data) ? json.data : []);
+      setPagination(
+        json.pagination || {
+          page: 1,
+          limit: ITENS_POR_PAGINA,
+          total: 0,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+        }
+      );
+      setPaginaAtual(json.pagination?.page || 1);
     } catch (e) {
       console.error("Erro ao carregar chamados", e);
       setChamados([]);
+      setPagination({
+        page: 1,
+        limit: ITENS_POR_PAGINA,
+        total: 0,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPrevPage: false,
+      });
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    carregar();
+    carregar(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFiltro]);
 
   useEffect(() => {
@@ -157,6 +300,15 @@ export default function AdminChamadosPage() {
     };
   }, [chamadoSelecionado]);
 
+  const tituloPaginacao = useMemo(() => {
+    if (pagination.total === 0) return "Nenhum chamado encontrado";
+
+    const inicio = (pagination.page - 1) * pagination.limit + 1;
+    const fim = Math.min(pagination.page * pagination.limit, pagination.total);
+
+    return `Exibindo ${inicio}-${fim} de ${pagination.total} chamados`;
+  }, [pagination]);
+
   function abrirChamado(chamado: ChamadoAdmin) {
     setChamadoSelecionado(chamado);
     setResposta("");
@@ -164,6 +316,10 @@ export default function AdminChamadosPage() {
       chamado.status === "FINALIZADO" ? "FINALIZADO" : "RESPONDIDO"
     );
     setImagemFile(null);
+
+    if (imagemPreview) {
+      URL.revokeObjectURL(imagemPreview);
+    }
     setImagemPreview("");
   }
 
@@ -172,6 +328,10 @@ export default function AdminChamadosPage() {
     setResposta("");
     setNovoStatus("RESPONDIDO");
     setImagemFile(null);
+
+    if (imagemPreview) {
+      URL.revokeObjectURL(imagemPreview);
+    }
     setImagemPreview("");
   }
 
@@ -221,15 +381,19 @@ export default function AdminChamadosPage() {
       }
 
       alert("Chamado atualizado com sucesso!");
-
       fecharModal();
-      carregar();
+      carregar(paginaAtual);
     } catch (error) {
       console.error(error);
       alert("Erro de conexão");
     } finally {
       setProcessing(false);
     }
+  }
+
+  async function trocarPagina(page: number) {
+    if (page < 1 || page > pagination.totalPages || page === paginaAtual) return;
+    await carregar(page);
   }
 
   return (
@@ -239,9 +403,7 @@ export default function AdminChamadosPage() {
           <div>
             <p className="admin-av-kicker">Painel administrativo</p>
             <h2>Chamados de suporte</h2>
-            <span>
-              Gerencie solicitações, altere status e responda usuários.
-            </span>
+            <span>Gerencie solicitações, altere status e responda usuários.</span>
           </div>
         </div>
 
@@ -250,7 +412,10 @@ export default function AdminChamadosPage() {
             <label>Status</label>
             <select
               value={statusFiltro}
-              onChange={(e) => setStatusFiltro(e.target.value)}
+              onChange={(e) => {
+                setStatusFiltro(e.target.value);
+                setPaginaAtual(1);
+              }}
             >
               <option value="TODOS">Todos</option>
               <option value="ABERTO">Aberto</option>
@@ -268,15 +433,34 @@ export default function AdminChamadosPage() {
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") carregar();
+                if (e.key === "Enter") {
+                  setPaginaAtual(1);
+                  carregar(1);
+                }
               }}
             />
           </div>
 
-          <button className="btn-filtrar" onClick={carregar}>
+          <button
+            className="btn-filtrar"
+            onClick={() => {
+              setPaginaAtual(1);
+              carregar(1);
+            }}
+            type="button"
+          >
             Buscar
           </button>
         </div>
+
+        {!loading && (
+          <div className="admin-av-topbar-info">
+            <span>{tituloPaginacao}</span>
+            <span>
+              Página {pagination.page} de {pagination.totalPages}
+            </span>
+          </div>
+        )}
 
         {loading && <p className="admin-av-empty">Carregando chamados...</p>}
 
@@ -288,33 +472,30 @@ export default function AdminChamadosPage() {
           <>
             <div className="admin-av-table-wrap admin-av-desktop-only">
               <table className="admin-av-table">
-              <thead>
-                <tr>
-                  <th>Protocolo</th>
-                  <th>Usuário</th>
-                  <th>Título</th>
-                  <th>Status</th>
-                  <th>Avaliação</th>
-                  <th>Criação</th>
-                  <th>Última interação</th>
-                  <th>Ação</th>
-                </tr>
-              </thead>
+                <thead>
+                  <tr>
+                    <th>Protocolo</th>
+                    <th>Usuário</th>
+                    <th>Título</th>
+                    <th>Status</th>
+                    <th>Avaliação</th>
+                    <th>Criação</th>
+                    <th>Última interação</th>
+                    <th>Ação</th>
+                  </tr>
+                </thead>
+
                 <tbody>
                   {chamados.map((c) => (
                     <tr key={c.id}>
                       <td className="mono">{c.id}</td>
 
                       <td>
-                        <strong>
-                          {c.user?.nickname || c.user?.name || "Usuário"}
-                        </strong>
+                        <strong>{c.user?.nickname || c.user?.name || "Usuário"}</strong>
                         {c.user?.name && c.user?.nickname && (
                           <div className="muted-av">{c.user.name}</div>
                         )}
-                        <div className="muted-av">
-                          {c.user?.email || "Sem e-mail"}
-                        </div>
+                        <div className="muted-av">{c.user?.email || "Sem e-mail"}</div>
                       </td>
 
                       <td>
@@ -325,9 +506,7 @@ export default function AdminChamadosPage() {
                       </td>
 
                       <td>
-                        <span
-                          className={`status-badge ${getStatusClass(c.status)}`}
-                        >
+                        <span className={`status-badge ${getStatusClass(c.status)}`}>
                           {getStatusLabel(c.status)}
                         </span>
                       </td>
@@ -352,6 +531,7 @@ export default function AdminChamadosPage() {
                         <button
                           className="btn-gerenciar"
                           onClick={() => abrirChamado(c)}
+                          type="button"
                         >
                           Gerenciar
                         </button>
@@ -377,9 +557,7 @@ export default function AdminChamadosPage() {
                   </div>
 
                   <div className="admin-av-card-user">
-                    <strong>
-                      {c.user?.nickname || c.user?.name || "Usuário"}
-                    </strong>
+                    <strong>{c.user?.nickname || c.user?.name || "Usuário"}</strong>
                     <div className="muted-av">{c.user?.email || "Sem e-mail"}</div>
                   </div>
 
@@ -394,7 +572,9 @@ export default function AdminChamadosPage() {
                     <div className="admin-av-info-row">
                       <span>Avaliação</span>
                       <strong>
-                        {c.avaliacao_nota ? formatarAvaliacao(c.avaliacao_nota) : "Não avaliado"}
+                        {c.avaliacao_nota
+                          ? formatarAvaliacao(c.avaliacao_nota)
+                          : "Não avaliado"}
                       </strong>
                     </div>
 
@@ -413,6 +593,7 @@ export default function AdminChamadosPage() {
                     <button
                       className="btn-gerenciar"
                       onClick={() => abrirChamado(c)}
+                      type="button"
                     >
                       Gerenciar
                     </button>
@@ -420,6 +601,12 @@ export default function AdminChamadosPage() {
                 </div>
               ))}
             </div>
+
+            <Paginacao
+              paginaAtual={pagination.page}
+              totalPaginas={pagination.totalPages}
+              onChange={trocarPagina}
+            />
           </>
         )}
 
@@ -437,9 +624,7 @@ export default function AdminChamadosPage() {
                   </div>
 
                   <span
-                    className={`status-badge ${getStatusClass(
-                      chamadoSelecionado.status
-                    )}`}
+                    className={`status-badge ${getStatusClass(chamadoSelecionado.status)}`}
                   >
                     {getStatusLabel(chamadoSelecionado.status)}
                   </span>
@@ -465,16 +650,12 @@ export default function AdminChamadosPage() {
                         chamadoSelecionado.user?.name ||
                         "Usuário"}
                     </strong>
-                    <small>
-                      {chamadoSelecionado.user?.email || "Sem e-mail"}
-                    </small>
+                    <small>{chamadoSelecionado.user?.email || "Sem e-mail"}</small>
                   </div>
 
                   <div className="admin-av-info-box">
                     <span>Criado em</span>
-                    <strong>
-                      {formatarDataHora(chamadoSelecionado.criado_em)}
-                    </strong>
+                    <strong>{formatarDataHora(chamadoSelecionado.criado_em)}</strong>
                   </div>
 
                   <div className="admin-av-info-box">
@@ -500,12 +681,8 @@ export default function AdminChamadosPage() {
 
               {chamadoSelecionado.avaliacao_nota && (
                 <div className="modal-chamado-section">
-
                   <div className="admin-av-avaliacao-box">
-
-                    <h3 className="admin-av-avaliacao-titulo">
-                      Feedback do usuário
-                    </h3>
+                    <h3 className="admin-av-avaliacao-titulo">Feedback do usuário</h3>
 
                     <div className="admin-av-avaliacao-topo">
                       <strong>
@@ -544,9 +721,7 @@ export default function AdminChamadosPage() {
                       }`}
                     >
                       <div className="admin-av-msg-topo">
-                        <strong>
-                          {msg.autor_tipo === "ADMIN" ? "Suporte" : <p>Usuário</p>}
-                        </strong>
+                        <strong>{msg.autor_tipo === "ADMIN" ? "Suporte" : "Usuário"}</strong>
                         <span>{formatarDataHora(msg.criado_em)}</span>
                       </div>
 
@@ -623,7 +798,7 @@ export default function AdminChamadosPage() {
               )}
 
               <div className="modal-chamado-actions">
-                <button className="btn-cancelar" onClick={fecharModal}>
+                <button className="btn-cancelar" onClick={fecharModal} type="button">
                   Cancelar
                 </button>
 
@@ -632,6 +807,7 @@ export default function AdminChamadosPage() {
                     className="btn-confirmar"
                     onClick={confirmarResposta}
                     disabled={!resposta.trim() || processing}
+                    type="button"
                   >
                     {processing ? "Enviando..." : "Enviar resposta"}
                   </button>

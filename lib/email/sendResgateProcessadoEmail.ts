@@ -1,4 +1,4 @@
-import { transporter } from "./transporter";
+import { sendEmail } from "@/lib/email/sendEmail";
 import { getResgateProcessadoEmailTemplate } from "./templates/resgateProcessadoEmail";
 
 type SendResgateProcessadoEmailParams = {
@@ -59,13 +59,9 @@ Atenciosamente,
 Equipe BuyGain
   `;
 
-  const info = await transporter.sendMail({
-    from: `"${process.env.EMAIL_FROM_NAME || "BuyGain"}" <${process.env.GMAIL_USER}>`,
-    to,
-    subject,
-    text,
-    html,
-  });
-
-  return info;
+await sendEmail({
+  to,
+  subject,
+  html,
+});
 }

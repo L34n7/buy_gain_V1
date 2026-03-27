@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminSupabase } from "@/lib/supabaseServer";
-import { sendEmail } from "@/lib/email/email";
+import { sendEmail } from "@/lib/email/sendEmail";
 import { getCompraPendenteMLEmailTemplate } from "@/lib/email/templates/compra-pendente-ml";
 
 type Usuario = {

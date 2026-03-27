@@ -75,7 +75,7 @@ export default function Home() {
   });
 
   // NOVO: controle de visitante/logado
-  const [isGuest, setIsGuest] = useState<boolean>(true);
+  const [isGuest, setIsGuest] = useState<boolean | null>(null);
   const [authChecked, setAuthChecked] = useState<boolean>(false);
 
   // usados no modal de envio de prova
@@ -608,6 +608,21 @@ useEffect(() => {
       e.status !== "CANCELADO_DEFINITIVO" &&
       e.status !== "CONFIRMADO_FINAL"
   ).length;
+
+  if (!authChecked || isGuest === null) {
+  return (
+    <div className="dashboard-container">
+      <div className="dashboard-card">
+        <div className="dashboard-glow" />
+        <div className="dashboard-content">
+          <div style={{ padding: "32px", textAlign: "center" }}>
+            Carregando...
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
   return (
     <>
