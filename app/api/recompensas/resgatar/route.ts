@@ -233,7 +233,7 @@ export async function POST(req: Request) {
     try {
       const telegramMessage = `
 🎁 <b>NOVO RESGATE DE RECOMPENSA</b>
-━━━━━━━━━━━━━━━━━━━━━━
+  ━━━━━━━━━━━━━━━━━━
 
 👤 <b>Usuário:</b> ${formatText(userData?.name || "Cliente")}
 📧 <b>Email:</b> ${formatText(emailDestino)}
@@ -250,7 +250,7 @@ export async function POST(req: Request) {
 📌 <b>Status:</b> <b>PENDENTE</b>
 ⏳ <b>Prazo:</b> ${formatText(prazoEntrega)}
 
-━━━━━━━━━━━━━━━━━━━━━━
+  ━━━━━━━━━━━━━━━━━━
 🕒 <i>${new Date().toLocaleString("pt-BR")}</i>
 `;
 
