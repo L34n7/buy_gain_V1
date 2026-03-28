@@ -56,10 +56,12 @@ async function sendMessage(recipientId: string, message: string) {
     body: JSON.stringify({
       recipient: { id: recipientId },
       message: { text: message },
-      access_token: ACCESS_TOKEN,
+      access_token: process.env.INSTAGRAM_TOKEN,
     }),
   });
 
   const data = await response.json();
+
+  console.log("Status envio:", response.status);
   console.log("Resposta envio:", data);
 }

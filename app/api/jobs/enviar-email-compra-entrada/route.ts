@@ -44,6 +44,8 @@ async function enviarEmailsML(
     .from("ml_eventos")
     .select("id, user_id, produto_nome, produto_imagem, origem")
     .or("email_nova_compra.is.null,email_nova_compra.eq.false")
+    .neq("status", "SEM_MATCH")
+    .not("user_id", "is", null)
     .order("data_evento", { ascending: true })
     .limit(50);
 
@@ -71,10 +73,8 @@ async function enviarEmailsML(
       }
 
       const nome = usuario.nickname || usuario.name || "Jogador";
-
       const origemFormatada = "Mercado Livre";
 
-        
       const html = getCompraEmAnaliseEmailTemplate({
         userName: nome,
         produtoNome: evento.produto_nome || "Produto não informado",
