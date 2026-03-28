@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
             recipientId: senderId,
             message: `[ SUCCESS ]
             
-CÓDIGO SECRETO LIBERADO 🎉
+𝐂Ó𝐃𝐈𝐆𝐎 𝐒𝐄𝐂𝐑𝐄𝐓𝐎 𝐋𝐈𝐁𝐄𝐑𝐀𝐃𝐎 🎉
 
 🔑 BG-A7K92
 
