@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const VERIFY_TOKEN = process.env.INSTAGRAM_VERIFY_TOKEN?.trim() || "";
 const ACCESS_TOKEN = process.env.INSTAGRAM_TOKEN?.trim() || "";
+const INSTAGRAM_IG_ID = process.env.INSTAGRAM_IG_ID?.trim() || "";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
@@ -35,8 +36,13 @@ export async function POST(req: NextRequest) {
         if (!senderId || !text) continue;
 
         if (text.includes("codigo") || text.includes("código")) {
-          await debugAccessToken();
-          await sendMessage(senderId, "Seu código é: BG-A7K92");
+          const igId = INSTAGRAM_IG_ID || entry?.id || event?.recipient?.id;
+
+          await sendInstagramMessage({
+            igId,
+            recipientId: senderId,
+            message: "Seu código é: BG-A7K92",
+          });
         }
       }
     }
@@ -48,32 +54,30 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function debugAccessToken() {
-  const token = ACCESS_TOKEN;
+async function sendInstagramMessage({
+  igId,
+  recipientId,
+  message,
+}: {
+  igId: string;
+  recipientId: string;
+  message: string;
+}) {
+  if (!ACCESS_TOKEN) {
+    throw new Error("INSTAGRAM_TOKEN não configurado");
+  }
 
-  console.log("Token existe?", !!token);
-  console.log("Tamanho token:", token.length);
-  console.log("Prefixo token:", token.slice(0, 10));
-  console.log("Sufixo token:", token.slice(-6));
+  if (!igId) {
+    throw new Error("IG ID não encontrado");
+  }
 
-  const meUrl = `https://graph.facebook.com/v25.0/me?access_token=${encodeURIComponent(token)}`;
-
-  const meResponse = await fetch(meUrl, { method: "GET" });
-  const meData = await meResponse.json();
-
-  console.log("Status /me:", meResponse.status);
-  console.log("Resposta /me:", meData);
-}
-
-async function sendMessage(recipientId: string, message: string) {
-  const token = ACCESS_TOKEN;
-
-  const url = `https://graph.facebook.com/v25.0/me/messages?access_token=${encodeURIComponent(token)}`;
+  const url = `https://graph.instagram.com/v25.0/${igId}/messages`;
 
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${ACCESS_TOKEN}`,
     },
     body: JSON.stringify({
       recipient: { id: recipientId },
@@ -83,6 +87,15 @@ async function sendMessage(recipientId: string, message: string) {
 
   const data = await response.json();
 
+  console.log("IG ID usado:", igId);
   console.log("Status envio:", response.status);
   console.log("Resposta envio:", data);
+
+  if (!response.ok) {
+    throw new Error(
+      `Falha ao enviar mensagem: ${JSON.stringify(data)}`
+    );
+  }
+
+  return data;
 }
