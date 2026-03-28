@@ -65,7 +65,10 @@ export async function POST(req: NextRequest) {
           await sendInstagramMessage({
             igId,
             recipientId: senderId,
-            message: `> analisando permissão...`,
+            message: `C:\system> iniciando_analise...
+            
+> analisando permissões...
+> validando identidade...`,
           });
 
           await sendTypingOn(senderId);
@@ -74,9 +77,12 @@ export async function POST(req: NextRequest) {
           await sendInstagramMessage({
             igId,
             recipientId: senderId,
-            message: `>👤 ${displayName}
+            message: `C:\system> identificar_usuario
 
-            > acesso autorizado...`,
+[ OK ] usuário detectado
+
+👤 ${displayName}
+> Acesso: LIBERADO!`,
           });
 
           await sendTypingOn(senderId);
@@ -85,19 +91,18 @@ export async function POST(req: NextRequest) {
           await sendInstagramMessage({
             igId,
             recipientId: senderId,
-            message: `🧠 CÓDIGO SECRETO CAPTURADO
-
+            message: `[ SUCCESS ]
+            
+CÓDIGO SECRETO LIBERADO 🎉
 
 🔑 BG-A7K92
 
-
 Insira esse código no sistema e receba:
 
-• 150 Pontos
-• 150 XP
+• 150 Pontos 💎
+• 150 XP 🔷
 
-⚠️ Continue acompanhando nosso Instagram:
-vem novidade por aí, bônus especiais e sorteios mensais 👀🔥`,
+⚠️ Continue acompanhando nosso Instagram e fique por dentro de todas novidades, logo vamos ter bônus especiais e sorteios mensais 👀🔥`,
           });
         }
       }
