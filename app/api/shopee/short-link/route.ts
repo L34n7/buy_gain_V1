@@ -28,8 +28,7 @@ const APP_ID = process.env.SHOPEE_APP_ID!;
 const SECRET = process.env.SHOPEE_SECRET!;
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql";
 
-
- /* Funções auxiliares mensagem TELEGRAM */
+/* Funções auxiliares mensagem TELEGRAM */
 function formatMoney(value: number | null | undefined) {
   if (value === null || value === undefined || Number.isNaN(Number(value))) {
     return "-";
@@ -143,6 +142,64 @@ function hexToUUID(hex: string) {
   ].join("-");
 }
 
+/* =========================
+   Sincronizar categorias Shopee
+========================= */
+async function sincronizarCategoriasShopee(
+  supabaseAdmin: any,
+  generateLinkId: string,
+  linkRastreado: string,
+  productCatIds: unknown
+) {
+  const categorias = Array.isArray(productCatIds)
+    ? productCatIds
+        .map((id) => Number(id))
+        .filter((id) => Number.isFinite(id) && id > 0)
+    : [];
+
+  console.log("Categorias recebidas da Shopee:", categorias);
+
+  // Apaga as categorias antigas do mesmo generate_link
+  const { error: deleteError } = await supabaseAdmin
+    .from("categoria_shopee")
+    .delete()
+    .eq("generate_link_id", generateLinkId);
+
+  if (deleteError) {
+    throw new Error(
+      `Erro ao limpar categorias antigas: ${deleteError.message}`
+    );
+  }
+
+  if (categorias.length === 0) {
+    console.warn(
+      `Nenhuma categoria retornada pela Shopee para generate_link_id=${generateLinkId}`
+    );
+    return;
+  }
+
+  const categoriasParaInserir = categorias.map((categoriaId, index) => ({
+    generate_link_id: generateLinkId,
+    link_rastreado: linkRastreado,
+    categoria_id: categoriaId,
+    nivel: index + 1,
+  }));
+
+  const { error: insertError } = await supabaseAdmin
+    .from("categoria_shopee")
+    .insert(categoriasParaInserir);
+
+  if (insertError) {
+    throw new Error(
+      `Erro ao inserir categorias na categoria_shopee: ${insertError.message}`
+    );
+  }
+
+  console.log(
+    `Categorias salvas com sucesso para generate_link_id=${generateLinkId}`
+  );
+}
+
 export async function POST(req: NextRequest) {
   let originUrl = "";
   let internalUserId: string | null = null;
@@ -221,28 +278,49 @@ export async function POST(req: NextRequest) {
 
     const { data: cache } = await cacheQuery.maybeSingle();
 
+    let usarCacheNoFinal = false;
+    let cacheSemCategorias = false;
+
     if (cache?.link_rastreado) {
-      const pontos = Number(cache.pontos ?? 0) || 0;
-      const pointsMin = Math.floor(pontos * 0.05);
+      const { count: categoriasCount, error: countError } = await supabaseAdmin
+        .from("categoria_shopee")
+        .select("*", { count: "exact", head: true })
+        .eq("generate_link_id", cache.id);
 
-      console.log("⚡ Cache Shopee encontrado - retornando sem chamar API");
+      if (countError) {
+        console.error("Erro ao contar categorias do cache:", countError);
+      }
 
-      return NextResponse.json({
-        success: true,
-        produto_nome: cache.produto_nome,
-        produto_imagem: cache.produto_imagem,
-        valor: cache.valor,
-        pontos,
-        pointsMin,
-        link_rastreado: cache.link_rastreado,
-        produto_url: cache.produto_url,
-        plataforma: cache.plataforma ?? "Shopee",
-        generate_link_id: cache.id,
-        bonus_percent: isGuest ? 0 : cache.bonus_percent,
-        bonus_source: isGuest ? null : cache.bonus_source,
-        cached: true,
-        guest_mode: isGuest,
-      });
+      if ((categoriasCount || 0) > 0) {
+        const pontos = Number(cache.pontos ?? 0) || 0;
+        const pointsMin = Math.floor(pontos * 0.05);
+
+        console.log("⚡ Cache Shopee encontrado com categorias - retornando");
+
+        return NextResponse.json({
+          success: true,
+          produto_nome: cache.produto_nome,
+          produto_imagem: cache.produto_imagem,
+          valor: cache.valor,
+          pontos,
+          pointsMin,
+          link_rastreado: cache.link_rastreado,
+          produto_url: cache.produto_url,
+          plataforma: cache.plataforma ?? "Shopee",
+          generate_link_id: cache.id,
+          bonus_percent: isGuest ? 0 : cache.bonus_percent,
+          bonus_source: isGuest ? null : cache.bonus_source,
+          cached: true,
+          guest_mode: isGuest,
+        });
+      }
+
+      console.warn(
+        "⚠️ Cache encontrado, mas sem categorias. Vou fazer backfill da categoria_shopee."
+      );
+
+      usarCacheNoFinal = true;
+      cacheSemCategorias = true;
     }
 
     /* =========================
@@ -324,6 +402,42 @@ export async function POST(req: NextRequest) {
         { error: "Produto não encontrado na Shopee Affiliate" },
         { status: 404 }
       );
+    }
+
+    const productCatIds = produto.productCatIds || [];
+
+    /* =========================
+       Se encontrou cache mas sem categorias,
+       faz apenas o backfill da categoria_shopee
+    ========================= */
+    if (usarCacheNoFinal && cacheSemCategorias && cache?.id) {
+      await sincronizarCategoriasShopee(
+        supabaseAdmin,
+        cache.id,
+        cache.link_rastreado,
+        productCatIds
+      );
+
+      const pontos = Number(cache.pontos ?? 0) || 0;
+      const pointsMin = Math.floor(pontos * 0.05);
+
+      return NextResponse.json({
+        success: true,
+        produto_nome: cache.produto_nome,
+        produto_imagem: cache.produto_imagem,
+        valor: cache.valor,
+        pontos,
+        pointsMin,
+        link_rastreado: cache.link_rastreado,
+        produto_url: cache.produto_url,
+        plataforma: cache.plataforma ?? "Shopee",
+        generate_link_id: cache.id,
+        bonus_percent: isGuest ? 0 : cache.bonus_percent,
+        bonus_source: isGuest ? null : cache.bonus_source,
+        cached: true,
+        guest_mode: isGuest,
+        categoria_backfill: true,
+      });
     }
 
     /* =========================
@@ -421,7 +535,7 @@ export async function POST(req: NextRequest) {
     }
 
     /* =========================
-       Insert
+       Insert generate_link
     ========================= */
     const { data: insertedLink, error: insertError } = await supabaseAdmin
       .from("generate_link")
@@ -451,6 +565,16 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
+
+    /* =========================
+       Insert categoria_shopee
+    ========================= */
+    await sincronizarCategoriasShopee(
+      supabaseAdmin,
+      insertedLink.id,
+      insertedLink.link_rastreado,
+      productCatIds
+    );
 
     let nomeUsuario = "Visitante";
 
@@ -531,7 +655,7 @@ export async function POST(req: NextRequest) {
     } catch {}
 
     return NextResponse.json(
-      { error: "Erro interno ao gerar link Shopee" },
+      { error: error?.message || "Erro interno ao gerar link Shopee" },
       { status: 500 }
     );
   }

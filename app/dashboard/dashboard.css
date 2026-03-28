@@ -1046,14 +1046,6 @@ body {
   box-shadow:
     0 12px 40px rgba(0,0,0,0.55),
     inset 0 1px 0 rgba(255,255,255,0.05);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.coupon-card.premium:hover {
-  transform: translateY(-3px);
-  box-shadow:
-    0 18px 60px rgba(0,0,0,0.75),
-    0 0 24px rgba(0,255,245,0.18);
 }
 
 /* TOPO */
@@ -1110,25 +1102,42 @@ body {
 }
 
 .coupon-code-value {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 900;
   letter-spacing: 1px;
   color: var(--neon-cyan);
   flex: 1;
+  transition: filter 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
+  cursor: default;
+}
+
+.coupon-code-value.blurred {
+  font-size: 24px;
+  font-weight: 700;
+  filter: blur(4px);
+  user-select: none;
+  pointer-events: none;
+}
+
+.coupon-code-value.revealed {
+  filter: blur(0);
 }
 
 .coupon-copy-btn {
   background: linear-gradient(90deg, #8a3cf2, #6b2dff);
   border: none;
   border-radius: 8px;
-  padding: 6px 14px;
+  padding: 6px 34px;
+  font-size: 19px;
   color: #fff;
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 0 18px rgba(138,60,242,0.35);
+  transition: transform 0.25s ease, box-shadow 0.15s ease;
 }
 
 .coupon-copy-btn:hover {
+  transform: translateY(-2px);
   box-shadow: 0 0 28px rgba(138,60,242,0.55);
 }
 
@@ -1259,22 +1268,24 @@ body {
   }
 
   .coupon-code-value {
+    font-size: 18px;
     font-weight: 900;
     letter-spacing: 1px;
     color: var(--neon-cyan);
-    font-size: 16px;
     word-break: break-all;
     overflow-wrap: anywhere;
     white-space: normal;
+    text-align: center;
   }
 
   /* botão copiar: largura total, alvo maior para o dedo */
   .coupon-copy-btn {
     width: 100%;
     align-self: stretch;
-    padding: 5px 14px;
+    padding: 7px 14px;
     font-size: 16px;
     border-radius: 10px;
+    margin-top: 5px;
   }
 
   .coupon-copy-btn:hover {

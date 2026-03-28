@@ -45,6 +45,9 @@ export async function POST(req: Request) {
       marca,
     } = await req.json();
 
+    console.log("categoria_niveis recebida:", categoria_niveis);
+    console.log("marca recebida:", marca);
+
     // 5️⃣ Validação mínima
     if (!produto_nome || !produto_url || !link_rastreado) {
       return NextResponse.json(
@@ -88,6 +91,7 @@ export async function POST(req: Request) {
         { status: 404 }
       );
     }
+    
 
     // 7️⃣ Inserção categorias
     let categoriasInseridas: any[] = [];
@@ -113,7 +117,7 @@ export async function POST(req: Request) {
       rows.push({
         link_rastreado,
         nivel: 1,
-        categoria: "Geral",
+        categoria: "geral",
       });
 
       // categoria marca

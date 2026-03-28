@@ -88,29 +88,100 @@ export default function Home() {
   const pointsMin = gain10 !== null ? Math.round(gain10 * 100) : null;
   const pointsMax = gain30 !== null ? Math.round(gain30 * 100) : null;
 
+  const [cuponsExibidos, setCuponsExibidos] = useState<Record<string, boolean>>(
+    {}
+  );
+  const [cupomBtnTexto, setCupomBtnTexto] = useState<Record<string, string>>({});
+
+  function revelarTodosOsCupons() {
+    const exibidos: Record<string, boolean> = {};
+    const textos: Record<string, string> = {};
+
+    cupons.forEach((cupom) => {
+      exibidos[cupom.id_cupom] = true;
+      textos[cupom.id_cupom] = "Copiar";
+    });
+
+    setCuponsExibidos(exibidos);
+    setCupomBtnTexto(textos);
+  }
+
   /* -----------------------------------------------------
      1) Descobrir se está logado
      Se não estiver, entra em modo visitante sem quebrar
   ----------------------------------------------------- */
-useEffect(() => {
-  async function verificarSessaoECarregarResumo() {
-    try {
-      const [resSummary, resSaldo] = await Promise.all([
-        fetch("/api/dashboard/summary", {
-          method: "POST",
-          credentials: "include",
-        }),
-        fetch("/api/saldo", {
-          credentials: "include",
-        }),
-      ]);
+  useEffect(() => {
+    async function verificarSessaoECarregarResumo() {
+      try {
+        const [resSummary, resSaldo] = await Promise.all([
+          fetch("/api/dashboard/summary", {
+            method: "POST",
+            credentials: "include",
+          }),
+          fetch("/api/saldo", {
+            credentials: "include",
+          }),
+        ]);
 
-      const summary = resSummary.ok ? await resSummary.json() : null;
-      const saldo = resSaldo.ok ? await resSaldo.json() : null;
+        const summary = resSummary.ok ? await resSummary.json() : null;
+        const saldo = resSaldo.ok ? await resSaldo.json() : null;
 
-      const visitante = !!summary?.is_guest || !resSaldo.ok;
+        const visitante = !!summary?.is_guest || !resSaldo.ok;
 
-      if (visitante) {
+        if (visitante) {
+          setIsGuest(true);
+          setUserName("Visitante");
+          setTotalPoints(0);
+
+          const bonusData: LevelBonusData = {
+            level_bonus_percent: 0,
+            level_bonus_started_at: null,
+            level_bonus_expires_at: null,
+            level_bonus_active: false,
+          };
+
+          setLevelBonus(bonusData);
+          localStorage.removeItem("dashboard_level_bonus");
+
+          window.dispatchEvent(
+            new CustomEvent("dashboard:level-bonus-updated", {
+              detail: bonusData,
+            })
+          );
+
+          return;
+        }
+
+        setIsGuest(false);
+
+        if (summary?.user_name) {
+          setUserName(summary.user_name);
+        }
+
+        setTotalPoints(saldo?.saldo ?? 0);
+
+        const bonusData: LevelBonusData = {
+          level_bonus_percent: summary?.level_bonus_percent ?? 0,
+          level_bonus_started_at: summary?.level_bonus_started_at ?? null,
+          level_bonus_expires_at: summary?.level_bonus_expires_at ?? null,
+          level_bonus_active: summary?.level_bonus_active ?? false,
+        };
+
+        setLevelBonus(bonusData);
+
+        localStorage.setItem(
+          "dashboard_level_bonus",
+          JSON.stringify(bonusData)
+        );
+
+        window.dispatchEvent(
+          new CustomEvent("dashboard:level-bonus-updated", {
+            detail: bonusData,
+          })
+        );
+      } catch (err) {
+        console.error("Erro ao verificar sessão do dashboard:", err);
+
         setIsGuest(true);
         setUserName("Visitante");
         setTotalPoints(0);
@@ -130,66 +201,13 @@ useEffect(() => {
             detail: bonusData,
           })
         );
-
-        return;
+      } finally {
+        setAuthChecked(true);
       }
-
-      setIsGuest(false);
-
-      if (summary?.user_name) {
-        setUserName(summary.user_name);
-      }
-
-      setTotalPoints(saldo?.saldo ?? 0);
-
-      const bonusData: LevelBonusData = {
-        level_bonus_percent: summary?.level_bonus_percent ?? 0,
-        level_bonus_started_at: summary?.level_bonus_started_at ?? null,
-        level_bonus_expires_at: summary?.level_bonus_expires_at ?? null,
-        level_bonus_active: summary?.level_bonus_active ?? false,
-      };
-
-      setLevelBonus(bonusData);
-
-      localStorage.setItem(
-        "dashboard_level_bonus",
-        JSON.stringify(bonusData)
-      );
-
-      window.dispatchEvent(
-        new CustomEvent("dashboard:level-bonus-updated", {
-          detail: bonusData,
-        })
-      );
-    } catch (err) {
-      console.error("Erro ao verificar sessão do dashboard:", err);
-
-      setIsGuest(true);
-      setUserName("Visitante");
-      setTotalPoints(0);
-
-      const bonusData: LevelBonusData = {
-        level_bonus_percent: 0,
-        level_bonus_started_at: null,
-        level_bonus_expires_at: null,
-        level_bonus_active: false,
-      };
-
-      setLevelBonus(bonusData);
-      localStorage.removeItem("dashboard_level_bonus");
-
-      window.dispatchEvent(
-        new CustomEvent("dashboard:level-bonus-updated", {
-          detail: bonusData,
-        })
-      );
-    } finally {
-      setAuthChecked(true);
     }
-  }
 
-  verificarSessaoECarregarResumo();
-}, []);
+    verificarSessaoECarregarResumo();
+  }, []);
 
   /* -----------------------------------------------------
     2) Buscar eventos pendentes
@@ -365,6 +383,8 @@ useEffect(() => {
     setGain10(null);
     setGain30(null);
     setCupons([]);
+    setCuponsExibidos({});
+    setCupomBtnTexto({});
 
     if (!url || !/^https?:\/\//i.test(url)) {
       setError("Cole um link válido que comece com http:// ou https://");
@@ -610,19 +630,19 @@ useEffect(() => {
   ).length;
 
   if (!authChecked || isGuest === null) {
-  return (
-    <div className="dashboard-container">
-      <div className="dashboard-card">
-        <div className="dashboard-glow" />
-        <div className="dashboard-content">
-          <div style={{ padding: "32px", textAlign: "center" }}>
-            Carregando...
+    return (
+      <div className="dashboard-container">
+        <div className="dashboard-card">
+          <div className="dashboard-glow" />
+          <div className="dashboard-content">
+            <div style={{ padding: "32px", textAlign: "center" }}>
+              Carregando...
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   return (
     <>
@@ -695,35 +715,94 @@ useEffect(() => {
 
                         <div className="coupon-code-box">
                           <span className="coupon-code-label">Código</span>
-                          <div className="coupon-code-value">{c.cupom}</div>
+
+                          <div
+                            className={`coupon-code-value ${
+                              cuponsExibidos[c.id_cupom] ? "revealed" : "blurred"
+                            }`}
+                          >
+                            {c.cupom}
+                          </div>
 
                           <button
                             className="coupon-copy-btn"
                             onClick={async () => {
-                              navigator.clipboard.writeText(c.cupom);
+                              const jaExibido = !!cuponsExibidos[c.id_cupom];
 
-                              const el = document.getElementById(
-                                `copy-${c.id_cupom}`
-                              );
-                              if (el) {
-                                el.innerText = "código copiado!";
-                                setTimeout(() => {
-                                  el.innerText = "Copiar";
-                                }, 1500);
+                              // PRIMEIRO CLIQUE = abre link rastreado e exibe TODOS os cupons
+                              if (!jaExibido) {
+                                if (!trackedLink) {
+                                  alert("Link rastreado indisponível.");
+                                  return;
+                                }
+
+                                const width = 500;
+                                const height = 700;
+
+                                const left =
+                                  window.screenX + (window.outerWidth - width) / 2;
+                                const top =
+                                  window.screenY + (window.outerHeight - height) / 2;
+
+                                window.open(
+                                  trackedLink,
+                                  "_blank",
+                                  `width=${width},height=${height},left=${left},top=${top},noopener,noreferrer`
+                                );
+
+                                revelarTodosOsCupons();
+
+                                setCopyMessage(
+                                  "✅ Cupons liberados! Finalize a compra na nova aba aberta para garantir seus pontos."
+                                );
+                                setTimeout(() => setCopyMessage(null), 8000);
+
+                                fetch("/api/cupom/click", {
+                                  credentials: "include",
+                                  method: "POST",
+                                  headers: {
+                                    "Content-Type": "application/json",
+                                  },
+                                  body: JSON.stringify({ cupom_id: c.id_cupom }),
+                                }).catch(() => {});
+
+                                return;
                               }
 
-                              fetch("/api/cupom/click", {
-                                credentials: "include",
-                                method: "POST",
-                                headers: {
-                                  "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify({ cupom_id: c.id_cupom }),
-                              }).catch(() => {});
+                              // PRÓXIMOS CLIQUES = copia o cupom
+                              try {
+                                await navigator.clipboard.writeText(c.cupom);
+
+                                setCupomBtnTexto((prev) => ({
+                                  ...prev,
+                                  [c.id_cupom]: "Código copiado!",
+                                }));
+
+                                setTimeout(() => {
+                                  setCupomBtnTexto((prev) => ({
+                                    ...prev,
+                                    [c.id_cupom]: "Copiar",
+                                  }));
+                                }, 1500);
+                              } catch {
+                                setCupomBtnTexto((prev) => ({
+                                  ...prev,
+                                  [c.id_cupom]: "Erro ao copiar",
+                                }));
+
+                                setTimeout(() => {
+                                  setCupomBtnTexto((prev) => ({
+                                    ...prev,
+                                    [c.id_cupom]: "Copiar",
+                                  }));
+                                }, 1500);
+                              }
                             }}
-                            id={`copy-${c.id_cupom}`}
                           >
-                            Copiar
+                            {cupomBtnTexto[c.id_cupom] ||
+                              (cuponsExibidos[c.id_cupom]
+                                ? "Copiar cupom"
+                                : "Exibir código cupom")}
                           </button>
                         </div>
 
@@ -750,105 +829,118 @@ useEffect(() => {
               </div>
             )}
 
-            {/* CARDS PRIVADOS: só logado */}
             {authChecked && !isGuest && (
-            <div className="status-cards">
-              <Link href="/dashboard/compras" className="status-card-link">
-                <div className="status-card">
-                  <div className="status-title">Pontos em Análise</div>
-                  <div className="status-value">{pontosEmAnaliseTexto}</div>
-                  <div className="status-asset" aria-hidden />
-                  <img
-                    src="/cards/coins.png"
-                    alt=""
-                    className="status-image-analysis"
-                    aria-hidden
-                  />
-                </div>
-              </Link>
+              <div className="status-cards">
+                <Link href="/dashboard/compras" className="status-card-link">
+                  <div className="status-card">
+                    <div className="status-title">Pontos em Análise</div>
+                    <div className="status-value">{pontosEmAnaliseTexto}</div>
+                    <div className="status-asset" aria-hidden />
+                    <img
+                      src="/cards/coins.png"
+                      alt=""
+                      className="status-image-analysis"
+                      aria-hidden
+                    />
+                  </div>
+                </Link>
 
-              <Link href="/dashboard/recompensas" className="status-card-link">
-                <div className="status-card recompensa">
-                  <div className="status-title">Recompensas Disponíveis</div>
-                  <div className="status-overlay">
-                    <div className="status-value-rec">
-                      {recompensasQtd > 0 ? (
-                        <>
-                          <span className="plus">+</span>
-                          {recompensasQtd}
-                        </>
-                      ) : (
-                        0
-                      )}
+                <Link href="/dashboard/recompensas" className="status-card-link">
+                  <div className="status-card recompensa">
+                    <div className="status-title">Recompensas Disponíveis</div>
+                    <div className="status-overlay">
+                      <div className="status-value-rec">
+                        {recompensasQtd > 0 ? (
+                          <>
+                            <span className="plus">+</span>
+                            {recompensasQtd}
+                          </>
+                        ) : (
+                          0
+                        )}
+                      </div>
+                    </div>
+
+                    <img
+                      src="/cards/recompensa.png"
+                      alt=""
+                      className="status-image-recompensa"
+                      aria-hidden
+                    />
+                  </div>
+                </Link>
+
+                <Link href="/dashboard/compras" className="status-card-link">
+                  <div className="status-card">
+                    <div className="status-title">Compras em Análise</div>
+                    <div className="status-value-lupa">{comprasEmAnalise}</div>
+                    <div className="status-asset" aria-hidden />
+                    <img
+                      src="/cards/lupa.png"
+                      alt=""
+                      className="status-image-lupa"
+                      aria-hidden
+                    />
+                  </div>
+                </Link>
+              </div>
+            )}
+
+            {authChecked && isGuest && (
+              <div className="guest-about-section">
+                <div className="guest-about-header">
+                  <h3>Como funciona a BuyGain</h3>
+                  <p>
+                    Encontre o cupom certo para a sua compra de forma otimizada e
+                    acertiva, finalize a compra com o link rastreado e receba
+                    pontos para trocar por beneficios. — <b>100% GRATIS</b>.
+                  </p>
+                </div>
+
+                <Link href="/public" className="guest-about-grid">
+                  <div className="guest-about-card">
+                    <div className="guest-about-icon">🎟️</div>
+                    <div className="guest-about-title">
+                      Busca ótimizada de cupons
+                    </div>
+                    <div className="guest-about-text">
+                      Buscamos cupons compatíveis com o produto, valor e
+                      categoria da sua compra — evitando erros e aumentando suas
+                      chances de desconto real.
                     </div>
                   </div>
 
-                  <img
-                    src="/cards/recompensa.png"
-                    alt=""
-                    className="status-image-recompensa"
-                    aria-hidden
-                  />
-                </div>
-              </Link>
+                  <div className="guest-about-card">
+                    <div className="guest-about-icon">🔗</div>
+                    <div className="guest-about-title">
+                      Suas compras valem pontos
+                    </div>
+                    <div className="guest-about-text">
+                      Compre usando nosso link rastreado e receba pontos para
+                      trocar por recompensas que valem dinheiro — Cada 100 pontos
+                      é R$1,00.
+                    </div>
+                  </div>
 
-              <Link href="/dashboard/compras" className="status-card-link">
-                <div className="status-card">
-                  <div className="status-title">Compras em Análise</div>
-                  <div className="status-value-lupa">{comprasEmAnalise}</div>
-                  <div className="status-asset" aria-hidden />
-                  <img
-                    src="/cards/lupa.png"
-                    alt=""
-                    className="status-image-lupa"
-                    aria-hidden
-                  />
-                </div>
-              </Link>
-            </div>
-          )}
-
-          {authChecked && isGuest && (
-            <div className="guest-about-section">
-              <div className="guest-about-header">
-                <h3>Como funciona a BuyGain</h3>
-                <p>
-                  Encontre o cupom certo para a sua compra de forma otimizada e acertiva, finalize a compra com o link rastreado e receba pontos para trocar por beneficios. — <b>100% GRATIS</b>.
-                </p>
+                  <div className="guest-about-card highlight">
+                    <div className="guest-about-icon">💎</div>
+                    <div className="guest-about-title">
+                      Pontos é benefícios reais
+                    </div>
+                    <div className="guest-about-text">
+                      Troque seus pontos por GIFT CARDS dos maiores jogos
+                      (Roblox, Free fire, Mobile legends, LOL, Valorant...),
+                      streaming (Netflix, spotify), restaurantes e serviços.
+                      Recompensas com valor real — sem complicação.
+                    </div>
+                  </div>
+                </Link>
               </div>
-
-              <Link href="/public"className="guest-about-grid">
-                <div className="guest-about-card">
-                  <div className="guest-about-icon">🎟️</div>
-                  <div className="guest-about-title">Busca ótimizada de cupons</div>
-                  <div className="guest-about-text">
-                    Buscamos cupons compatíveis com o produto, valor e categoria da sua compra — evitando erros e aumentando suas chances de desconto real.
-                  </div>
-                </div>
-
-                <div className="guest-about-card">
-                  <div className="guest-about-icon">🔗</div>
-                  <div className="guest-about-title">Suas compras valem pontos</div>
-                  <div className="guest-about-text">
-                    Compre usando nosso link rastreado e receba pontos para trocar por recompensas que valem dinheiro — Cada 100 pontos é R$1,00.
-                  </div>
-                </div>
-
-                <div className="guest-about-card highlight">
-                  <div className="guest-about-icon">💎</div>
-                  <div className="guest-about-title">Pontos é benefícios reais</div>
-                  <div className="guest-about-text">
-                    Troque seus pontos por GIFT CARDS dos maiores jogos (Roblox, Free fire, Mobile legends, LOL, Valorant...), streaming (Netflix, spotify), restaurantes e serviços. Recompensas com valor real — sem complicação.
-                  </div>
-                </div>
-              </Link>
-            </div>
-          )}
+            )}
           </div>
         </div>
       </div>
 
-      {/* MODAL PRIVADO: só logado */}
       {authChecked && !isGuest && (
         <EventsModal
           eventoModalId={eventoModalId}
