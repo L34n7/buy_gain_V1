@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const VERIFY_TOKEN = process.env.INSTAGRAM_VERIFY_TOKEN!;
-const ACCESS_TOKEN = process.env.INSTAGRAM_TOKEN!;
+const VERIFY_TOKEN = process.env.INSTAGRAM_VERIFY_TOKEN?.trim() || "";
+const ACCESS_TOKEN = process.env.INSTAGRAM_TOKEN?.trim() || "";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
         if (!senderId || !text) continue;
 
         if (text.includes("codigo") || text.includes("código")) {
+          await debugAccessToken();
           await sendMessage(senderId, "Seu código é: BG-A7K92");
         }
       }
@@ -47,8 +48,29 @@ export async function POST(req: NextRequest) {
   }
 }
 
+async function debugAccessToken() {
+  const token = ACCESS_TOKEN;
+
+  console.log("Token existe?", !!token);
+  console.log("Tamanho token:", token.length);
+  console.log("Prefixo token:", token.slice(0, 10));
+  console.log("Sufixo token:", token.slice(-6));
+
+  const meUrl = `https://graph.facebook.com/v25.0/me?access_token=${encodeURIComponent(token)}`;
+
+  const meResponse = await fetch(meUrl, { method: "GET" });
+  const meData = await meResponse.json();
+
+  console.log("Status /me:", meResponse.status);
+  console.log("Resposta /me:", meData);
+}
+
 async function sendMessage(recipientId: string, message: string) {
-  const response = await fetch("https://graph.facebook.com/v19.0/me/messages", {
+  const token = ACCESS_TOKEN;
+
+  const url = `https://graph.facebook.com/v25.0/me/messages?access_token=${encodeURIComponent(token)}`;
+
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -56,7 +78,6 @@ async function sendMessage(recipientId: string, message: string) {
     body: JSON.stringify({
       recipient: { id: recipientId },
       message: { text: message },
-      access_token: process.env.INSTAGRAM_TOKEN,
     }),
   });
 
