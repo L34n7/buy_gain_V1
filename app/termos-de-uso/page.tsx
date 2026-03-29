@@ -2,9 +2,20 @@
 
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import "./termos.css";
 
 export default function TermosUso() {
+  const router = useRouter();
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/dashboard");
+    }
+  };
+
   return (
     <div className="termos-container">
       <div className="termos-content">
@@ -114,9 +125,9 @@ export default function TermosUso() {
 
         <p className="email">📧 suporte@buygain.com</p>
 
-        <Link className="voltar" href="/">
+        <button className="voltar" onClick={handleBack} type="button">
           ⬅ Voltar para o início
-        </Link>
+        </button>
       </div>
     </div>
   );

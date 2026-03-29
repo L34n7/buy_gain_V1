@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import "./intermediary.css";
-import AuthFooter from "./auth/AuthFooter";
+import AuthFooter from "./AuthFooter";
 
 
 export default function EntrarPage() {

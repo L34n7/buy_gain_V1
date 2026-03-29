@@ -4,8 +4,17 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 🔑 Cookie padrão do Supabase Auth
-  const isAuthenticated = !!request.cookies.get("sb-access-token");
+  // verifica se existe algum cookie do Supabase
+  const isAuthenticated = request.cookies
+    .getAll()
+    .some((cookie) => cookie.name.startsWith("sb-"));
+
+  /* ===============================
+     0️⃣ REDIRECIONA RAIZ PARA /dashboard
+  =============================== */
+  if (pathname === "/") {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
 
   /* ===============================
      1️⃣ PROTEGE APENAS AS SUBPÁGINAS DO DASHBOARD
@@ -26,7 +35,6 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // ✅ continua normalmente
   return NextResponse.next();
 }
 
@@ -35,6 +43,7 @@ export function middleware(request: NextRequest) {
 =============================== */
 export const config = {
   matcher: [
+    "/",
     "/dashboard/:path*",
     "/auth/login",
     "/auth/cadastro",

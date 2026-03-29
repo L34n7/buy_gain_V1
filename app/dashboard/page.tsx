@@ -688,7 +688,7 @@ export default function Home() {
                     </h3>
                   ) : (
                     <h3 className="dashboard-coupons-title">
-                      🎟️ Cupons disponíveis para este produto:
+                      🎟️ Cupons compatíveis com a sua compra:
                     </h3>
                   )}
                 </div>

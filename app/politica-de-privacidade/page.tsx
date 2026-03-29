@@ -2,9 +2,20 @@
 
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import "./politica.css";
 
 export default function PoliticaPrivacidade() {
+  const router = useRouter();
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/dashboard");
+    }
+  };
+
   return (
     <div className="politica-container">
       <div className="politica-content">
@@ -99,9 +110,9 @@ export default function PoliticaPrivacidade() {
 
         <p className="email">📧 suporte@buygain.com</p>
 
-        <Link className="voltar" href="/">
+        <button className="voltar" onClick={handleBack} type="button">
           ⬅ Voltar para o início
-        </Link>
+        </button>
       </div>
     </div>
   );

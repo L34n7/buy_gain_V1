@@ -40,7 +40,7 @@ export default function AuthFooter() {
           </Link>
 
           <Link     
-          href="https://wa.me/5531999999999?text=Olá,%20preciso%20de%20ajuda%20no%20BuyGain"
+          href="/dashboard/ajuda"
           target="_blank"
           rel="noopener noreferrer">
             Suporte
