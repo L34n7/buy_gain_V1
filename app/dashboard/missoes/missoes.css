@@ -190,6 +190,7 @@
   padding: 10px 14px;
   margin: 0;
   border-radius: 13px;
+  font-size: 16px;
   font-weight: 800;
   text-decoration: none;
   transition: transform 320ms ease, background 120ms ease;
@@ -201,16 +202,6 @@
 .missao-acoes .btn-primary:hover{
   transform: translateY(-2px);
   background: linear-gradient(90deg, #8b5cf6, #22d3ee);
-}
-
-.instagram-missao-box a.btn {
-  background: linear-gradient(90deg, #ff4a50dc, #bc12ff);
-  border: 1px transparent;
-}
-
-.instagram-missao-box a.btn:hover{
-  background: linear-gradient(90deg, #fa4f55, #d65bf8);
-  border: 1px transparent;
 }
 
 .missao-acoes .btn-primary:disabled{
@@ -229,9 +220,9 @@
   padding: 10px 12px;
   margin: 0;
   border-radius: 10px;
+  font-size: 16px;
   font-weight: 900;
   border: 1px solid rgba(43, 212, 139, 0.146);
-  font-size: 16px;
   min-width: 180px;
   text-align: center;
 }
@@ -386,12 +377,73 @@
   flex-shrink: 0;
 }
 
+.instagram-missao-box a.btn {
+  background: linear-gradient(90deg, #ff4a50dc, #bc12ff);
+  border: 1px transparent;
+}
+
+.instagram-missao-box a.btn:hover{
+  background: linear-gradient(90deg, #fa4f55, #d65bf8);
+  border: 1px transparent;
+}
+
 .instagram-codigo-erro{
   color: #ff8f8f;
   font-size: 13px;
   line-height: 1.4;
   margin-top: -2px;
 }
+
+
+/* ===== BLOCO DO WHATSAPP ===== */
+.whatsapp-missao-box{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.whatsapp-codigo-row{
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+}
+
+.whatsapp-codigo-input{
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: #fff;
+  padding: 0 14px;
+  outline: none;
+  font-size: 14px;
+  transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
+.whatsapp-codigo-erro{
+  color: #bb5555;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-top: -2px;
+}
+
+
+.whatsapp-missao-box a.btn {
+  width: 100%;
+  margin: 0;
+  background: linear-gradient(90deg, #36f766, #117f27);
+  border: 1px transparent;
+}
+
+.whatsapp-missao-box a.btn:hover{
+  background: linear-gradient(90deg, #25ed57, #38a04d);
+  border: 1px transparent;
+}
+
 
 /* ===== BLOCO DA INDICAÇÃO ===== */
 .missao-card-indicacao{
@@ -496,6 +548,7 @@
   color: var(--text);
   border: 1px solid rgba(255, 255, 255, 0);
   border-radius: 13px;
+  
   font-weight: 800;
   padding: 10px 14px;
 }
@@ -511,6 +564,7 @@
   border: none;
   border-radius: 12px;
   padding: 10px 14px;
+  font-size: 17px;
   font-weight: 800;
   color: #fff;
   cursor: pointer;
@@ -645,7 +699,7 @@
 
   .missoes-root{
     width: 100%;
-    padding: 10px 8px;
+    padding: 20px 8px;
     overflow-x: hidden;
   }
 
@@ -817,7 +871,37 @@
     font-size: 14px;
     line-height: 1.4;
   }
+  
+  .whatsapp-codigo-row{
+    width: 100%;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+  }
 
+  .whatsapp-codigo-input{
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    font-size: 13px;
+    padding: 0 12px;
+    margin: 5px 0px 5px 0px;
+  }
+
+  .whatsapp-codigo-row .btn-primary{
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    font-size: 16px;
+  }
+
+  .whatsapp-codigo-erro{
+    width: 100%;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  
+  
   .missao-card-indicacao{
     width: min(100%, 320px);
     max-width: 320px;

@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function DailyXpLoader() {
+  const alreadyCalledRef = useRef(false);
+
   useEffect(() => {
+    if (alreadyCalledRef.current) return;
+    alreadyCalledRef.current = true;
+
     async function gerarXpDiario() {
       try {
-        // evita rodar múltiplas vezes na mesma sessão
-
         const res = await fetch("/api/xp/daily-login", {
           method: "POST",
         });
@@ -23,11 +26,11 @@ export default function DailyXpLoader() {
                 xp_gained: json.xp_gained,
                 leveled_up: json.leveled_up,
                 new_level: json.new_level,
+                daily_xp: true,
               },
             })
           );
         }
-
       } catch (err) {
         console.error("Erro XP diário:", err);
       }

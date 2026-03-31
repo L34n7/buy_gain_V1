@@ -1008,7 +1008,8 @@
   .level-bonus-badge {
     order: 4;
     position: absolute;
-    top: 64px;
+    top: 68px;
+    right: 15px;
     transform: translateX(-50%);
 
     height: 34px;

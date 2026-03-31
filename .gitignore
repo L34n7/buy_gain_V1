@@ -27,6 +27,7 @@ automacao
 playwright-report
 test-results
 sync-shopee.bat
+start-server_automation.bat
 
 # OS
 .DS_Store

@@ -23,6 +23,10 @@ type MissoesResponse = {
     concluida: boolean;
     data_conclusao: string | null;
   };
+  grupo_whatsapp?: {
+    concluida: boolean;
+    data_conclusao: string | null;
+  };
   indicacao?: {
     codigo_indicacao: string | null;
     total_confirmadas: number;
@@ -40,6 +44,10 @@ export default function MissoesPage() {
   const [codigoInstagram, setCodigoInstagram] = useState("");
   const [validandoInstagram, setValidandoInstagram] = useState(false);
   const [erroInstagram, setErroInstagram] = useState<string | null>(null);
+
+  const [codigoWhatsappGrupo, setCodigoWhatsappGrupo] = useState("");
+  const [validandoWhatsappGrupo, setValidandoWhatsappGrupo] = useState(false);
+  const [erroWhatsappGrupo, setErroWhatsappGrupo] = useState<string | null>(null);
 
   const [codigoIndicacao, setCodigoIndicacao] = useState<string>("");
   const [copiandoCodigo, setCopiandoCodigo] = useState(false);
@@ -96,15 +104,18 @@ export default function MissoesPage() {
           dataConclusao: json?.seguir_instagram?.data_conclusao ?? null,
         };
 
+        const whatsappGrupoMissao: Missao = {
+          id: "grupo_whatsapp",
+          titulo: "Entre no Grupo do WhatsApp",
+          descricao:
+            "Entre no grupo oficial da BuyGain, copie o código na descrição do grupo e cole abaixo para concluir a missão.",
+          xp: 150,
+          pontos: 200,
+          status: json?.grupo_whatsapp?.concluida ? "CONCLUIDA" : "DISPONIVEL",
+          dataConclusao: json?.grupo_whatsapp?.data_conclusao ?? null,
+        };
+
         const futurasMissoes: Missao[] = [
-          {
-            id: "grupo_whatsapp",
-            titulo: "Entre no Grupo do WhatsApp",
-            descricao: "Receba ofertas e novidades exclusivas em primeira mão.",
-            xp: 150,
-            pontos: 200,
-            status: "EM_BREVE",
-          },
           {
             id: "grupo_discord",
             titulo: "Participe do Discord",
@@ -119,6 +130,7 @@ export default function MissoesPage() {
           indicacaoMissao,
           perfilMissao,
           instagramMissao,
+          whatsappGrupoMissao,
           ...futurasMissoes,
         ]);
 
@@ -188,6 +200,58 @@ export default function MissoesPage() {
     }
   }
 
+  async function concluirMissaoWhatsappGrupo() {
+    setErroWhatsappGrupo(null);
+
+    const codigoLimpo = codigoWhatsappGrupo.trim().toUpperCase();
+
+    if (!codigoLimpo) {
+      setErroWhatsappGrupo("Digite o código da descrição do grupo.");
+      return;
+    }
+
+    setValidandoWhatsappGrupo(true);
+
+    try {
+      const res = await fetch("/api/missoes/whatsapp-grupo", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          codigo: codigoLimpo,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErroWhatsappGrupo(data?.error || "Erro ao validar código.");
+        return;
+      }
+
+      setMissoes((prev) =>
+        prev.map((m) =>
+          m.id === "grupo_whatsapp"
+            ? {
+                ...m,
+                status: "CONCLUIDA",
+                dataConclusao: data?.data_conclusao ?? new Date().toISOString(),
+              }
+            : m
+        )
+      );
+
+      setCodigoWhatsappGrupo("");
+    } catch (err) {
+      console.error("Erro ao concluir missão WhatsApp:", err);
+      setErroWhatsappGrupo("Erro inesperado ao validar o código.");
+    } finally {
+      setValidandoWhatsappGrupo(false);
+    }
+  }
+
   async function copiarMeuCodigoIndicacao() {
     if (!codigoIndicacao || copiandoCodigo) return;
 
@@ -230,9 +294,9 @@ export default function MissoesPage() {
 
     Bora ganhar juntos 🚀`;
 
-      const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+    const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
 
-      window.open(url, "_blank");
+    window.open(url, "_blank");
   }
 
   return (
@@ -312,7 +376,6 @@ export default function MissoesPage() {
                                   : "Copiar código"}
                               </button>
                             </div>
-
                           </div>
 
                           <div className="indicacao-painel indicacao-painel-stats">
@@ -349,8 +412,6 @@ export default function MissoesPage() {
                           também ganha <strong>{pontosIndicado} pontos</strong>.
                         </div>
                       </div>
-
-
                     </>
                   ) : (
                     <>
@@ -406,15 +467,53 @@ export default function MissoesPage() {
                                 onClick={concluirMissaoInstagram}
                                 disabled={validandoInstagram}
                               >
-                                {validandoInstagram
-                                  ? "Validando..."
-                                  : "Concluir missão"}
+                                {validandoInstagram ? "Validando..." : "Concluir missão"}
                               </button>
                             </div>
 
                             {erroInstagram && (
                               <div className="instagram-codigo-erro">
                                 {erroInstagram}
+                              </div>
+                            )}
+                          </div>
+                        ) : missao.id === "grupo_whatsapp" ? (
+                          <div className="whatsapp-missao-box">
+                            <a
+                              href="https://chat.whatsapp.com/FJdzSmLBXG0FNCHX6GcXPo?mode=gi_t"
+                              target="_blank"
+                              rel="noreferrer"
+                              className="btn btn-whatsapp"
+                            >
+                              Entrar no grupo
+                            </a>
+
+                            <div className="whatsapp-codigo-row">
+                              <input
+                                type="text"
+                                value={codigoWhatsappGrupo}
+                                onChange={(e) => setCodigoWhatsappGrupo(e.target.value)}
+                                placeholder="Digite o código"
+                                maxLength={20}
+                                autoComplete="off"
+                                className="whatsapp-codigo-input"
+                              />
+
+                              <button
+                                type="button"
+                                className="btn btn-primary"
+                                onClick={concluirMissaoWhatsappGrupo}
+                                disabled={validandoWhatsappGrupo}
+                              >
+                                {validandoWhatsappGrupo
+                                  ? "Validando..."
+                                  : "Concluir missão"}
+                              </button>
+                            </div>
+
+                            {erroWhatsappGrupo && (
+                              <div className="whatsapp-codigo-erro">
+                                {erroWhatsappGrupo}
                               </div>
                             )}
                           </div>

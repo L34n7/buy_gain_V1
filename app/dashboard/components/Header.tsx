@@ -111,6 +111,16 @@ export default function Header({
     return new Date(bonus.level_bonus_expires_at).getTime() > bonusNow;
   }
 
+  function getBonusRemainingDays(expiresAt?: string | null) {
+    if (!expiresAt) return 0;
+
+    const diff = new Date(expiresAt).getTime() - bonusNow;
+
+    if (diff <= 0) return 0;
+
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  }
+
   function formatBonusRemaining(expiresAt?: string | null) {
     if (!expiresAt) return "";
 
@@ -129,6 +139,9 @@ export default function Header({
   }
 
   const bonusAtivo = isGuest === false && isLevelBonusActive(levelBonus);
+  const bonusRemainingDays = getBonusRemainingDays(
+    levelBonus.level_bonus_expires_at
+  );
 
   useEffect(() => {
     if (!avatarUrl) {
@@ -427,32 +440,34 @@ export default function Header({
   }
 
   if (isGuest === null) {
-  return (
-    <header className="dashboard-topbar">
-      <div className="topbar-left" />
-      <div className="brand-logo-wrapper">
-        <img
-          src="/logo.png"
-          alt="BuyGain"
-          className={`brand-logo ${logoFaded ? "faded" : ""}`}
-          draggable="false"
-          onContextMenu={(e) => e.preventDefault()}
-        />
-      </div>
-      <div className="topbar-right" />
-    </header>
-  );
-}
+    return (
+      <header className="dashboard-topbar">
+        <div className="topbar-left" />
+        <div className="brand-logo-wrapper">
+          <img
+            src="/logo.png"
+            alt="BuyGain"
+            className={`brand-logo ${logoFaded ? "faded" : ""}`}
+            draggable="false"
+            onContextMenu={(e) => e.preventDefault()}
+          />
+        </div>
+        <div className="topbar-right" />
+      </header>
+    );
+  }
 
   return (
     <header className="dashboard-topbar">
-      <div className={`topbar-left ${isGuest === true ? "topbar-left-hidden" : ""}`}>
-        
-        {/* 🔥 BOTÃO LANDING - SOMENTE VISITANTE */}
+      <div
+        className={`topbar-left ${isGuest === true ? "topbar-left-hidden" : ""}`}
+      >
         {isGuest === true && (
           <Link href="/public" className="landing-btn">
             <span className="landing-icon">🚀</span>
-            <span className="landing-text">Como ganhar pontos? venha conhecer</span>
+            <span className="landing-text">
+              Como ganhar pontos? venha conhecer
+            </span>
           </Link>
         )}
 
@@ -481,7 +496,8 @@ export default function Header({
           >
             <span className="level-bonus-icon">🔥</span>
             <span className="level-bonus-text">
-              Bonus Ativo +{levelBonus.level_bonus_percent}%
+              Bonus Ativo +{levelBonus.level_bonus_percent}%{" "}
+              {bonusRemainingDays > 0 ? `${bonusRemainingDays}d` : ""}
             </span>
           </div>
         )}

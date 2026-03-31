@@ -269,7 +269,7 @@ export default function AjudaPage() {
               </Link>
 
               <a
-                href="https://wa.me/5531999999999?text=Olá,%20preciso%20de%20ajuda%20no%20BuyGain"
+                href="https://wa.me/5531975051275?text=Olá,%20preciso%20de%20ajuda%20no%20BuyGain"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ajuda-action-card whatsapp"

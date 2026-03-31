@@ -17,24 +17,16 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  /* --------------------------
-     STATES
-  ---------------------------*/
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userName, setUserName] = useState("Usuário");
   const [totalPoints, setTotalPoints] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  // NOVO: controle de autenticação
   const [isGuest, setIsGuest] = useState<boolean | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
 
   const pathname = usePathname();
 
-  /* -----------------------------------------------------
-     BUSCAR DADOS DO USUÁRIO
-     Se não estiver logado, entra em modo visitante
-  ----------------------------------------------------- */
   useEffect(() => {
     async function loadUserData() {
       try {
@@ -53,12 +45,7 @@ export default function DashboardLayout({
         const data = await res.json();
 
         if (data?.profile) {
-          setUserName(
-            data.profile.nickname ??
-              data.profile.name ??
-              "Usuário"
-          );
-
+          setUserName(data.profile.nickname ?? data.profile.name ?? "Usuário");
           setAvatarUrl(data.profile.avatar_url ?? null);
           setIsGuest(false);
         } else {
@@ -81,15 +68,22 @@ export default function DashboardLayout({
     loadUserData();
   }, []);
 
-
-  /* --------------------------
-     RENDER
-  ---------------------------*/
   return (
     <main className={`dashboard-root ${isGuest === true ? "guest-layout" : ""}`}>
       <div className="dashboard-background" aria-hidden />
 
-      {/* SIDEBAR: só aparece se estiver logado */}
+      {/* Globais SEMPRE montados */}
+      <GlobalXpInterceptor />
+      <GlobalXpSystem />
+
+      {/* Só logado */}
+      {authChecked && isGuest === false && (
+        <>
+          <DailyXpLoader />
+          <GlobalAvaliacaoPopup />
+        </>
+      )}
+
       {authChecked && isGuest === false && (
         <Sidebar
           open={sidebarOpen}
@@ -98,16 +92,6 @@ export default function DashboardLayout({
       )}
 
       <div className={`dashboard-main ${isGuest === true ? "guest-main" : ""}`}>
-        {/* COMPONENTES GLOBAIS PRIVADOS: só logado */}
-        {authChecked && isGuest === false && (
-          <>
-            <DailyXpLoader />
-            <GlobalXpInterceptor />
-            <GlobalXpSystem />
-            <GlobalAvaliacaoPopup />
-          </>
-        )}
-
         <Header
           userName={userName}
           avatarUrl={avatarUrl}
@@ -121,7 +105,6 @@ export default function DashboardLayout({
 
         <AuthFooter />
 
-        {/* MENU MOBILE: só logado */}
         {authChecked && isGuest === false && <MobileNav />}
       </div>
     </main>

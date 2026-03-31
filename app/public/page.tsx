@@ -3,11 +3,11 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "BuyGain - Ganhe pontos comprando",
-  description: "Transforme suas compras online em pontos para trocar por vale presente e recompensas.",
+  title: "BuyGain - Busque Cupons com o Link de compra e receba pontos que valem dinheiro",
+  description: "Encontre cupons compativeis com a sua compra usando apenas o link. A BuyGain filtra automaticamente os melhores cupons e ainda te dá pontos e gift cards..",
   openGraph: {
-    title: "BuyGain - Ganhe pontos comprando",
-    description: "Transforme suas compras online em pontos para trocar por vale presente e recompensas.",
+    title: "BuyGain - Busque Cupons com o Link de compra e receba pontos que valem dinheiro",
+    description: "Encontre cupons compativeis com a sua compra usando apenas o link. A BuyGain filtra automaticamente os melhores cupons e ainda te dá pontos e gift cards..",
     url: "https://buygain.com.br/public",
     siteName: "BuyGain",
     images: [
@@ -23,8 +23,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "BuyGain - Ganhe pontos comprando",
-    description: "Transforme suas compras online em pontos para trocar por vale presente e recompensas.",
+    title: "BuyGain - Busque Cupons com o Link de compra e receba pontos que valem dinheiro",
+    description: "Encontre cupons compativeis com a sua compra usando apenas o link. A BuyGain filtra automaticamente os melhores cupons e ainda te dá pontos e gift cards..",
     images: ["https://buygain.com.br/logo.png"],
   },
 };
@@ -46,7 +46,7 @@ export default function Home() {
             COMPRE COMO SEMPRE... <br /> E GANHE BENEFÍCIOS EXCLUSIVOS <br /> 
           </h1>
 
-          <p>Transforme suas compras online em pontos para trocar por Vale presente e Recompensas.
+          <p>Encontre cupons compativeis com a sua compra usando apenas o link. A BuyGain filtra automaticamente os melhores cupons e ainda te dá pontos e gift cards..
             <br /> Zero esforço. Zero custos. Benefícios reais. 100% seguro.<br /> </p>
 
         <Link href="/auth/cadastro" className="hero-btn">

@@ -52,6 +52,20 @@ export async function GET() {
       );
     }
 
+    const { data: grupoWhatsapp, error: grupoWhatsappErr } = await admin
+      .from("whatsapp_grupo_codigos")
+      .select("id, criado_em")
+      .eq("auth_user_id", user.id)
+      .maybeSingle();
+
+    if (grupoWhatsappErr) {
+      console.error("Erro ao consultar missão Grupo WhatsApp:", grupoWhatsappErr);
+      return NextResponse.json(
+        { error: "Erro ao consultar missão do Grupo WhatsApp" },
+        { status: 500 }
+      );
+    }
+
     const {
       data: indicacoes,
       error: indicacoesError,
@@ -81,6 +95,10 @@ export async function GET() {
       seguir_instagram: {
         concluida: !!instagram,
         data_conclusao: instagram?.criado_em ?? null,
+      },
+      grupo_whatsapp: {
+        concluida: !!grupoWhatsapp,
+        data_conclusao: grupoWhatsapp?.criado_em ?? null,
       },
       indicacao: {
         codigo_indicacao: legacyUser.codigo_indicacao ?? null,

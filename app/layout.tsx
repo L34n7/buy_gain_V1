@@ -25,9 +25,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BuyGain - Cupons compatíveis com sua compra e pontos que valem dinheiro",
+  title: "BuyGain - Busque Cupons com o Link de compra e receba pontos que valem dinheiro",
   description:
-    "Encontre cupons compatíveis com a sua compra. A BuyGain filtra automaticamente os melhores cupons e ainda te dá pontos e gift cards.",
+    "Encontre cupons compativeis com a sua compra usando apenas o link. A BuyGain filtra automaticamente os melhores cupons e ainda te dá pontos e gift cards..",
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",

@@ -240,3 +240,12 @@
   top: 54px;
 }
 }
+
+.daily-xp-card {
+  border: 1px solid rgba(0, 255, 245, 0.35);
+  box-shadow: 0 0 24px rgba(0, 255, 245, 0.18);
+}
+
+.daily-xp-card .achievement-icon {
+  filter: drop-shadow(0 0 10px rgba(0, 255, 245, 0.45));
+}

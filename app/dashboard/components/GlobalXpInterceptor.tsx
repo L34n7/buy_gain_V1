@@ -10,10 +10,23 @@ export default function GlobalXpInterceptor() {
       const response = await originalFetch(...args);
 
       try {
+        const input = args[0];
+        const url =
+          typeof input === "string"
+            ? input
+            : input instanceof Request
+            ? input.url
+            : "";
+
+        // Ignora daily-login, pois ele já é tratado no DailyXpLoader
+        if (url.includes("/api/xp/daily-login")) {
+          return response;
+        }
+
         const cloned = response.clone();
         const data = await cloned.json();
 
-        // 🔥 CASO API RETORNE ARRAY DE CONQUISTAS
+        // CASO API RETORNE ARRAY DE CONQUISTAS
         if (Array.isArray(data?.conquistas)) {
           data.conquistas.forEach((c: any) => {
             window.dispatchEvent(
@@ -29,10 +42,10 @@ export default function GlobalXpInterceptor() {
             );
           });
 
-          return response; // ⚠ IMPORTANTE: evita duplicação
+          return response;
         }
 
-        // 🔥 CASO PADRÃO (CONQUISTA INDIVIDUAL)
+        // CASO PADRÃO
         if (data?.xp_gained || data?.xp_ganho) {
           window.dispatchEvent(
             new CustomEvent("xp:updated", {
@@ -46,7 +59,6 @@ export default function GlobalXpInterceptor() {
             })
           );
         }
-
       } catch {}
 
       return response;

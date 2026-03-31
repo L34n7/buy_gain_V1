@@ -4,14 +4,20 @@ import {
   createAdminSupabase,
 } from "@/lib/supabaseServer";
 
-const CODIGO_INSTAGRAM = "BG-A7K92";
-const MISSAO_INSTAGRAM = "seguir_instagram";
+const CODIGO_INSTAGRAM = process.env.MISSAO_INSTAGRAM_CODIGO?.trim();
 const PONTOS_INSTAGRAM = 150;
-const XP_INSTAGRAM = 150;
+const MISSAO_INSTAGRAM = "seguir_instagram";
 const ORIGEM_EXTRATO = "FOLLOW_INSTA";
 
 export async function POST(req: Request) {
   try {
+    if (!CODIGO_INSTAGRAM) {
+      return NextResponse.json(
+        { error: "Erro interno: código Instagram não configurado." },
+        { status: 500 }
+      );
+    }
+
     const body = await req.json().catch(() => ({}));
     const codigo = String(body?.codigo || "").trim().toUpperCase();
 
@@ -22,7 +28,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (codigo !== CODIGO_INSTAGRAM) {
+    if (codigo !== CODIGO_INSTAGRAM.toUpperCase()) {
       return NextResponse.json(
         { error: "Código inválido." },
         { status: 400 }
@@ -138,7 +144,7 @@ export async function POST(req: Request) {
           user_id: legacyUser.id,
           tipo: "CREDITO",
           origem: ORIGEM_EXTRATO,
-          referencia_id: "INSTAGRAM",
+          referencia_id: registroMissao.id,
           pontos: PONTOS_INSTAGRAM,
           saldo_apos: novoSaldo,
         });
@@ -174,7 +180,6 @@ export async function POST(req: Request) {
       return NextResponse.json({
         success: true,
         missao_id: MISSAO_INSTAGRAM,
-        xp_ganho: XP_INSTAGRAM,
         pontos_ganhos: PONTOS_INSTAGRAM,
         saldo_apos: novoSaldo,
         data_conclusao: registroMissao.criado_em,
