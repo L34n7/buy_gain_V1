@@ -184,11 +184,19 @@ function formatarOrigem(e: ExtratoItem) {
   }
 
   if (e.origem === "INDICACAO_INDICADOR_20") {
-    return "Bônus de 20% da indicação";
+    return "Indicação · bônus de 20%";
+  }
+
+  if (e.origem === "INDICACAO_INDICADOR_40") {
+    return "Indicação · bônus de 40%";
   }
 
   if (e.origem === "INDICACAO_INDICADO") {
-    return "Bônus por usar indicação";
+    return "Bônus · fui indicado";
+  }
+
+  if (e.origem === "INDICACAO_INDICADO_CUSTOM") {
+    return "Indicação · bônus customizado";
   }
 
   return e.origem;
