@@ -32,8 +32,11 @@ type MissoesResponse = {
     total_confirmadas: number;
     concluida: boolean;
     data_conclusao: string | null;
-    pontos_por_indicacao: number;
+    primeira_indicacao_pontos: number;
+    proximas_indicacoes_percentual: number;
     pontos_indicado: number;
+    proxima_recompensa_tipo: "FIXA" | "PERCENTUAL";
+    proxima_recompensa_valor: number;
   };
 };
 
@@ -53,8 +56,16 @@ export default function MissoesPage() {
   const [copiandoCodigo, setCopiandoCodigo] = useState(false);
   const [codigoCopiado, setCodigoCopiado] = useState(false);
   const [totalIndicacoesConfirmadas, setTotalIndicacoesConfirmadas] = useState(0);
-  const [pontosPorIndicacao, setPontosPorIndicacao] = useState(250);
-  const [pontosIndicado, setPontosIndicado] = useState(250);
+
+  const [primeiraIndicacaoPontos, setPrimeiraIndicacaoPontos] = useState(250);
+  const [proximasIndicacoesPercentual, setProximasIndicacoesPercentual] =
+    useState(20);
+  const [pontosIndicado, setPontosIndicado] = useState(100);
+  const [proximaRecompensaTipo, setProximaRecompensaTipo] = useState<
+    "FIXA" | "PERCENTUAL"
+  >("FIXA");
+  const [proximaRecompensaValor, setProximaRecompensaValor] = useState(250);
+  const [temBonusPersonalizado, setTemBonusPersonalizado] = useState(false);
 
   useEffect(() => {
     async function carregarMissoes() {
@@ -76,9 +87,9 @@ export default function MissoesPage() {
           titulo: "Indique e ganhe",
           descricao:
             "Compartilhe seu código com amigos. Quando eles concluírem a primeira compra, vocês dois ganham pontos.",
-          xp: 400,
-          pontos: json?.indicacao?.pontos_por_indicacao ?? 250,
-          status: json?.indicacao?.concluida ? "CONCLUIDA" : "DISPONIVEL",
+          xp: 200,
+          pontos: json?.indicacao?.proxima_recompensa_valor ?? 250,
+          status: "DISPONIVEL",
           dataConclusao: json?.indicacao?.data_conclusao ?? null,
         };
 
@@ -119,7 +130,8 @@ export default function MissoesPage() {
           {
             id: "grupo_discord",
             titulo: "Participe do Discord",
-            descricao: "Conecte-se com a comunidade e descubra novas oportunidades.",
+            descricao:
+              "Conecte-se com a comunidade e descubra novas oportunidades.",
             xp: 150,
             pontos: 200,
             status: "EM_BREVE",
@@ -136,8 +148,23 @@ export default function MissoesPage() {
 
         setCodigoIndicacao(json?.indicacao?.codigo_indicacao ?? "");
         setTotalIndicacoesConfirmadas(json?.indicacao?.total_confirmadas ?? 0);
-        setPontosPorIndicacao(json?.indicacao?.pontos_por_indicacao ?? 250);
-        setPontosIndicado(json?.indicacao?.pontos_indicado ?? 250);
+        setPrimeiraIndicacaoPontos(
+          json?.indicacao?.primeira_indicacao_pontos ?? 250
+        );
+        setProximasIndicacoesPercentual(
+          json?.indicacao?.proximas_indicacoes_percentual ?? 20
+        );
+        setPontosIndicado(json?.indicacao?.pontos_indicado ?? 100);
+        const percentual = json?.indicacao?.proximas_indicacoes_percentual ?? 20;
+        const pontosAmigo = json?.indicacao?.pontos_indicado ?? 100;
+
+        setTemBonusPersonalizado(percentual !== 20 || pontosAmigo !== 100);
+        setProximaRecompensaTipo(
+          json?.indicacao?.proxima_recompensa_tipo ?? "FIXA"
+        );
+        setProximaRecompensaValor(
+          json?.indicacao?.proxima_recompensa_valor ?? 250
+        );
       } catch (err) {
         console.error("Erro ao carregar missões:", err);
       } finally {
@@ -321,9 +348,13 @@ export default function MissoesPage() {
               {missoes.map((missao) => (
                 <div
                   key={missao.id}
-                  className={`missao-card ${
-                    missao.status === "EM_BREVE" ? "missao-bloqueada" : ""
-                  } ${missao.id === "indicacao" ? "missao-card-indicacao" : ""}`}
+                    className={`missao-card ${
+                      missao.status === "EM_BREVE" ? "missao-bloqueada" : ""
+                    } ${missao.id === "indicacao" ? "missao-card-indicacao" : ""} ${
+                      missao.id === "indicacao" && temBonusPersonalizado
+                        ? "missao-card-indicacao-especial"
+                        : ""
+                    }`}
                 >
                   {missao.status === "EM_BREVE" && (
                     <div className="missao-overlay">🚧 EM BREVE</div>
@@ -334,13 +365,26 @@ export default function MissoesPage() {
                       <div className="missao-info indicacao-info">
                         <div className="indicacao-topo">
                           <div className="indicacao-topo-texto">
-                            <h3>{missao.titulo}</h3>
+                            <div className="indicacao-titulo-row">
+                              <h3>{missao.titulo}</h3>
+
+                              {temBonusPersonalizado && (
+                                <span className="indicacao-badge-especial">
+                                  🔥 Plano Influencer
+                                </span>
+                              )}
+                            </div>
+
                             <p>{missao.descricao}</p>
                           </div>
 
                           <div className="missao-recompensa indicacao-recompensa">
                             <span className="xp-m">+{missao.xp} XP</span>
-                            <span className="pontos-m">+{missao.pontos} Pontos</span>
+                            <span className="pontos-m">
+                              {proximaRecompensaTipo === "PERCENTUAL"
+                                ? `+${proximaRecompensaValor}% da compra`
+                                : `+${proximaRecompensaValor} Pontos`}
+                            </span>
                           </div>
                         </div>
 
@@ -380,7 +424,9 @@ export default function MissoesPage() {
 
                           <div className="indicacao-painel indicacao-painel-stats">
                             <div className="indicacao-stat-card">
-                              <span className="indicacao-stat-label">Confirmações</span>
+                              <span className="indicacao-stat-label">
+                                Confirmações
+                              </span>
                               <strong className="indicacao-stat-valor">
                                 {totalIndicacoesConfirmadas}
                               </strong>
@@ -388,10 +434,19 @@ export default function MissoesPage() {
 
                             <div className="indicacao-stat-card">
                               <span className="indicacao-stat-label">
-                                Recompensa por indicação
+                                1ª indicação
                               </span>
                               <strong className="indicacao-stat-valor">
-                                {pontosPorIndicacao} pts
+                                {primeiraIndicacaoPontos} pts
+                              </strong>
+                            </div>
+
+                            <div className="indicacao-stat-card">
+                              <span className="indicacao-stat-label">
+                                Próximas indicações
+                              </span>
+                              <strong className="indicacao-stat-valor">
+                                {proximasIndicacoesPercentual}% da compra
                               </strong>
                             </div>
 
@@ -406,10 +461,22 @@ export default function MissoesPage() {
                           </div>
                         </div>
 
+                        {temBonusPersonalizado && (
+                          <div className="indicacao-destaque-especial">
+                            Você possui uma regra especial de indicação ativa.
+                          </div>
+                        )}
+
                         <div className="indicacao-ajuda">
-                          Você ganha <strong>{pontosPorIndicacao} pontos</strong>{" "}
-                          quando seu amigo conclui a <strong>primeira compra</strong>. Seu amigo
-                          também ganha <strong>{pontosIndicado} pontos</strong>.
+                          Sua <strong>primeira indicação confirmada</strong> rende{" "}
+                          <strong>{primeiraIndicacaoPontos} pontos</strong>. A
+                          partir da <strong>segunda indicação</strong>, você ganha{" "}
+                          <strong>
+                            {proximasIndicacoesPercentual}% do valor da primeira
+                            compra concluída
+                          </strong>{" "}
+                          do amigo indicado. Seu amigo ganha{" "}
+                          <strong>{pontosIndicado} pontos</strong>.
                         </div>
                       </div>
                     </>

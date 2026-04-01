@@ -487,7 +487,7 @@
 
 .indicacao-grid{
   display: grid;
-  grid-template-columns: minmax(320px, 1.2fr) minmax(280px, 1fr);
+  grid-template-columns: minmax(320px, 0.65fr) minmax(280px, 1.0fr);
   gap: 14px;
   align-items: stretch;
 }
@@ -586,7 +586,7 @@
 
 .indicacao-painel-stats{
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
 }
 
@@ -656,6 +656,40 @@
 
 
 
+.indicacao-titulo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.indicacao-badge-especial {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  background: #de07ff26;
+  color: #f833ff;
+  border: 1px solid rgba(226, 7, 255, 0.35);
+}
+
+.indicacao-destaque-especial {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #de07ff26;
+  color: #f833ff;
+  border: 1px solid rgba(226, 7, 255, 0.35);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.missao-card-indicacao-especial {
+  border: 1px solid rgba(181, 7, 255, 0.35);
+  box-shadow: 0 0 0 1px rgba(210, 7, 255, 0.08), 0 10px 30px rgba(197, 7, 255, 0.08);
+}
 
 /* =========================================
    TABLET / AJUSTE INTERMEDIÁRIO

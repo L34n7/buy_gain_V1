@@ -285,7 +285,7 @@ export default function GlobalXpSystem() {
             </p>
 
             <div className="level-reward">
-              +10% de pontuação extra em todas as compras por 3 dias
+              +40% de pontuação extra em todas as compras por 3 dias
             </div>
 
             <button

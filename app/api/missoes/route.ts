@@ -6,6 +6,10 @@ import {
 
 const MISSAO_INSTAGRAM = "seguir_instagram";
 
+const PRIMEIRA_INDICACAO_PONTOS = 250;
+const PERCENTUAL_PADRAO_PROXIMAS_INDICACOES = 20;
+const PONTOS_PADRAO_INDICADO = 100;
+
 export async function GET() {
   try {
     const supabaseUser = await createUserSupabase();
@@ -21,11 +25,19 @@ export async function GET() {
       );
     }
 
-    const admin = createAdminSupabase();
+    const admin = await createAdminSupabase();
 
     const { data: legacyUser, error: legacyError } = await admin
       .from("users")
-      .select("id, auth_user_id, profile_completed, profile_completed_at, codigo_indicacao")
+      .select(`
+        id,
+        auth_user_id,
+        profile_completed,
+        profile_completed_at,
+        codigo_indicacao,
+        percentual_bonus_indicacao,
+        pontos_bonus_indicado
+      `)
       .eq("auth_user_id", user.id)
       .single();
 
@@ -36,6 +48,12 @@ export async function GET() {
         { status: 500 }
       );
     }
+
+    const percentualBonusIndicacao =
+      legacyUser.percentual_bonus_indicacao ?? PERCENTUAL_PADRAO_PROXIMAS_INDICACOES;
+
+    const pontosBonusIndicado =
+      legacyUser.pontos_bonus_indicado ?? PONTOS_PADRAO_INDICADO;
 
     const { data: instagram, error: instaErr } = await admin
       .from("instagram_codigos")
@@ -66,10 +84,7 @@ export async function GET() {
       );
     }
 
-    const {
-      data: indicacoes,
-      error: indicacoesError,
-    } = await admin
+    const { data: indicacoes, error: indicacoesError } = await admin
       .from("indicacoes_recompensas")
       .select("id, criada_em, liberada_em, status")
       .eq("indicador_user_id", legacyUser.id)
@@ -103,13 +118,19 @@ export async function GET() {
       indicacao: {
         codigo_indicacao: legacyUser.codigo_indicacao ?? null,
         total_confirmadas: totalConfirmadas,
-        concluida: totalConfirmadas >= 1,
+        concluida: false,
         data_conclusao:
           primeiraIndicacao?.liberada_em ??
           primeiraIndicacao?.criada_em ??
           null,
-        pontos_por_indicacao: 250,
-        pontos_indicado: 250,
+        primeira_indicacao_pontos: PRIMEIRA_INDICACAO_PONTOS,
+        proximas_indicacoes_percentual: percentualBonusIndicacao,
+        pontos_indicado: pontosBonusIndicado,
+        proxima_recompensa_tipo: totalConfirmadas === 0 ? "FIXA" : "PERCENTUAL",
+        proxima_recompensa_valor:
+          totalConfirmadas === 0
+            ? PRIMEIRA_INDICACAO_PONTOS
+            : percentualBonusIndicacao,
       },
     });
   } catch (err) {

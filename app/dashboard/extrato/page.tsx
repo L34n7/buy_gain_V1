@@ -140,23 +140,59 @@ export default function ExtratoPage() {
     carregar(page);
   }, [page]);
 
-  function formatarOrigem(e: ExtratoItem) {
-    if (
-      e.tipo === "CREDITO" &&
-      (e.origem === "ML_EVENTO" || e.origem === "SHOPEE_EVENTO")
-    ) {
-      return "Compra confirmada";
-    }
-
-    if (e.origem === "RESGATE_RECOMPENSA") {
-      if (e.resgate) {
-        return `Resgate · ${e.resgate.giftcards?.nome} · ${e.resgate.giftcard_opcoes?.descricao}`;
-      }
-      return "Resgate de recompensa";
-    }
-
-    return e.origem;
+function formatarOrigem(e: ExtratoItem) {
+  if (
+    e.tipo === "CREDITO" &&
+    (
+      e.origem === "ML_EVENTO" ||
+      e.origem === "SHOPEE_EVENTO" ||
+      e.origem === "COMPRA_CONFIRMADA"
+    )
+  ) {
+    return "Compra confirmada";
   }
+
+  if (e.origem === "RESGATE_RECOMPENSA") {
+    if (e.resgate) {
+      return `Resgate · ${e.resgate.giftcards?.nome} · ${e.resgate.giftcard_opcoes?.descricao}`;
+    }
+    return "Resgate de recompensa";
+  }
+
+  if (e.origem === "BONUS") {
+    return "Bônus";
+  }
+
+  if (e.origem === "AJUSTE_ADMIN") {
+    return "Ajuste administrativo";
+  }
+
+  if (e.origem === "PERFIL_COMPLETO") {
+    return "Perfil completo";
+  }
+
+  if (e.origem === "GRUPO_WHATSAPP") {
+    return "Missão do grupo do WhatsApp";
+  }
+
+  if (e.origem === "FOLLOW_INSTA") {
+    return "Missão de seguir no Instagram";
+  }
+
+  if (e.origem === "INDICACAO_INDICADOR") {
+    return "Recompensa por indicação";
+  }
+
+  if (e.origem === "INDICACAO_INDICADOR_20") {
+    return "Bônus de 20% da indicação";
+  }
+
+  if (e.origem === "INDICACAO_INDICADO") {
+    return "Bônus por usar indicação";
+  }
+
+  return e.origem;
+}
 
   return (
     <div className="dashboard-container">
