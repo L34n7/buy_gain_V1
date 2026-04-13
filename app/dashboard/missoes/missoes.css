@@ -365,9 +365,8 @@
 }
 
 .instagram-codigo-input:focus{
-  border-color: rgba(34, 211, 238, 0.55);
-  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.08);
-  background: rgba(255,255,255,0.06);
+  border-color: #ff00fb6c;
+  box-shadow: 0 0 20 1px #ff00fb6c;
 }
 
 .instagram-codigo-row .btn-primary{
@@ -422,6 +421,12 @@
   outline: none;
   font-size: 14px;
   transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
+.whatsapp-codigo-input:focus{
+  border-color: #00ff2a5c;
+  box-shadow: 0 0 20 1px #22ee4452;
+  background: rgba(255,255,255,0.06);
 }
 
 .whatsapp-codigo-erro{

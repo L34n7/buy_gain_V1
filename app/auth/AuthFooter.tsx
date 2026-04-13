@@ -59,7 +59,7 @@ export default function AuthFooter() {
             </a>
 
             <a 
-              href="https://www.youtube.com/" 
+              href="https://www.youtube.com/@Buy_Gain/" 
               target="_blank" 
               rel="noopener noreferrer"
             >

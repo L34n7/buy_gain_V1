@@ -619,7 +619,7 @@ export default function ProfileForm() {
 
           <div className="profile-name">
             <label className="label">Nickname (Apelido)</label>
-            <input className="input" name="nickname" value={form.nickname} onChange={handleChange} placeholder="ex: nobmaster69" maxLength={20} autoComplete="off" />
+            <input className="input" name="nickname" value={form.nickname} onChange={handleChange} placeholder="ex: noobmaster69" maxLength={20} autoComplete="off" />
             <small className="input-help">Use 3–20 caracteres: letras minúsculas, números, ponto ou underline.</small>
           </div>
         </div>

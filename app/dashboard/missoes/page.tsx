@@ -108,7 +108,7 @@ export default function MissoesPage() {
           id: "seguir_instagram",
           titulo: "Siga nosso Instagram",
           descricao:
-            "Siga o Instagram da BuyGain, peça o código no direct, cole abaixo e conclua a missão.",
+            "Siga o Instagram da BuyGain, envie a palavra 'código' no direct, cole o código no campo e clique em 'Concluir missão'.",
           xp: 150,
           pontos: 150,
           status: json?.seguir_instagram?.concluida ? "CONCLUIDA" : "DISPONIVEL",
@@ -119,10 +119,10 @@ export default function MissoesPage() {
           id: "grupo_whatsapp",
           titulo: "Entre no Grupo do WhatsApp",
           descricao:
-            "Entre no grupo oficial da BuyGain, copie o código na descrição do grupo e cole abaixo para concluir a missão.",
+            "Entre no grupo oficial da BuyGain, copie o 'código' na descrição do grupo, cole o código no campo e clique em 'Concluir missão'.",
           xp: 150,
           pontos: 200,
-          status: json?.grupo_whatsapp?.concluida ? "CONCLUIDA" : "DISPONIVEL",
+          status: "EM_BREVE",
           dataConclusao: json?.grupo_whatsapp?.data_conclusao ?? null,
         };
 
@@ -595,7 +595,7 @@ export default function MissoesPage() {
 
           <div className="novidades-card">
             <h3>🚀 Novidades em breve</h3>
-            <p>Em breve novas formas de ganhar pontos e XP na plataforma.</p>
+            <p>Logo teremos outras formas de ganhar pontos e XP na plataforma.</p>
           </div>
         </div>
       </div>
