@@ -9,6 +9,18 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+const ML_AUTOMATION_URL = (
+  process.env.ML_AUTOMATION_URL ||
+  "https://unonerous-subglacially-ryan.ngrok-free.dev/executar"
+).trim();
+
+const ML_AUTOMATION_TIMEOUT_MS =
+  Number(process.env.ML_AUTOMATION_TIMEOUT_MS || 120000) || 120000;
+
+function compactError(text: string) {
+  return text.replace(/\s+/g, " ").trim().slice(0, 1200);
+}
+
 async function registrarErroLink(
   supabase: any,
   userId: string | null,
@@ -242,19 +254,47 @@ export async function POST(req: Request) {
     /* -----------------------------------------------
        3️⃣ CHAMA AUTOMAÇÃO
     ----------------------------------------------- */
-    console.log("Chamando automação...");
+    console.log("Chamando automação ML:", ML_AUTOMATION_URL);
 
-    const res = await fetch(
-      "https://unonerous-subglacially-ryan.ngrok-free.dev/executar",
-      {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), ML_AUTOMATION_TIMEOUT_MS);
+
+    let res: Response;
+
+    try {
+      res = await fetch(ML_AUTOMATION_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productUrl }),
-      }
-    );
+        body: JSON.stringify({
+          productUrl,
+          mlAccountId: process.env.ML_ACCOUNT_ID || "1",
+        }),
+        signal: controller.signal,
+      });
+    } catch (automationErr: any) {
+      const erroAutomacao =
+        automationErr?.name === "AbortError"
+          ? `Timeout ao chamar automação ML após ${ML_AUTOMATION_TIMEOUT_MS}ms`
+          : `Falha ao chamar automação ML: ${automationErr?.message || String(automationErr)}`;
+
+      await registrarErroLink(
+        supabaseAdmin,
+        internalUserId,
+        productUrl,
+        erroAutomacao,
+        "mercadolivre"
+      );
+
+      throw new Error(erroAutomacao);
+    } finally {
+      clearTimeout(timeout);
+    }
 
     if (!res.ok) {
-      const erroTexto = await res.text();
+      const erroTexto = await res.text().catch(() => "");
+      const erroDetalhado = compactError(
+        `Erro automação ML: ${res.status}${erroTexto ? ` - ${erroTexto}` : ""}`
+      );
 
       console.error("Status automação:", res.status);
       console.error("Resposta automação:", erroTexto);
@@ -263,18 +303,20 @@ export async function POST(req: Request) {
         supabaseAdmin,
         internalUserId,
         productUrl,
-        "Erro automação ML: " + res.status,
+        erroDetalhado,
         "mercadolivre"
       );
 
-      throw new Error(
-        "TENTE NOVAMENTE POR FAVOR (Erro automação: " + res.status + ")"
-      );
+      throw new Error(erroDetalhado);
     }
 
     console.log("Automação respondeu");
 
     const data = await res.json();
+
+    if (!data?.link_rastreado) {
+      throw new Error("Automação ML respondeu sem link_rastreado");
+    }
 
     /* -----------------------------------------------
        4️⃣ Fallback final
