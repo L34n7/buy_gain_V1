@@ -14,6 +14,43 @@ type Props = {
   isGuest: boolean;
 };
 
+function getFriendlyError(error: string | null) {
+  if (!error) return null;
+
+  const normalized = error
+    .replace(/\\n/g, " ")
+    .replace(/\n/g, " ")
+    .replace(/\\/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (/sem comiss[aã]o|comiss[aã]o detect/i.test(normalized)) {
+    return "Não conseguimos identificar a comissão deste produto. Tente novamente ou use outro anúncio do mesmo produto.";
+  }
+
+  if (/compartilhar/i.test(normalized)) {
+    return "Não conseguimos abrir o compartilhamento deste produto. Tente novamente em alguns segundos.";
+  }
+
+  if (/link rastreado/i.test(normalized)) {
+    return "Não conseguimos capturar o link rastreado deste produto. Tente novamente em alguns segundos.";
+  }
+
+  if (/preço inválido|preco invalido/i.test(normalized)) {
+    return "Não conseguimos identificar o preço deste produto. Tente outro anúncio ou tente novamente.";
+  }
+
+  if (/Erro automação ML|Erro automacao ML|ML\]/i.test(normalized)) {
+    return "Não conseguimos gerar o link deste produto agora. Tente novamente em alguns segundos.";
+  }
+
+  if (normalized.length > 180) {
+    return "Ocorreu um erro ao gerar o link. Tente novamente em alguns segundos.";
+  }
+
+  return normalized;
+}
+
 export default function HeroLinkForm({
   url,
   setUrl,
@@ -33,6 +70,8 @@ export default function HeroLinkForm({
 
   const [pasteLoading, setPasteLoading] = useState(false);
   const [pasteSuccess, setPasteSuccess] = useState(false);
+
+  const friendlyError = getFriendlyError(error);
 
   const handleClick = () => {
     setBuscaExecutada(true);
@@ -227,10 +266,11 @@ export default function HeroLinkForm({
               type="button"
               onClick={handleClick}
               disabled={loading || loadingCupons || (reward && !error)}
+              title={error ? getFriendlyError(error) ?? undefined : undefined}
             >
               <span className="btn-text">
                 {error
-                  ? `❌ ${error}`
+                  ? `❌ ${friendlyError}`
                   : (loading || loadingCupons)
                     ? "ESCANEANDO OFERTAS..."
                     : rewardStep === "link"
