@@ -8,10 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "save-auth": "node ./scripts/saveStorageState.js",
-    "generate-aff": "node ./scripts/generate_affiliate.cjs",
+    "generate-aff": "node ./scripts/generate_link.cjs",
     "ml-affiliate-server": "node ./scripts/ml_affiliate_server.cjs",
     "login": "node scripts/login.js",
-    "gen": "node ./scripts/generate_affiliate.cjs"
+    "gen": "node ./scripts/generate_link.cjs"
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.4.2",
