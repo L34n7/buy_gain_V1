@@ -8,9 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "save-auth": "node ./scripts/saveStorageState.js",
-    "generate-aff": "node ./scripts/generate_affiliate.js",
+    "generate-aff": "node ./scripts/generate_affiliate.cjs",
+    "ml-affiliate-server": "node ./scripts/ml_affiliate_server.cjs",
     "login": "node scripts/login.js",
-    "gen": "node scripts/generate_affiliate.js"
+    "gen": "node ./scripts/generate_affiliate.cjs"
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.4.2",
@@ -54,7 +55,7 @@
     "tsx": "^4.21.0",
     "typescript": "^5"
   },
-  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
+  "description": "This is a [Next.js](https://nextjs.org/docs/app/api-reference/cli/create-next-app) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
   "main": "postcss.config.js",
   "keywords": [],
   "author": "",
